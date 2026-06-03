@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acervo Rozenblit — Museu Digital da Música Pernambucana</title>
+    <meta name="description" content="Catálogo completo com fichas técnicas. Explore discos históricos da Rozenblit, a maior gravadora do Norte-Nordeste.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'playfair': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'papel': '#fffaf0',
+                        'fundo': '#f7f1e3',
+                        'areia': '#e8d8b8',
+                        'verde-cacto': '#315f43',
+                        'verde-mandacaru': '#4f7f52',
+                        'barro': '#a44f25',
+                        'terracota': '#c96b36',
+                        'ouro': '#c49a3a',
+                        'azul-recife': '#245f73',
+                        'texto': '#2b241b',
+                        'texto-suave': '#6f604c',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 12%, rgba(79,127,82,0.18) 0%, transparent 36%),
+                radial-gradient(circle at 85% 18%, rgba(196,154,58,0.18) 0%, transparent 30%),
+                radial-gradient(circle at 80% 90%, rgba(164,79,37,0.13) 0%, transparent 34%),
+                linear-gradient(180deg, #f7f1e3 0%, #ede5cf 58%, #e8dbbf 100%);
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            color: #2b241b;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "🌵";
+            font-size: 150px;
+            position: fixed;
+            bottom: 10px;
+            left: -35px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            z-index: 0;
+        }
+        body::after {
+            content: "🎼";
+            font-size: 120px;
+            position: fixed;
+            top: 170px;
+            right: -24px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(18deg);
+            z-index: 0;
+        }
+        .cacto-decor {
+            position: fixed;
+            bottom: 42px;
+            right: 28px;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+            font-size: 86px;
+        }
+        .noise-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.26;
+            background-image:
+                linear-gradient(rgba(49,95,67,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(49,95,67,0.04) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, transparent 80%);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #efe3c8; }
+        ::-webkit-scrollbar-thumb { background: #a44f25; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #315f43; }
+
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #f7f1e3 60%, #e8d8b8 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .hidden-loading { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .page-section { transition: opacity 0.3s ease; position: relative; z-index: 2; }
+        .animate-page { animation: pageFadeUp 0.65s ease both; }
+        @keyframes pageFadeUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .catalogo-card-enter { animation: cardFade 0.45s ease both; }
+        @keyframes cardFade {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hero-title-enter { animation: heroTitle 0.75s ease both; }
+        @keyframes heroTitle {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .float-soft { animation: floatSoft 5s ease-in-out infinite; }
+        @keyframes floatSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .pulse-glow { animation: pulseGlow 3.8s ease-in-out infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 18px 44px rgba(49,95,67,0.26); }
+            50% { box-shadow: 0 24px 70px rgba(196,154,58,0.38); }
+        }
+        .vinyl-spin {
+            background:
+                radial-gradient(circle at center, #2b241b 0 7%, #fffaf0 7% 11%, #315f43 11% 18%, #15120f 18% 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22), inset 0 0 0 6px rgba(255,250,240,0.1);
+            animation: rodar 34s linear infinite;
+        }
+        .vinyl-spin::before {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle, transparent 0 9px, rgba(255,255,255,0.08) 10px 11px);
+        }
+        .vinyl-spin::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 14%; height: 14%;
+            transform: translate(-50%, -50%);
+            background: #c49a3a;
+            border-radius: 50%;
+            border: 7px solid #fffaf0;
+        }
+        @keyframes rodar { to { transform: rotate(360deg); } }
+        .hero-card {
+            background: linear-gradient(145deg, rgba(255,250,240,0.94), rgba(232,216,184,0.62));
+            border: 1px solid rgba(49,95,67,0.14);
+            box-shadow: 0 24px 70px rgba(49,95,67,0.13);
+            backdrop-filter: blur(12px);
+        }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-7px); box-shadow: 0 22px 34px -12px rgba(49,95,67,0.24); }
+        .artist-cover-name {
+            text-shadow: 0 2px 12px rgba(0,0,0,0.22);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1, .line-clamp-2, .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1 { -webkit-line-clamp: 1; }
+        .line-clamp-2 { -webkit-line-clamp: 2; }
+        .line-clamp-3 { -webkit-line-clamp: 3; }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(255,250,240,0.82);
+            border: 1px solid rgba(79,127,82,0.3);
+            color: #315f43;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .page-btn:hover { background: #315f43; color: white; border-color: #315f43; transform: translateY(-2px); }
+        .page-btn.active { background: #315f43; color: white; border-color: #315f43; box-shadow: 0 4px 8px rgba(49,95,67,0.2); }
+        .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .filtro-gravadora-btn.active { background: #315f43 !important; color: #fffaf0 !important; border-color: #315f43 !important; }
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #c49a3a;
+            border: 4px solid #fffaf0;
+            box-shadow: 0 0 0 2px rgba(49,95,67,0.28);
+        }
+        .timeline-line {
+            position: relative;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(#315f43, #c49a3a, #a44f25);
+            opacity: 0.32;
+        }
+    </style>
+</head>
+
+<body>
+<div class="noise-layer"></div>
+<div class="cacto-decor">🌵🌵</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+    <div class="text-center px-6">
+        <div class="w-20 h-20 vinyl-spin mx-auto mb-5"></div>
+        <p class="font-playfair text-2xl text-verde-cacto">Acervo Rozenblit</p>
+        <p class="text-sm text-barro mt-1">Carregando discos, fichas técnicas e memórias...</p>
+    </div>
+</div>
+
+<!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 bg-papel/88 backdrop-blur-md z-50 border-b border-verde-cacto/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+        <a href="#" onclick="navigateTo('home'); return false;" class="flex items-center gap-2 group">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-barro flex items-center justify-center transition-transform group-hover:scale-110 shadow-md">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="white"/></svg>
+            </div>
+            <span class="font-playfair text-xl tracking-tight text-verde-cacto hidden sm:inline">Acervo Rozenblit</span>
+        </a>
+
+        <nav class="flex gap-1">
+            <button onclick="navigateTo('home')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-page="home"><i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início</button>
+            <button onclick="navigateTo('catalogo')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-page="catalogo"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Catálogo</button>
+            <button onclick="navigateTo('historia')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-colors" data-page="historia"><i data-lucide="info" class="w-4 h-4 inline mr-1"></i>História</button>
+        </nav>
+    </div>
+</header>
+
+<main class="pt-16 md:pt-20">
+    <!-- HOME -->
+    <section id="page-home" class="page-section animate-page">
+        <div class="min-h-[88vh] flex items-center px-4 py-14 relative overflow-hidden">
+            <div class="absolute inset-0 z-0 opacity-40">
+                <div class="absolute top-20 left-8 w-32 h-32 rounded-full bg-ouro/20 blur-3xl"></div>
+                <div class="absolute bottom-20 right-8 w-44 h-44 rounded-full bg-verde-cacto/20 blur-3xl"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto w-full relative z-10">
+                <div class="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
+                    <div class="hero-title-enter">
+                        <div class="inline-flex items-center gap-2 bg-papel/80 border border-verde-cacto/15 rounded-full px-4 py-2 shadow-sm mb-5">
+                            <span class="w-2 h-2 rounded-full bg-ouro animate-pulse"></span>
+                            <span class="text-barro text-xs uppercase tracking-[0.22em] font-bold">Museu Digital · Pernambuco</span>
+                        </div>
+
+                        <h1 class="font-playfair text-5xl md:text-7xl xl:text-8xl leading-[0.98] text-texto">
+                            A memória<br>
+                            <span class="text-verde-cacto">sonora</span><br>
+                            do Nordeste
+                        </h1>
+
+                        <div class="w-24 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro my-7 rounded-full"></div>
+
+                        <p class="text-texto-suave text-lg md:text-xl max-w-xl leading-relaxed" id="home-desc">
+                            Carregando acervo...
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-4 mt-9">
+                            <button onclick="navigateTo('catalogo')" class="bg-verde-cacto text-papel px-7 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition flex items-center justify-center gap-2">
+                                <i data-lucide="disc-3" class="w-5 h-5"></i>
+                                Explorar catálogo
+                            </button>
+                            <button onclick="navigateTo('historia')" class="bg-papel/80 border border-verde-cacto/30 text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:bg-verde-cacto/5 transition flex items-center justify-center gap-2">
+                                <i data-lucide="book-open" class="w-5 h-5"></i>
+                                Conhecer a história
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3 mt-10 max-w-xl">
+                            <div class="hero-card rounded-2xl p-4 text-center">
+                                <p class="text-2xl">🎺</p>
+                                <p class="text-xs text-texto-suave mt-1">Frevo</p>
+                            </div>
+                            <div class="hero-card rounded-2xl p-4 text-center">
+                                <p class="text-2xl">📀</p>
+                                <p class="text-xs text-texto-suave mt-1">Vinil</p>
+                            </div>
+                            <div class="hero-card rounded-2xl p-4 text-center">
+                                <p class="text-2xl">🌵</p>
+                                <p class="text-xs text-texto-suave mt-1">Nordeste</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative flex justify-center lg:justify-end">
+                        <div class="absolute -top-8 left-8 md:left-16 hero-card rounded-3xl p-5 w-44 rotate-[-6deg] hidden sm:block float-soft">
+                            <p class="font-playfair text-3xl text-ouro">1954</p>
+                            <p class="text-xs text-texto-suave">A fábrica nasce no Recife</p>
+                        </div>
+                        <div class="absolute -bottom-7 right-1 md:right-10 hero-card rounded-3xl p-5 w-52 rotate-[5deg] hidden sm:block float-soft" style="animation-delay:1.2s">
+                            <p class="font-playfair text-2xl text-verde-cacto">Mocambo</p>
+                            <p class="text-xs text-texto-suave">Selo que ajudou a eternizar o frevo</p>
+                        </div>
+                        <div class="vinyl-spin pulse-glow w-72 h-72 md:w-[390px] md:h-[390px]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTATÍSTICAS -->
+        <section class="py-14 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="text-center">
+                <span class="text-barro text-sm uppercase tracking-[0.2em] font-bold">Dados do catálogo</span>
+                <h2 class="font-playfair text-4xl text-verde-cacto mt-2">Nosso acervo em números</h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-10">
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-total" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Títulos</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-gravadoras" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Gravadoras</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-artistas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Artistas</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-decadas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Décadas</p></div>
+            </div>
+        </section>
+
+        <!-- CHAMADA HISTÓRIA -->
+        <section class="py-12 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="bg-gradient-to-br from-verde-cacto to-azul-recife rounded-[2rem] p-8 md:p-10 text-papel shadow-2xl overflow-hidden relative">
+                <div class="absolute -right-8 -top-10 text-[160px] opacity-10">🎼</div>
+                <div class="grid md:grid-cols-[1.3fr_0.7fr] gap-8 items-center relative z-10">
+                    <div>
+                        <span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">Cultura, frevo e memória</span>
+                        <h2 class="font-playfair text-4xl md:text-5xl mt-3">Uma fábrica de discos que fez o Nordeste ser ouvido</h2>
+                        <p class="mt-4 text-papel/80 leading-relaxed max-w-2xl">
+                            A Rozenblit registrou artistas, orquestras e compositores que formam parte essencial da identidade musical pernambucana e brasileira.
+                        </p>
+                    </div>
+                    <div class="flex md:justify-end">
+                        <button onclick="navigateTo('historia')" class="bg-papel text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg">
+                            Ver linha do tempo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DESTAQUES -->
+        <section class="py-16 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                    <span class="text-barro text-sm uppercase tracking-[0.2em] font-bold">Primeiros registros</span>
+                    <h2 class="font-playfair text-4xl text-verde-cacto mt-2">Destaques do acervo</h2>
+                </div>
+                <button onclick="navigateTo('catalogo')" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">
+                    Ver catálogo completo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div id="destaques-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mt-10"></div>
+        </section>
+    </section>
+
+    <!-- CATÁLOGO -->
+    <section id="page-catalogo" class="page-section hidden">
+        <div class="max-w-7xl mx-auto px-4 py-12 relative z-10">
+            <div class="text-center mb-9">
+                <span class="text-barro text-sm uppercase tracking-[0.22em] font-bold">Acervo pesquisável</span>
+                <h2 class="font-playfair text-5xl text-verde-cacto mt-3">Catálogo Completo</h2>
+                <p class="text-center text-texto-suave mt-3">Explore a discografia histórica da Rozenblit e selos parceiros</p>
+            </div>
+
+            <div class="hero-card rounded-3xl p-5 mb-8">
+                <div class="flex flex-col md:flex-row gap-3 mb-3">
+                    <input type="text" id="search-input" placeholder="🔍 Buscar por título, artista ou gravadora..." class="flex-1 border border-verde-cacto/20 rounded-2xl px-5 py-3 bg-papel focus:outline-none focus:ring-2 focus:ring-verde-cacto/40" oninput="filtrarCatalogo()">
+                    <span id="catalogo-count" class="text-texto-suave text-sm self-center bg-areia/40 px-4 py-2 rounded-full"></span>
+                </div>
+                <div id="filtros-gravadoras" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+
+            <div id="catalogo-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+            <div id="no-results" class="text-center py-20 hidden hero-card rounded-3xl">
+                <i data-lucide="search-x" class="w-12 h-12 text-texto-suave mx-auto mb-3"></i>
+                <p class="text-verde-cacto font-medium">Nenhum disco encontrado.</p>
+            </div>
+            <div id="pagination-container" class="pagination-container mt-8"></div>
+        </div>
+    </section>
+
+    <!-- HISTÓRIA -->
+    <section id="page-historia" class="page-section hidden">
+        <div class="max-w-6xl mx-auto px-4 py-16 relative z-10">
+            <div class="text-center mb-12">
+                <span class="text-barro text-sm uppercase tracking-[0.25em] font-bold">Memória sonora do Nordeste</span>
+                <h2 class="font-playfair text-5xl md:text-6xl text-verde-cacto mt-4">A História da Rozenblit</h2>
+                <p class="text-texto-suave max-w-2xl mx-auto mt-4 text-lg">
+                    Uma fábrica de discos no Recife que fez o Brasil ouvir o frevo, o carnaval, os mestres populares e a força musical de Pernambuco.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-center mb-14">
+                <div class="hero-card rounded-[2rem] p-8 text-center">
+                    <div class="vinyl-spin w-60 h-60 mx-auto"></div>
+                    <h3 class="font-playfair text-3xl text-verde-cacto mt-7">O vinil como documento</h3>
+                    <p class="text-texto-suave mt-3 leading-relaxed">
+                        Cada disco preserva vozes, arranjos, compositores, orquestras, etiquetas e marcas de uma época decisiva para a música brasileira.
+                    </p>
+                </div>
+
+                <div class="space-y-5 text-texto-suave leading-relaxed hero-card rounded-[2rem] p-8 md:p-10">
+                    <p>
+                        A <strong class="text-verde-cacto">Fábrica de Discos Rozenblit</strong> foi criada no Recife em 1954 e se tornou uma das experiências mais importantes da indústria fonográfica brasileira fora do eixo Rio-São Paulo.
+                    </p>
+                    <p>
+                        Mais do que uma fábrica de vinil, a Rozenblit foi um projeto cultural. Seus selos — como <strong>Mocambo, Passarela, Solar e Artistas Unidos</strong> — registraram artistas, compositores, orquestras e manifestações populares que formam parte essencial da identidade musical do Nordeste.
+                    </p>
+                    <p>
+                        O frevo encontrou ali uma casa definitiva. Nomes como <strong>Nelson Ferreira, Capiba, Claudionor Germano, José Menezes</strong> e tantos outros tiveram suas obras registradas, prensadas e distribuídas para além de Pernambuco.
+                    </p>
+                    <p>
+                        Este museu digital nasce para manter viva essa memória: cada disco, cada ficha técnica e cada faixa contam um pedaço da história sonora do Recife, do carnaval, dos salões, das rádios e da cultura popular brasileira.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-14">
+                <div class="hero-card rounded-3xl p-6 border border-verde-cacto/10">
+                    <p class="text-5xl font-playfair text-ouro">1954</p>
+                    <h3 class="font-playfair text-2xl text-verde-cacto mt-2">Nasce no Recife</h3>
+                    <p class="text-texto-suave mt-3 text-sm leading-relaxed">Fundada por José Rozenblit e seus irmãos, a fábrica nasce com vocação regional e ambição nacional.</p>
+                </div>
+                <div class="hero-card rounded-3xl p-6 border border-verde-cacto/10">
+                    <p class="text-5xl font-playfair text-ouro">Mocambo</p>
+                    <h3 class="font-playfair text-2xl text-verde-cacto mt-2">O selo do frevo</h3>
+                    <p class="text-texto-suave mt-3 text-sm leading-relaxed">O selo ajudou a eternizar frevos, cocos, cirandas, boleros, sambas e registros fundamentais da cultura nordestina.</p>
+                </div>
+                <div class="hero-card rounded-3xl p-6 border border-verde-cacto/10">
+                    <p class="text-5xl font-playfair text-ouro">1984</p>
+                    <h3 class="font-playfair text-2xl text-verde-cacto mt-2">Legado preservado</h3>
+                    <p class="text-texto-suave mt-3 text-sm leading-relaxed">Mesmo após o fim da fábrica, seus discos seguem como documentos vivos da música pernambucana e brasileira.</p>
+                </div>
+            </div>
+
+            <div class="hero-card rounded-[2rem] p-8 md:p-10">
+                <h3 class="font-playfair text-4xl text-verde-cacto text-center mb-10">Linha do tempo cultural</h3>
+                <div class="timeline-line pl-14 space-y-8">
+                    <div class="relative timeline-dot">
+                        <h4 class="font-playfair text-2xl text-barro">1954 — A fábrica começa a gravar Pernambuco</h4>
+                        <p class="text-texto-suave mt-2">A Rozenblit surge no Recife e passa a registrar artistas locais, orquestras, compositores e gêneros populares.</p>
+                    </div>
+                    <div class="relative timeline-dot">
+                        <h4 class="font-playfair text-2xl text-barro">Anos 1950 e 1960 — A expansão dos selos</h4>
+                        <p class="text-texto-suave mt-2">Selos como Mocambo, Passarela, Solar e Artistas Unidos ajudam a organizar um catálogo diverso, popular e profundamente nordestino.</p>
+                    </div>
+                    <div class="relative timeline-dot">
+                        <h4 class="font-playfair text-2xl text-barro">Frevo, rádio e carnaval</h4>
+                        <p class="text-texto-suave mt-2">A gravadora fortalece a circulação de frevos, marchas, orquestras e repertórios ligados ao carnaval pernambucano.</p>
+                    </div>
+                    <div class="relative timeline-dot">
+                        <h4 class="font-playfair text-2xl text-barro">Hoje — O acervo como museu digital</h4>
+                        <p class="text-texto-suave mt-2">O catálogo digital permite revisitar fichas, artistas, faixas e registros que ajudam a contar a história musical do Nordeste.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 grid md:grid-cols-4 gap-4">
+                <div class="bg-verde-cacto text-papel rounded-3xl p-6 text-center shadow-lg"><p class="text-4xl">📀</p><p class="font-playfair text-2xl mt-2">Vinil</p></div>
+                <div class="bg-barro text-papel rounded-3xl p-6 text-center shadow-lg"><p class="text-4xl">🎺</p><p class="font-playfair text-2xl mt-2">Frevo</p></div>
+                <div class="bg-ouro text-papel rounded-3xl p-6 text-center shadow-lg"><p class="text-4xl">🌵</p><p class="font-playfair text-2xl mt-2">Nordeste</p></div>
+                <div class="bg-azul-recife text-papel rounded-3xl p-6 text-center shadow-lg"><p class="text-4xl">🎶</p><p class="font-playfair text-2xl mt-2">Memória</p></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- MODAL -->
+<div id="modal-detalhe" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="fecharModal()">
+    <div class="bg-papel rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto mx-4 p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+        <button onclick="fecharModal()" class="absolute top-4 right-4 text-verde-cacto hover:text-barro text-3xl">&times;</button>
+        <div id="modal-conteudo"></div>
+    </div>
+</div>
+
+<footer class="border-t border-verde-cacto/20 py-8 text-center text-texto-suave text-sm mt-12 relative z-10">
+    <p>Acervo Rozenblit — Museu Digital da Música Pernambucana</p>
+    <p class="text-xs mt-1">© 2026 Acervo Rozenblit. Todos os direitos reservados.</p>
+</footer>
+
+<script>
+    let catalogo = [];
+    let fichasMap = new Map();
+    let catalogoExibido = [];
+    let filtroGravadora = null;
+    let buscaTexto = "";
+    let currentPage = 1;
+    const ITENS_POR_PAGINA = 10;
+
+    async function carregarDados() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json'),
+                fetch('fichas.json')
+            ]);
+
+            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar os arquivos JSON');
+
+            let catalogoData = await catalogoRes.json();
+            const fichasData = await fichasRes.json();
+
+            if (Array.isArray(catalogoData)) {
+                catalogo = catalogoData;
+            } else if (catalogoData.catalogo && Array.isArray(catalogoData.catalogo)) {
+                catalogo = catalogoData.catalogo;
+            } else {
+                throw new Error('Formato inválido: catalogo.json deve ser um array ou objeto com chave "catalogo"');
+            }
+
+            if (!fichasData.fichas || !Array.isArray(fichasData.fichas)) {
+                throw new Error('Formato inválido: fichas.json deve conter a chave "fichas" com um array');
+            }
+
+            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
+
+            aplicarFiltros();
+            atualizarEstatisticas();
+            gerarFiltrosGravadora();
+            popularDestaquesHome();
+
+            const desc = document.getElementById('home-desc');
+            if (desc) {
+                desc.innerText = `Explore ${catalogo.length} títulos que atravessam frevo, carnaval, rádio, vinil e a história afetiva da música pernambucana.`;
+            }
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading-screen').innerHTML = `
+                <div class="text-center text-red-700 bg-papel p-6 rounded-2xl shadow-xl max-w-md mx-4">
+                    <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-3"></i>
+                    <p class="font-bold">Erro ao carregar dados: ${escapeHtml(error.message)}</p>
+                    <p class="text-sm mt-2">Verifique se os arquivos catalogo.json e fichas.json estão na mesma pasta deste HTML.</p>
+                </div>
+            `;
+        } finally {
+            setTimeout(() => {
+                document.getElementById('loading-screen')?.classList.add('hidden-loading');
+                if (window.lucide) lucide.createIcons();
+                navigateTo('home', false);
+            }, 450);
+        }
+    }
+
+    function atualizarEstatisticas() {
+        const total = catalogo.length;
+        const gravadoras = new Set(catalogo.map(item => item.gravadora).filter(Boolean));
+        const artistas = new Set(catalogo.map(item => item.artista).filter(Boolean));
+        const decadas = new Set();
+
+        catalogo.forEach(item => {
+            const ficha = fichasMap.get(item["Ficha Id"]);
+            const ano = normalizarAno(ficha?.anoProducao || ficha?.anoLancamento || item.ano || item.anoProducao || item.anoLancamento);
+            if (ano) decadas.add(Math.floor(ano / 10) * 10);
+        });
+
+        document.getElementById('stat-total').innerText = total;
+        document.getElementById('stat-gravadoras').innerText = gravadoras.size;
+        document.getElementById('stat-artistas').innerText = artistas.size;
+        document.getElementById('stat-decadas').innerText = decadas.size || '—';
+    }
+
+    function gerarFiltrosGravadora() {
+        const container = document.getElementById('filtros-gravadoras');
+        if (!container) return;
+
+        const gravadoras = [...new Set(catalogo.map(item => item.gravadora).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        let html = `<button class="filtro-gravadora-btn active px-3 py-1 rounded-full text-sm border transition" data-gravadora="" onclick="filtrarPorGravadora('')">🌵 Todas</button>`;
+
+        gravadoras.forEach(g => {
+            const safe = escapeAttr(g);
+            html += `<button class="filtro-gravadora-btn px-3 py-1 rounded-full text-sm border transition bg-papel/70 text-texto-suave" data-gravadora="${safe}" onclick="filtrarPorGravadora('${safe}')">${escapeHtml(g)}</button>`;
+        });
+
+        container.innerHTML = html;
+        atualizarBotoesFiltro();
+    }
+
+    function atualizarBotoesFiltro() {
+        document.querySelectorAll('.filtro-gravadora-btn').forEach(btn => {
+            const btnGrav = btn.getAttribute('data-gravadora');
+            const active = (!filtroGravadora && !btnGrav) || (btnGrav === filtroGravadora);
+            btn.classList.toggle('active', active);
+            btn.style.background = active ? '#315f43' : 'rgba(255,250,240,0.75)';
+            btn.style.color = active ? '#fffaf0' : '#6f604c';
+        });
+    }
+
+    function filtrarPorGravadora(gravadora) {
+        filtroGravadora = gravadora || null;
+        currentPage = 1;
+        aplicarFiltros();
+        atualizarBotoesFiltro();
+    }
+
+    function filtrarCatalogo() {
+        const input = document.getElementById('search-input');
+        buscaTexto = normalizarTexto(input.value.trim());
+        currentPage = 1;
+        aplicarFiltros();
+    }
+
+    function aplicarFiltros() {
+        let resultados = [...catalogo];
+
+        if (filtroGravadora) {
+            resultados = resultados.filter(item => item.gravadora === filtroGravadora);
+        }
+
+        if (buscaTexto) {
+            resultados = resultados.filter(item =>
+                normalizarTexto(item.titulo).includes(buscaTexto) ||
+                normalizarTexto(item.artista).includes(buscaTexto) ||
+                normalizarTexto(item.gravadora).includes(buscaTexto)
+            );
+        }
+
+        catalogoExibido = resultados;
+        renderizarCatalogo();
+        renderizarPaginacao();
+    }
+
+    function renderizarPaginacao() {
+        const totalItens = catalogoExibido.length;
+        const totalPaginas = Math.ceil(totalItens / ITENS_POR_PAGINA);
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+
+        const countSpan = document.getElementById('catalogo-count');
+        if (countSpan) {
+            countSpan.innerText = totalPaginas > 0 ? `${totalItens} título${totalItens !== 1 ? 's' : ''} · Pág. ${currentPage}/${totalPaginas}` : '0 títulos';
+        }
+
+        if (totalPaginas <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let pagHtml = '';
+        pagHtml += `<button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="mudarPagina(${currentPage - 1})">‹ Anterior</button>`;
+
+        let inicio = Math.max(1, currentPage - 2);
+        let fim = Math.min(totalPaginas, currentPage + 2);
+
+        if (inicio > 1) {
+            pagHtml += `<button class="page-btn" onclick="mudarPagina(1)">1</button>`;
+            if (inicio > 2) pagHtml += `<span class="text-texto-suave self-end px-1">...</span>`;
+        }
+
+        for (let i = inicio; i <= fim; i++) {
+            pagHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+        }
+
+        if (fim < totalPaginas) {
+            if (fim < totalPaginas - 1) pagHtml += `<span class="text-texto-suave self-end px-1">...</span>`;
+            pagHtml += `<button class="page-btn" onclick="mudarPagina(${totalPaginas})">${totalPaginas}</button>`;
+        }
+
+        pagHtml += `<button class="page-btn ${currentPage === totalPaginas ? 'disabled' : ''}" onclick="mudarPagina(${currentPage + 1})">Próximo ›</button>`;
+        container.innerHTML = pagHtml;
+    }
+
+    function mudarPagina(novaPagina) {
+        const totalPaginas = Math.ceil(catalogoExibido.length / ITENS_POR_PAGINA);
+        if (novaPagina < 1 || novaPagina > totalPaginas) return;
+        currentPage = novaPagina;
+        renderizarCatalogo();
+        renderizarPaginacao();
+        document.getElementById('catalogo-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderizarCatalogo() {
+        const grid = document.getElementById('catalogo-grid');
+        const noResults = document.getElementById('no-results');
+        if (!grid) return;
+
+        if (catalogoExibido.length === 0) {
+            grid.innerHTML = '';
+            noResults?.classList.remove('hidden');
+            const pagination = document.getElementById('pagination-container');
+            if (pagination) pagination.innerHTML = '';
+            return;
+        }
+
+        noResults?.classList.add('hidden');
+
+        const inicio = (currentPage - 1) * ITENS_POR_PAGINA;
+        const fim = inicio + ITENS_POR_PAGINA;
+        const itensPagina = catalogoExibido.slice(inicio, fim);
+
+        grid.innerHTML = itensPagina.map((item, index) => cardProduto(item, index)).join('');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function popularDestaquesHome() {
+        const container = document.getElementById('destaques-grid');
+        if (!container) return;
+        const destaques = catalogo.slice(0, 6);
+        container.innerHTML = destaques.map((item, index) => cardProduto(item, index, true)).join('');
+    }
+
+    function cardProduto(item, index = 0, destaque = false) {
+        const titulo = item.titulo || 'Sem título';
+        const artista = item.artista || 'Artista desconhecido';
+        const gravadora = item.gravadora || '';
+        const id = item.ID;
+        const ficha = fichasMap.get(item["Ficha Id"]);
+        const ano = normalizarAno(ficha?.anoProducao || ficha?.anoLancamento || item.ano || item.anoProducao || item.anoLancamento);
+
+        return `
+            <div class="bg-papel/92 rounded-2xl overflow-hidden shadow-sm card-hover cursor-pointer transition hover:shadow-md catalogo-card-enter" style="animation-delay:${index * 0.045}s" onclick="abrirModal(${id})">
+                <div class="aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro flex items-center justify-center relative p-3 text-center overflow-hidden">
+                    <div class="absolute inset-3 rounded-full border border-white/35"></div>
+                    <div class="absolute -right-8 -bottom-8 w-28 h-28 rounded-full bg-white/10"></div>
+                    <span class="relative z-10 text-white font-playfair font-bold ${destaque ? 'text-base' : 'text-lg'} leading-tight artist-cover-name">
+                        ${escapeHtml(artista)}
+                    </span>
+                </div>
+                <div class="p-3">
+                    <h3 class="font-playfair text-sm font-bold text-verde-cacto line-clamp-2">${escapeHtml(titulo)}</h3>
+                    <p class="text-xs text-texto-suave mt-1 line-clamp-1">${escapeHtml(artista)}</p>
+                    <div class="flex flex-wrap gap-1 mt-2">
+                        ${gravadora ? `<span class="text-[11px] text-barro bg-barro/10 px-2 py-0.5 rounded-full">${escapeHtml(gravadora)}</span>` : ''}
+                        ${ano ? `<span class="text-[11px] text-verde-cacto bg-verde-cacto/10 px-2 py-0.5 rounded-full">${ano}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function abrirModal(idProduto) {
+        const produto = catalogo.find(p => String(p.ID) === String(idProduto));
+        if (!produto) return;
+
+        const fichaId = produto["Ficha Id"];
+        const ficha = fichasMap.get(fichaId);
+
+        if (!ficha) {
+            alert(`Ficha técnica não encontrada para o disco ${produto.titulo}`);
+            return;
+        }
+
+        const modalConteudo = document.getElementById('modal-conteudo');
+        modalConteudo.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                    <div class="w-full aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro rounded-2xl flex items-center justify-center shadow-md p-5 text-center relative overflow-hidden">
+                        <div class="absolute inset-4 rounded-full border border-white/35"></div>
+                        <span class="relative text-white font-playfair font-bold text-2xl leading-tight">${escapeHtml(produto.artista || 'Artista')}</span>
+                    </div>
+                    <div class="mt-4 text-center text-sm text-texto-suave space-y-1 bg-areia/35 p-4 rounded-2xl">
+                        <p><strong>Catálogo:</strong> ${escapeHtml(ficha.numeroCatalogo || '---')}</p>
+                        <p><strong>Formato:</strong> ${escapeHtml(ficha.formato || '---')}</p>
+                        <p><strong>Ano produção:</strong> ${escapeHtml(ficha.anoProducao || '---')}</p>
+                        <p><strong>Ano lançamento:</strong> ${escapeHtml(ficha.anoLancamento || '---')}</p>
+                        ${ficha.gravadora ? `<p><strong>Gravadora:</strong> ${escapeHtml(ficha.gravadora)}</p>` : ''}
+                    </div>
+                </div>
+                <div class="md:w-2/3">
+                    <h2 class="font-playfair text-3xl text-verde-cacto pr-8">${escapeHtml(produto.titulo)}</h2>
+                    <p class="text-xl text-barro font-semibold mt-1">${escapeHtml(produto.artista)}</p>
+                    <p class="text-sm text-texto-suave mb-4 border-b border-verde-cacto/20 pb-3">${escapeHtml(produto.gravadora || ficha.gravadora || '')}</p>
+
+                    <h3 class="font-playfair text-xl mt-4 mb-2 flex items-center gap-2 text-texto"><i data-lucide="list-music" class="w-5 h-5"></i> Faixas</h3>
+                    <ul class="space-y-1 mb-6 max-h-52 overflow-y-auto pr-2">
+                        ${(ficha.faixas || []).map(f => `
+                            <li class="flex justify-between gap-3 text-sm border-b border-verde-cacto/10 py-2">
+                                <span><span class="font-bold text-verde-cacto">${escapeHtml(f.numero || '')}</span> - ${escapeHtml(f.nome || '')}</span>
+                                <span class="text-texto-suave text-xs text-right">${escapeHtml(f.autor || '')} ${f.duracao ? '(' + escapeHtml(f.duracao) + ')' : ''}</span>
+                            </li>
+                        `).join('')}
+                        ${(!ficha.faixas || ficha.faixas.length === 0) ? '<li class="text-sm italic text-texto-suave">Faixas não disponíveis</li>' : ''}
+                    </ul>
+
+                    ${ficha.fichaTecnica ? `
+                        <h3 class="font-playfair text-xl mt-4 mb-2 flex items-center gap-2 text-texto"><i data-lucide="clipboard-list" class="w-5 h-5"></i> Ficha Técnica</h3>
+                        <p class="text-sm leading-relaxed bg-verde-cacto/5 p-4 rounded-2xl border-l-4 border-ouro">${escapeHtml(ficha.fichaTecnica)}</p>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('modal-detalhe').classList.remove('hidden');
+        document.getElementById('modal-detalhe').classList.add('flex');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function fecharModal() {
+        document.getElementById('modal-detalhe').classList.add('hidden');
+        document.getElementById('modal-detalhe').classList.remove('flex');
+    }
+
+    function navigateTo(page, doScroll = true) {
+        document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+        const target = document.getElementById(`page-${page}`);
+
+        if (target) {
+            target.classList.remove('hidden');
+            target.classList.remove('animate-page');
+            void target.offsetWidth;
+            target.classList.add('animate-page');
+        }
+
+        document.querySelectorAll('.nav-link').forEach(btn => {
+            const btnPage = btn.getAttribute('data-page');
+            if (btnPage === page) {
+                btn.style.background = 'rgba(49,95,67,0.12)';
+                btn.style.color = '#315f43';
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#6f604c';
+            }
+        });
+
+        if (doScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (page === 'catalogo') aplicarFiltros();
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function normalizarTexto(str) {
+        return String(str || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    }
+
+    function normalizarAno(valor) {
+        if (!valor) return null;
+        const match = String(valor).match(/(19|20)\d{2}/);
+        return match ? Number(match[0]) : null;
+    }
+
+    function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    function escapeAttr(str) {
+        return String(str ?? '').replace(/[\'"<>]/g, '').trim();
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') fecharModal();
+    });
+
+    carregarDados();
+</script>
+</body>
+</html>

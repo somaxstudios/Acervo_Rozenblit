@@ -1,0 +1,30 @@
+{
+  "fichas": [
+    {
+      "id": 1,
+      "anoProducao": 1968,
+      "anoLancamento": 1969,
+      "formato": "LP",
+      "numeroCatalogo": "MOC-1234",
+      "gravadora": "Rozenblit",
+      "faixas": [
+        { "numero": 1, "nome": "Marcha do Cordão", "autor": "Nelson Ferreira", "duracao": "2:45" },
+        { "numero": 2, "nome": "Frevo do Galo", "autor": "Capiba", "duracao": "3:10" }
+      ],
+      "fichaTecnica": "Produzido por José Rozenblit. Gravado nos Estúdios Mocambo, Recife."
+    },
+    {
+      "id": 2,
+      "anoProducao": 1959,
+      "anoLancamento": 1960,
+      "formato": "78 RPM",
+      "numeroCatalogo": "MOC-5678",
+      "gravadora": "Mocambo",
+      "faixas": [
+        { "numero": 1, "nome": "Forró de Cabo a Rabo", "autor": "Luiz Gonzaga", "duracao": "2:55" },
+        { "numero": 2, "nome": "Baião do Acordeom", "autor": "Luiz Gonzaga", "duracao": "3:02" }
+      ],
+      "fichaTecnica": "Gravado no Estúdio Mocambo, Recife. Arranjos de Severino Araújo."
+    }
+  ]
+}
