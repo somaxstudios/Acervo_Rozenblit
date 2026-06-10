@@ -1,0 +1,227 @@
+{
+"id": "caso_003_disco_festival_nao_chegou",
+"titulo": "O Disco de Festival que Nunca Chegou",
+"descricao": "Um LP promocional gravado para um festival regional deveria ter chegado ao acervo, mas desapareceu entre o estúdio, a fábrica e o museu. Sua missão é reconstruir o caminho do disco e descobrir onde ele ficou parado.",
+"inicio": "16h10",
+"prazo": "20h00",
+"cenas": [
+{
+"id": "intro",
+"texto": "Um envelope antigo aparece na mesa do museu com a inscrição: 'Festival Regional — material urgente'. Dentro, há apenas uma ficha de remessa vazia e um bilhete: 'O disco saiu do estúdio, mas nunca chegou ao acervo'.",
+"cenario": "museu",
+"personagem": "curador_m",
+"som_ambiente": "ambiente silencioso de museu",
+"acoes": [
+{
+"texto": "Examinar a ficha de remessa",
+"proxima_cena": "remessa"
+},
+{
+"texto": "Ler o bilhete com atenção",
+"proxima_cena": "bilhete"
+},
+{
+"texto": "Ir ao estúdio de gravação",
+"proxima_cena": "estudio"
+}
+]
+},
+{
+"id": "remessa",
+"texto": "A ficha de remessa está quase apagada. Ainda é possível ler: 'Festival — 12 faixas — cópia promocional'. O campo de destino foi rasurado.",
+"cenario": "arquivo",
+"personagem": "arquivista_f",
+"som_ambiente": "papel antigo sendo folheado",
+"pista_guardavel": "A remessa era de uma cópia promocional com 12 faixas",
+"acoes": [
+{
+"texto": "Guardar pista e voltar",
+"proxima_cena": "intro"
+}
+]
+},
+{
+"id": "bilhete",
+"texto": "O bilhete diz: 'Não enviar ao museu ainda. A capa precisa voltar para aprovação'. A assinatura está ilegível, mas há uma marca de tinta azul no canto.",
+"cenario": "biblioteca",
+"personagem": "jornalista_f",
+"som_ambiente": "lâmpada antiga e folhas sendo viradas",
+"pista_guardavel": "A capa voltou para aprovação antes de ir ao museu",
+"acoes": [
+{
+"texto": "Investigar quem aprovava capas",
+"proxima_cena": "aprovacao"
+},
+{
+"texto": "Ir ao estúdio",
+"proxima_cena": "estudio"
+}
+]
+},
+{
+"id": "estudio",
+"texto": "No estúdio, o técnico encontra uma anotação no livro de sessões: 'Festival Regional — matriz pronta — enviada para prensagem'. Mas o campo do número de matriz está incompleto: FR-**7.",
+"cenario": "estudio",
+"personagem": "tecnico_m",
+"som_ambiente": "fita rodando e chiado de estúdio",
+"pista_guardavel": "Número de matriz incompleto: FR-**7",
+"acoes": [
+{
+"texto": "Perguntar sobre a matriz",
+"proxima_cena": "matriz"
+},
+{
+"texto": "Ir para a fábrica",
+"proxima_cena": "fabrica"
+}
+]
+},
+{
+"id": "matriz",
+"texto": "O técnico explica: 'As matrizes de festival costumavam seguir a sequência FR-200. Se terminou em 7, provavelmente era FR-207.'",
+"cenario": "estudio",
+"personagem": "tecnico_f",
+"som_ambiente": "botões de mesa de som e fita analógica",
+"pista_guardavel": "Provável número de matriz: FR-207",
+"acoes": [
+{
+"texto": "Seguir para a fábrica",
+"proxima_cena": "fabrica"
+}
+]
+},
+{
+"id": "fabrica",
+"texto": "Na fábrica, os registros mostram três lotes promocionais prensados naquela semana: FR-205, FR-207 e FR-212. Apenas um deles não tem confirmação de entrega.",
+"cenario": "fabrica",
+"personagem": "curador_f",
+"som_ambiente": "máquinas antigas e ruído metálico",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual lote provavelmente pertence ao disco desaparecido?",
+"alternativas": [
+"FR-205",
+"FR-207",
+"FR-212"
+],
+"resposta_correta": "FR-207",
+"acerto": "Correto. A matriz incompleta do estúdio apontava para FR-207.",
+"erro": "Esse lote não combina com a pista encontrada no livro de sessões.",
+"proxima_cena_acerto": "aprovacao"
+},
+{
+"id": "aprovacao",
+"texto": "Você encontra uma mesa com provas de capa. Uma delas tem o carimbo 'Festival Regional' e a mesma tinta azul do bilhete. No verso está escrito: 'aguardando revisão do título'.",
+"cenario": "colecao",
+"personagem": "colecionador_m",
+"som_ambiente": "capas sendo manuseadas cuidadosamente",
+"pista_guardavel": "A prova de capa ficou parada aguardando revisão do título",
+"acoes": [
+{
+"texto": "Examinar o título rasurado",
+"proxima_cena": "titulo_rasurado"
+},
+{
+"texto": "Ir ao arquivo de capas",
+"proxima_cena": "arquivo_capas"
+}
+]
+},
+{
+"id": "titulo_rasurado",
+"texto": "O título aparece assim: 'Festival de S**** do Nordeste'. A palavra central foi apagada por umidade. Ao lado, há uma anotação: 'não confundir com frevo'.",
+"cenario": "porao_arquivo",
+"personagem": "arquivista_m",
+"som_ambiente": "pingos distantes e papel úmido",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual palavra provavelmente completava o título?",
+"alternativas": [
+"Samba",
+"Frevo",
+"Seresta",
+"Forró"
+],
+"resposta_correta": "Samba",
+"acerto": "Correto. A anotação indicava que não era frevo, e o título começava com S.",
+"erro": "Essa opção não combina com a pista 'S____' e a anotação sobre frevo.",
+"proxima_cena_acerto": "arquivo_capas"
+},
+{
+"id": "arquivo_capas",
+"texto": "No arquivo de capas, você encontra uma gaveta marcada 'Capas Pendentes'. Dentro dela há uma capa pronta, mas sem disco. O registro diz: 'aguardando envio do lote ao museu'.",
+"cenario": "arquivo",
+"personagem": "jornalista_f",
+"som_ambiente": "gaveta metálica abrindo e papéis deslizando",
+"pista_guardavel": "A capa ficou na gaveta de Capas Pendentes",
+"acoes": [
+{
+"texto": "Procurar o lote FR-207",
+"proxima_cena": "lote_fr207"
+}
+]
+},
+{
+"id": "lote_fr207",
+"texto": "O lote FR-207 não está no arquivo de capas. Uma etiqueta colada na gaveta diz: 'material sonoro enviado ao almoxarifado temporário'.",
+"cenario": "arquivo",
+"personagem": "arquivista_f",
+"som_ambiente": "arquivo silencioso e passos ao fundo",
+"pista_guardavel": "O lote FR-207 foi enviado ao almoxarifado temporário",
+"acoes": [
+{
+"texto": "Ir ao almoxarifado",
+"proxima_cena": "almoxarifado"
+}
+]
+},
+{
+"id": "almoxarifado",
+"texto": "No almoxarifado, três caixas antigas aparecem sem identificação clara. Uma está marcada 'FR-207', outra 'FR-217', e a última 'Festival — devolução'.",
+"cenario": "almoxarifado",
+"personagem": "tecnico_m",
+"som_ambiente": "caixas sendo arrastadas e rádio baixo",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual caixa deve ser aberta primeiro?",
+"alternativas": [
+"FR-207",
+"FR-217",
+"Festival — devolução"
+],
+"resposta_correta": "FR-207",
+"acerto": "Correto. Todas as pistas apontam para o lote FR-207.",
+"erro": "Essa caixa pode até parecer relacionada, mas não corresponde ao número de matriz encontrado.",
+"proxima_cena_acerto": "desafio_final"
+},
+{
+"id": "desafio_final",
+"texto": "Dentro da caixa FR-207 há o disco, mas falta confirmar se ele é realmente o LP do festival. A ficha final pede a reconstrução correta dos dados.",
+"cenario": "estudio",
+"personagem": "curador_f",
+"som_ambiente": "suspense leve e chiado de vinil",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual combinação resolve o caso?",
+"alternativas": [
+"Festival de Samba do Nordeste — lote FR-207 — capa pendente",
+"Festival de Frevo do Nordeste — lote FR-212 — enviado ao museu",
+"Festival de Seresta do Nordeste — lote FR-205 — devolvido ao estúdio",
+"Festival de Forró do Nordeste — lote FR-217 — sem capa"
+],
+"resposta_correta": "Festival de Samba do Nordeste — lote FR-207 — capa pendente",
+"acerto": "Perfeito. O disco não sumiu: ele ficou separado da capa, preso entre o almoxarifado e a gaveta de capas pendentes.",
+"erro": "Essa combinação contradiz as pistas principais: título com S, lote FR-207 e capa pendente.",
+"proxima_cena_acerto": "final_sucesso"
+},
+{
+"id": "final_sucesso",
+"texto": "O LP promocional do Festival de Samba do Nordeste foi recuperado e reunido à capa correta. O acervo ganha mais uma peça preservada, e a história do festival finalmente chega ao museu.",
+"cenario": "museu",
+"personagem": "curador_m",
+"som_ambiente": "música comemorativa e ambiente de museu",
+"acoes": [
+{
+"texto": "Voltar ao Menu",
+"proxima_cena": "intro"
+}
+]
+}
+]
+}

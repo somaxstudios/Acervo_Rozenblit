@@ -1,0 +1,180 @@
+{
+"id": "caso_002_ficha_tecnica_samba",
+"titulo": "O Erro na Ficha Técnica do LP de Samba",
+"descricao": "Uma ficha técnica de um LP de samba apareceu com informações contraditórias. Sua missão é descobrir qual dado foi registrado errado antes que o item seja publicado no museu.",
+"inicio": "14h20",
+"prazo": "17h00",
+"cenas": [
+{
+"id": "intro",
+"texto": "Durante a revisão do catálogo, uma ficha técnica de um LP de samba chama atenção. O título, o artista e o selo parecem corretos, mas há algo estranho na documentação. O curador pede sua ajuda para evitar que o erro entre no acervo digital.",
+"cenario": "biblioteca",
+"personagem": "curador_f",
+"som_ambiente": "páginas sendo folheadas e som distante de vitrola",
+"acoes": [
+{
+"texto": "Examinar a ficha técnica",
+"proxima_cena": "ficha"
+},
+{
+"texto": "Conversar com a arquivista",
+"proxima_cena": "arquivista"
+},
+{
+"texto": "Ir ao setor de discos de samba",
+"proxima_cena": "sala_samba"
+}
+]
+},
+{
+"id": "ficha",
+"texto": "A ficha mostra: Artista: Conjunto Estrela do Samba. Título: Noite de Batucada. Selo: Mocambo. Ano: 1978. Mas uma anotação antiga diz: 'verificar ano — possível troca de década'.",
+"cenario": "arquivo",
+"personagem": "arquivista_m",
+"som_ambiente": "máquina de datilografia e gavetas abrindo",
+"pista_guardavel": "Ficha indica possível erro no ano do LP",
+"acoes": [
+{
+"texto": "Guardar pista e consultar o catálogo antigo",
+"proxima_cena": "catalogo_antigo"
+},
+{
+"texto": "Voltar",
+"proxima_cena": "intro"
+}
+]
+},
+{
+"id": "arquivista",
+"texto": "A arquivista explica: 'Esse LP foi catalogado junto com discos de 1978, mas a capa tem um padrão gráfico mais antigo. As cores e a tipografia parecem de meados dos anos 60.'",
+"cenario": "biblioteca",
+"personagem": "arquivista_f",
+"som_ambiente": "lâmpada antiga zumbindo e folhas sendo viradas",
+"pista_guardavel": "Capa parece ter padrão gráfico dos anos 60",
+"acoes": [
+{
+"texto": "Perguntar sobre o selo Mocambo",
+"proxima_cena": "selo_mocambo"
+},
+{
+"texto": "Ir ao setor de discos de samba",
+"proxima_cena": "sala_samba"
+}
+]
+},
+{
+"id": "selo_mocambo",
+"texto": "Ela continua: 'O selo Mocambo aparece em vários registros históricos da Rozenblit. Mas esse modelo específico de etiqueta no centro do disco não combina com o final dos anos 70.'",
+"cenario": "colecao",
+"personagem": "arquivista_f",
+"som_ambiente": "chiado baixo de vinil",
+"pista_guardavel": "Etiqueta do selo não combina com 1978",
+"acoes": [
+{
+"texto": "Comparar com outros LPs",
+"proxima_cena": "comparar_lps"
+}
+]
+},
+{
+"id": "sala_samba",
+"texto": "Na sala dos LPs de samba, três discos estão separados para comparação. Dois são de 1966 e 1967. O terceiro é a ficha investigada.",
+"cenario": "museu",
+"personagem": "colecionador_m",
+"som_ambiente": "samba antigo tocando bem baixo",
+"acoes": [
+{
+"texto": "Comparar capas e etiquetas",
+"proxima_cena": "comparar_lps"
+},
+{
+"texto": "Consultar o técnico de gravação",
+"proxima_cena": "tecnico"
+}
+]
+},
+{
+"id": "catalogo_antigo",
+"texto": "No catálogo antigo, você encontra uma entrada incompleta: 'Noite de Batucada — Conj. Estrela do Samba — MC... — 196...'. O último número do ano está apagado.",
+"cenario": "arquivo",
+"personagem": "jornalista_f",
+"som_ambiente": "papel antigo sendo aberto cuidadosamente",
+"pista_guardavel": "Catálogo antigo indica ano começando com 196",
+"acoes": [
+{
+"texto": "Comparar com outros LPs do período",
+"proxima_cena": "comparar_lps"
+},
+{
+"texto": "Levar o registro ao técnico",
+"proxima_cena": "tecnico"
+}
+]
+},
+{
+"id": "comparar_lps",
+"texto": "Ao comparar os LPs, você percebe que a ficha investigada usa o mesmo padrão de etiqueta dos discos de 1967. A numeração de catálogo também segue a sequência daquele ano.",
+"cenario": "colecao",
+"personagem": "colecionador_m",
+"som_ambiente": "capas de disco sendo colocadas sobre a mesa",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual informação da ficha técnica provavelmente está errada?",
+"alternativas": [
+"O artista",
+"O título",
+"O ano",
+"O selo"
+],
+"resposta_correta": "O ano",
+"acerto": "Correto. As pistas apontam que o erro está no ano registrado.",
+"erro": "Essa informação parece compatível com as evidências. O problema está em outro campo.",
+"proxima_cena_acerto": "tecnico"
+},
+{
+"id": "tecnico",
+"texto": "O técnico analisa a ficha e diz: 'O número de matriz confirma. Esse LP não pode ser de 1978. Ele pertence à leva de prensagens de 1967.'",
+"cenario": "estudio",
+"personagem": "tecnico_m",
+"som_ambiente": "fita rodando e leve ruído de estúdio",
+"pista_guardavel": "Número de matriz confirma 1967",
+"acoes": [
+{
+"texto": "Corrigir a ficha técnica",
+"proxima_cena": "desafio_final"
+}
+]
+},
+{
+"id": "desafio_final",
+"texto": "Antes de salvar a correção, o sistema do museu pede confirmação final. A ficha original trazia 1978, mas todas as evidências apontam para outro ano.",
+"cenario": "biblioteca",
+"personagem": "curador_f",
+"som_ambiente": "teclas digitando e vitrola ao fundo",
+"tipo_desafio": "pergunta",
+"pergunta": "Qual deve ser o ano correto da ficha técnica?",
+"alternativas": [
+"1965",
+"1967",
+"1978",
+"1980"
+],
+"resposta_correta": "1967",
+"acerto": "Ficha corrigida com sucesso. O LP de samba agora está catalogado corretamente no Museu Digital Rozenblit.",
+"erro": "Ano incorreto. Relembre a pista da etiqueta e do número de matriz.",
+"proxima_cena_acerto": "final_sucesso"
+},
+{
+"id": "final_sucesso",
+"texto": "O erro foi corrigido antes da publicação. O LP 'Noite de Batucada' agora preserva sua história com precisão. Mais um registro salvo da confusão do tempo.",
+"cenario": "museu",
+"personagem": "curador_m",
+"som_ambiente": "samba antigo e aplausos suaves",
+"acoes": [
+{
+"texto": "Voltar ao Menu",
+"proxima_cena": "intro"
+}
+]
+}
+]
+}
