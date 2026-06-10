@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Mistérios da Rozenblit — Visual Novel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800;900&family=Crimson+Text:wght@400;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:#214b32;
+  --verde2:#2f6846;
+  --ouro:#c79b38;
+  --ouro2:#f0d58a;
+  --barro:#9d4425;
+  --papel:#fff7df;
+  --papel2:#efe2bc;
+  --tinta:#241b12;
+  --sombra:rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d0b08;color:var(--tinta)}
+body{font-family:'Crimson Text', Georgia, serif;-webkit-font-smoothing:antialiased}
+button{font:inherit}
+.screen{position:fixed;inset:0;display:none;z-index:10;overflow:hidden}.screen.active{display:flex}
+
+#loading{position:fixed;inset:0;z-index:999;background:radial-gradient(circle,#fff2c9,#22150e);display:flex;align-items:center;justify-content:center;font-family:'Special Elite',monospace;color:var(--verde)}
+
+/* MENU */
+#screen-title{align-items:center;justify-content:center;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.72)),url('static/cenarios/museu.jpg') center/cover no-repeat}
+.title-frame{width:min(92vw,620px);padding:2rem;background:rgba(255,247,223,.94);border:2px solid var(--ouro);box-shadow:0 28px 80px rgba(0,0,0,.45);text-align:center;position:relative}
+.title-frame:before{content:'';position:absolute;inset:10px;border:1px solid rgba(199,155,56,.45);pointer-events:none}.title-main{font-family:'Playfair Display',serif;font-size:clamp(2.3rem,8vw,4.7rem);line-height:.92;color:var(--verde);letter-spacing:.02em}.subtitle{margin:.8rem 0 1.2rem;font-family:'Special Elite',monospace;color:#7c5a20}.best-score-display,.end-record{font-family:'Special Elite',monospace;color:var(--barro);margin:1rem 0}.btn-menu{width:100%;margin:.35rem 0;padding:.8rem 1rem;background:linear-gradient(180deg,#fff8e5,#e9d9a8);border:1px solid var(--verde);color:var(--verde);cursor:pointer;font-family:'Special Elite',monospace;transition:.18s}.btn-menu:hover{background:var(--verde);color:white;transform:translateY(-1px)}.lista-casos{max-height:260px;overflow:auto;margin:1rem 0;text-align:left}.lista-casos button{width:100%;padding:.75rem;margin-bottom:.4rem;background:#f7edcc;border:1px solid var(--ouro);cursor:pointer;text-align:left;color:var(--tinta)}
+
+/* COMO JOGAR / FIM */
+#screen-howto,#screen-end{align-items:center;justify-content:center;background:radial-gradient(circle at center,#f8edc8,#2a1b10)}.paper-box,.end-box{width:min(92vw,560px);background:rgba(255,247,223,.96);border:2px solid var(--ouro);box-shadow:0 24px 70px rgba(0,0,0,.45);padding:1.5rem;line-height:1.5}.paper-box h2,.end-box h2{font-family:'Playfair Display',serif;color:var(--verde);margin-bottom:.8rem}.paper-box p{margin:.5rem 0}
+
+/* JOGO */
+#screen-game{background:#050403;display:none;flex-direction:column;justify-content:flex-end}.screen.active#screen-game{display:flex}.game-bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:0;transform:scale(1.02);transition:background-image .4s ease}.game-bg:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),rgba(0,0,0,.08) 45%,rgba(0,0,0,.55)),linear-gradient(0deg,rgba(0,0,0,.72),rgba(0,0,0,.08) 46%,rgba(0,0,0,.38));}.cenario-fallback{background:radial-gradient(ellipse at 35% 35%,#46321f,#14120d 70%)}
+#hud{position:absolute;top:calc(env(safe-area-inset-top) + 10px);left:12px;right:12px;height:42px;display:flex;align-items:center;justify-content:space-between;z-index:35;color:var(--ouro2);font-family:'Special Elite',monospace;font-size:.85rem;pointer-events:none}.hud-pill{background:rgba(0,0,0,.48);border:1px solid rgba(240,213,138,.35);border-radius:999px;padding:.5rem .75rem;backdrop-filter:blur(6px)}
+
+#character-container{position:absolute;right:clamp(18px,5vw,80px);bottom:clamp(170px,24vh,255px);z-index:18;width:clamp(260px,33vw,470px);display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 22px 22px rgba(0,0,0,.85));pointer-events:none}.character-glow{position:absolute;width:78%;height:62%;bottom:0;border-radius:50%;background:radial-gradient(circle,rgba(255,230,160,.17),rgba(255,230,160,0) 70%);z-index:-1}.char-name-tag{margin-top:-18px;background:linear-gradient(180deg,var(--verde2),var(--verde));border:1px solid var(--ouro2);color:white;padding:.32rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:700;box-shadow:0 6px 14px rgba(0,0,0,.35)}#character-img{width:100%;max-height:62vh;object-fit:contain;object-position:bottom center}.char-avatar{width:100%;aspect-ratio:3/4;background:rgba(33,75,50,.78);border:1px solid var(--ouro);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:5rem;color:var(--ouro2)}
+
+#evidence-panel{position:absolute;left:clamp(16px,4vw,60px);top:48%;transform:translateY(-50%) rotate(-1deg);width:min(360px,38vw);z-index:22;background:rgba(255,247,223,.97);border:1px solid var(--ouro);padding:1rem;box-shadow:0 18px 45px rgba(0,0,0,.45);display:none}.evidence-stamp{text-align:center;border:2px solid var(--barro);font-family:'Special Elite',monospace;font-size:.72rem;letter-spacing:.18em;color:var(--barro);padding:.22rem;margin-bottom:.85rem}.evidence-content{font-size:1rem;line-height:1.45;white-space:pre-line}
+
+.vn-area{position:relative;z-index:30;width:100%;padding:0 clamp(10px,3vw,34px) calc(env(safe-area-inset-bottom) + 12px)}
+#dialogue-box{width:min(1180px,100%);margin:0 auto;background:linear-gradient(180deg,rgba(255,249,229,.98),rgba(236,223,184,.98));border:2px solid var(--ouro);border-bottom-width:4px;box-shadow:0 -18px 55px rgba(0,0,0,.45);min-height:168px;padding:1.05rem 1.15rem;display:none;flex-direction:column;position:relative}.speaker-plate{position:absolute;top:-19px;left:22px;min-width:160px;background:linear-gradient(180deg,#315f42,#1f432e);border:1px solid var(--ouro2);border-radius:999px;color:white;padding:.38rem 1rem;text-align:center;font-family:'Special Elite',monospace;font-size:.88rem;box-shadow:0 8px 16px rgba(0,0,0,.35)}#dialogue-text{font-size:clamp(1.12rem,2.6vw,1.34rem);line-height:1.58;font-weight:600;letter-spacing:.005em;word-spacing:.12em;white-space:pre-wrap;overflow-wrap:break-word;padding-top:.8rem;min-height:4.9rem}.dialogue-footer{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:.65rem}.case-title-mini{font-family:'Special Elite',monospace;color:#7d6027;font-size:.78rem;opacity:.9}#dialogue-advance{background:linear-gradient(180deg,#326d48,#214b32);border:1px solid var(--ouro2);color:white;padding:.56rem 1.15rem;cursor:pointer;font-family:'Special Elite',monospace;box-shadow:0 6px 14px rgba(0,0,0,.24)}#dialogue-advance:active{transform:translateY(1px)}
+
+#choices-container{width:min(1180px,100%);margin:.65rem auto 0;background:rgba(255,247,223,.98);border:1px solid var(--ouro);box-shadow:0 -10px 32px rgba(0,0,0,.25);padding:.8rem;display:none;flex-direction:column;gap:.55rem}.choice-btn{background:linear-gradient(180deg,#fff8e5,#ecddb2);border:1px solid rgba(33,75,50,.65);color:var(--verde);padding:.75rem .9rem;text-align:left;cursor:pointer;font-size:1.08rem;line-height:1.35;transition:.16s}.choice-btn:hover{background:#fff1bd;transform:translateX(3px)}.choice-btn.correct{background:#2d6a4f;color:#fff;border-color:#fff}.choice-btn.wrong{background:#9d4425;color:#fff;border-color:#fff;text-decoration:line-through}.challenge-title{font-family:'Special Elite',monospace;color:var(--barro);margin-bottom:.2rem}.tools-row{width:min(1180px,100%);margin:.55rem auto 0;display:flex;gap:.55rem;justify-content:flex-end}.notebook-panel{width:min(760px,92vw);position:absolute;left:50%;bottom:178px;transform:translateX(-50%);z-index:35;background:rgba(255,247,223,.98);border:2px solid var(--ouro);box-shadow:0 18px 50px rgba(0,0,0,.45);border-radius:14px;overflow:hidden}.notebook-head{display:flex;justify-content:space-between;align-items:center;background:#2d5a3b;color:#fff;padding:.7rem 1rem;font-family:'Special Elite',monospace}.notebook-head button{background:transparent;border:0;color:#fff;font-size:1.4rem;cursor:pointer}.notebook-list{max-height:220px;overflow:auto;padding:.8rem 1rem}.note-item{border-left:4px solid var(--ouro);background:#fff8e5;margin:.45rem 0;padding:.65rem .75rem;line-height:1.45}.note-empty{opacity:.75;font-style:italic}.tool-btn{background:rgba(0,0,0,.55);color:var(--ouro2);border:1px solid rgba(240,213,138,.55);border-radius:999px;padding:.48rem .8rem;font-family:'Special Elite',monospace;cursor:pointer;backdrop-filter:blur(8px)}
+
+@media(max-width:700px){
+  #screen-title{background-position:center}.title-frame{padding:1.35rem}.title-main{font-size:2.65rem}
+  #hud{top:calc(env(safe-area-inset-top) + 6px);left:10px;right:10px}.hud-pill{font-size:.74rem;padding:.42rem .55rem}
+  .game-bg{background-position:center top}.game-bg:after{background:linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,.14) 54%,rgba(0,0,0,.58))}
+  #character-container{right:-30px;left:auto;bottom:215px;width:clamp(250px,72vw,330px);align-items:flex-end}.char-name-tag{margin-right:72px;margin-top:-22px;font-size:.76rem}.char-avatar{font-size:4rem}#character-img{max-height:52vh}
+  .vn-area{padding:0 8px calc(env(safe-area-inset-bottom) + 10px)}
+  #dialogue-box{min-height:190px;padding:1rem .95rem .9rem}.speaker-plate{left:14px;top:-18px;min-width:128px;font-size:.78rem;padding:.34rem .8rem}#dialogue-text{font-size:1.13rem;line-height:1.62;word-spacing:.16em;padding-top:.95rem;min-height:6.2rem}.dialogue-footer{margin-top:.35rem}.case-title-mini{display:none}#dialogue-advance{padding:.58rem .95rem;font-size:.78rem}
+  #choices-container{max-height:42vh;overflow:auto;padding:.65rem}.choice-btn{font-size:1rem;padding:.72rem;line-height:1.35}.tools-row{justify-content:center}.notebook-panel{bottom:165px;width:94vw}.notebook-list{max-height:180px}.tool-btn{font-size:.76rem;padding:.45rem .65rem}
+  #evidence-panel{left:10px;right:10px;top:24%;width:auto;transform:rotate(-1deg);font-size:.9rem}
+}
+@media(max-height:690px) and (max-width:700px){#character-container{bottom:190px;width:250px}#dialogue-box{min-height:170px}#dialogue-text{font-size:1.04rem;line-height:1.5;min-height:5.4rem}}
+</style>
+</head>
+<body>
+<div id="loading">Carregando arquivos do acervo...</div>
+
+<section id="screen-title" class="screen active">
+  <div class="title-frame">
+    <h1 class="title-main">Mistérios da<br>Rozenblit</h1>
+    <p class="subtitle">Uma aventura investigativa no acervo musical</p>
+    <button class="btn-menu" id="btn-novo-aleatorio">✦ Novo Caso Aleatório</button>
+    <button class="btn-menu" id="btn-escolher-caso">📂 Escolher Caso</button>
+    <button class="btn-menu" id="btn-como-jogar">Como Jogar</button>
+    <button class="btn-menu" id="btn-voltar-museu">Voltar ao Museu</button>
+    <div id="lista-casos-panel" style="display:none;margin-top:1rem">
+      <div class="lista-casos" id="lista-casos"></div>
+      <button class="btn-menu" id="btn-fechar-lista">Fechar</button>
+    </div>
+  </div>
+</section>
+
+<section id="screen-howto" class="screen">
+  <div class="paper-box">
+    <h2>Como Jogar</h2>
+    <p>Leia a narrativa, investigue pistas e escolha ações. Algumas cenas têm perguntas, enigmas ou caminhos falsos.</p>
+    <p>O botão “Guardar pista” salva a informação atual no caderno de investigação. Use o caderno para lembrar códigos, nomes e detalhes importantes.</p>
+    <p>Ative o som ao iniciar o caso para ouvir a trilha de suspense.</p>
+    <button class="btn-menu" id="voltar-titulo">Voltar</button>
+  </div>
+</section>
+
+<section id="screen-game" class="screen">
+  <div id="game-bg" class="game-bg cenario-fallback"></div>
+  <div id="hud"><span class="hud-pill">🎯 <span id="hud-score">0</span></span><span class="hud-pill">🔍 <span id="hud-pistas">0</span></span></div>
+
+  <div id="character-container">
+    <div class="character-glow"></div>
+    <img id="character-img" alt="Personagem" />
+    <div id="character-avatar" class="char-avatar" style="display:none">🕵️</div>
+    <div class="char-name-tag" id="char-name-tag">Investigador</div>
+  </div>
+
+  <div id="evidence-panel">
+    <div class="evidence-stamp">✦ ARQUIVO ROZENBLIT ✦</div>
+    <div id="evidence-content" class="evidence-content"></div>
+  </div>
+
+  <div class="vn-area">
+    <div id="dialogue-box">
+      <div class="speaker-plate" id="dialogue-speaker">Narrador</div>
+      <div id="dialogue-text"></div>
+      <div class="dialogue-footer">
+        <div class="case-title-mini" id="case-title-mini"></div>
+        <button id="dialogue-advance">Avançar ▶</button>
+      </div>
+    </div>
+    <div id="choices-container"></div>
+    <div id="notebook-panel" class="notebook-panel" style="display:none">
+      <div class="notebook-head">
+        <strong>📒 Pistas Guardadas</strong>
+        <button id="btn-fechar-notebook" type="button">×</button>
+      </div>
+      <div id="notebook-list" class="notebook-list"></div>
+    </div>
+    <div class="tools-row" id="tools-row">
+      <button class="tool-btn" id="btn-pista">📒 Guardar pista</button>
+      <button class="tool-btn" id="btn-som">♪ Som</button>
+      <button class="tool-btn" id="btn-menu-jogo">Menu</button>
+    </div>
+  </div>
+</section>
+
+<section id="screen-end" class="screen">
+  <div class="end-box">
+    <h2>📜 Caso Concluído</h2>
+    <p id="end-rank"></p>
+    <p>Pontuação: <strong id="end-score"></strong></p>
+    <p class="end-record" id="end-record"></p>
+    <button class="btn-menu" id="end-novo-jogo">Novo Caso</button>
+    <button class="btn-menu" id="end-menu">Menu</button>
+  </div>
+</section>
+
+<script>
+let casosIndex=[];
+let historiaAtual=null;
+let cenaAtual=null;
+let pontuacao=0;
+let pistasUsadas=0;
+let pistasGuardadas=[];
+let recorde=0;
+let typingTimer=null;
+let textoCompletoAtual='';
+let digitando=false;
+let audioCtx=null;
+let musicaAtiva=false;
+let musicNodes=[];
+
+const $=id=>document.getElementById(id);
+function setTextSafe(id, value){ const el=$(id); if(el) el.textContent=value; }
+function showSafe(id, display){ const el=$(id); if(el) el.style.display=display; }
+
+function normalizar(str){return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+
+function formatarTextoNarrativo(texto){
+  let t=String(texto ?? '');
+  t=t.replace(/\\n/g,'\n');
+  t=t.replace(/\r\n/g,'\n');
+  t=t.replace(/[\t ]+/g,' ');
+  t=t.replace(/\s*([.!?;:])\s*/g,'$1 ');
+  t=t.replace(/\s*,\s*/g,', ');
+  t=t.replace(/([a-záéíóúâêôãõç])([A-ZÁÉÍÓÚÂÊÔÃÕÇ])/g,'$1 $2');
+  t=t.replace(/(\d{1,2}h\d{2})\.\s*/gi,'$1. ');
+  t=t.replace(/\s+' /g," '").replace(/ '\s+/g," '");
+  t=t.replace(/\n{3,}/g,'\n\n');
+  return t.trim();
+}
+
+function dividirEmTokens(texto){
+  const t=formatarTextoNarrativo(texto);
+  const tokens=[];
+  let atual='';
+  for(const ch of t){
+    atual+=ch;
+    if(ch===' ' || ch==='\n'){
+      tokens.push(atual);
+      atual='';
+    }
+  }
+  if(atual) tokens.push(atual);
+  return tokens;
+}
+
+function mostrarTela(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+async function carregarIndiceCasos(){
+  try{
+    const res=await fetch('data/casos/index.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('index não encontrado');
+    const data=await res.json();
+    casosIndex=Array.isArray(data)?data:(data.historias||data.casos||[]);
+    if(!casosIndex.length) throw new Error('index vazio');
+  }catch(e){
+    casosIndex=[{id:'caso_001_disco_ouro',titulo:'O Disco Desaparecido da Série de Ouro',arquivo:'caso_001_disco_ouro.json'}];
+  }
+  recorde=parseInt(localStorage.getItem('rozenblit_recorde')||'0',10);
+  setTextSafe('best-score-display', `🏆 Recorde: ${recorde} pts`);
+}
+
+async function carregarHistoria(id){
+  try{
+    const item=casosIndex.find(c=>c.id===id)||{};
+    const arquivo=item.arquivo||`${id}.json`;
+    const res=await fetch(`data/casos/${arquivo}`,{cache:'no-store'});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    historiaAtual=await res.json();
+    return true;
+  }catch(e){
+    alert(`Erro ao carregar o caso. Rode em servidor local e confira data/casos/${id}.json`);
+    console.error(e);
+    return false;
+  }
+}
+
+function configurarVisualHistoria(){
+  const cenario=historiaAtual.cenario||'museu';
+  const bg=$('game-bg');
+  bg.style.backgroundImage=`url('static/cenarios/${cenario}.jpg')`;
+
+  const personagem=historiaAtual.personagem||'arquivista';
+  const genero=historiaAtual.generoPersonagem || (Math.random()<.5?'m':'f');
+  const img=$('character-img');
+  const avatar=$('character-avatar');
+  img.style.display='block';
+  avatar.style.display='none';
+  img.src=`static/personagens/${personagem}_${genero}.png`;
+  img.onerror=()=>{img.style.display='none';avatar.style.display='flex';avatar.textContent='🕵️';};
+  $('char-name-tag').textContent=historiaAtual.nomePersonagem || (genero==='m'?'Investigador':'Investigadora');
+  $('case-title-mini').textContent=historiaAtual.titulo||'';
+}
+
+async function iniciarHistoria(historia){
+  if(!historia) return;
+  pontuacao=0;pistasUsadas=0;pistasGuardadas=[];atualizarHUD();atualizarBotaoPista();
+  configurarVisualHistoria();
+  const primeira=historia.cenas?.find(c=>c.id==='intro') || historia.cenas?.[0];
+  if(!primeira){alert('Caso sem cenas.');return;}
+  mostrarTela('screen-game');
+  tocarMusicaSuspense();
+  mostrarCena(primeira);
+}
+
+function mostrarCena(cena){
+  cenaAtual=cena;
+  clearInterval(typingTimer);
+  digitando=false;
+  $('choices-container').style.display='none';
+  $('choices-container').innerHTML='';
+  $('dialogue-box').style.display='flex';
+  $('tools-row').style.display='flex';
+  $('notebook-panel').style.display='none';
+  atualizarBotaoPista();
+
+  if(cena.cenario){$('game-bg').style.backgroundImage=`url('static/cenarios/${cena.cenario}.jpg')`;}
+  if(cena.personagem){trocarPersonagem(cena.personagem,cena.nomePersonagem);}
+
+  if(cena.evidencia){$('evidence-content').textContent=formatarTextoNarrativo(cena.evidencia);$('evidence-panel').style.display='block';}
+  else {$('evidence-panel').style.display='none';}
+
+  let texto=formatarTextoNarrativo(cena.texto||'Sem descrição.');
+  if(cena.tipo_desafio==='pergunta' && cena.pergunta){texto += `\n\n${formatarTextoNarrativo(cena.pergunta)}`;}
+
+  const speaker=cena.speaker||cena.narrador||'Narrador';
+  mostrarDialogo(speaker,texto,()=>{
+    if(cena.tipo_desafio==='pergunta') mostrarPergunta(cena);
+    else if(cena.acoes?.length) mostrarAcoes(cena.acoes);
+    else if(cena.proxima_cena) irParaCena(cena.proxima_cena);
+    else finalizarPartida(true);
+  });
+}
+
+function trocarPersonagem(tipo,nome){
+  const img=$('character-img'), avatar=$('character-avatar');
+  img.style.display='block';avatar.style.display='none';
+  img.src=`static/personagens/${tipo}.png`;
+  img.onerror=()=>{img.style.display='none';avatar.style.display='flex';avatar.textContent='🕵️';};
+  if(nome) $('char-name-tag').textContent=nome;
+}
+
+function mostrarDialogo(speaker,texto,callback){
+  clearInterval(typingTimer);
+  digitando=false;
+
+  $('dialogue-box').style.display='flex';
+  $('choices-container').style.display='none';
+  $('dialogue-speaker').textContent=speaker||'Narrador';
+
+  const txt=$('dialogue-text');
+  textoCompletoAtual=formatarTextoNarrativo(texto);
+  txt.textContent='';
+  digitando=true;
+
+  // Substitui o botão por um clone para limpar todos os listeners anteriores
+  const oldBtn=$('dialogue-advance');
+  const newBtn=oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn,oldBtn);
+  newBtn.textContent='Pular ▶';
+
+  const tokens=dividirEmTokens(textoCompletoAtual);
+  let i=0;
+  typingTimer=setInterval(()=>{
+    txt.textContent += tokens[i] || '';
+    i++;
+    if(i>=tokens.length){
+      clearInterval(typingTimer);
+      digitando=false;
+      newBtn.textContent='Avançar ▶';
+    }
+  },38);
+
+  newBtn.onclick=()=>{
+    if(digitando){
+      clearInterval(typingTimer);
+      txt.textContent=textoCompletoAtual;
+      digitando=false;
+      newBtn.textContent='Avançar ▶';
+      return;
+    }
+    callback&&callback();
+  };
+}
+
+function mostrarAcoes(acoes){
+  $('dialogue-box').style.display = 'none'; // Esconde o texto anterior
+  const c = $('choices-container');
+  c.innerHTML = ''; // Limpa botões antigos
+  
+  acoes.forEach(acao => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = formatarTextoNarrativo(acao.texto || 'Continuar');
+    b.onclick = () => {
+      // Esta é a parte crucial para a transição
+      if(acao.proxima_cena) {
+        irParaCena(acao.proxima_cena); 
+      } else {
+        mostrarCena(cenaAtual);
+      }
+    };
+    c.appendChild(b);
+  });
+  c.style.display = 'flex'; // Exibe os novos botões
+}
+
+function mostrarPergunta(cena){
+  $('dialogue-box').style.display='none';
+  const c=$('choices-container');
+  c.innerHTML=`<div class="challenge-title">DESAFIO</div><div style="font-weight:700;margin-bottom:.35rem">${formatarTextoNarrativo(cena.pergunta||'Escolha uma alternativa:')}</div>`;
+  (cena.alternativas||[]).forEach(alt=>{
+    const b=document.createElement('button');
+    b.className='choice-btn';
+    b.textContent=formatarTextoNarrativo(alt);
+    b.onclick=()=>responderPergunta(cena,alt,b);
+    c.appendChild(b);
+  });
+  c.style.display='flex';
+}
+
+function responderPergunta(cena,alt,btn){
+  // Desabilita todos os botões imediatamente para evitar duplo clique
+  document.querySelectorAll('#choices-container .choice-btn').forEach(b=>{b.disabled=true;b.onclick=null;});
+
+  const correta=normalizar(alt)===normalizar(cena.resposta_correta);
+  if(correta){
+    const base=[100,75,50,30];
+    pontuacao += base[Math.min(pistasUsadas,3)];
+    btn.classList.add('correct');
+  }else{
+    pontuacao=Math.max(0,pontuacao-10);
+    btn.classList.add('wrong');
+  }
+  atualizarHUD();
+
+  setTimeout(()=>{
+    $('choices-container').style.display='none';
+    const mensagem = correta
+      ? (cena.acerto || 'Resposta correta! Você encontrou uma pista importante.')
+      : (cena.erro || 'Que pena... essa resposta não confere com as pistas do arquivo. Vamos tentar outra vez?');
+    mostrarDialogo(correta?'Investigador':'Narrador', mensagem,()=>{
+      if(correta && cena.proxima_cena_acerto) irParaCena(cena.proxima_cena_acerto);
+      else if(correta && cena.acoes?.length) mostrarAcoes(cena.acoes);
+      else if(correta && cena.proxima_cena) irParaCena(cena.proxima_cena);
+      else if(correta) continuarAposAcertoSemProxima(cena);
+      else mostrarOpcoesErro(cena);
+    });
+  },700);
+}
+
+function continuarAposAcertoSemProxima(cena){
+  const idx=historiaAtual?.cenas?.findIndex(c=>c.id===cena.id) ?? -1;
+  const proxima=idx>=0 ? historiaAtual.cenas[idx+1] : null;
+
+  if(proxima){
+    const c=$('choices-container');
+    $('dialogue-box').style.display='none';
+    c.innerHTML='<div class="challenge-title">Investigação avançada</div>';
+    const b=document.createElement('button');
+    b.className='choice-btn';
+    b.textContent='Continuar investigação ▶';
+    b.onclick=()=>mostrarCena(proxima);
+    c.appendChild(b);
+    c.style.display='flex';
+    return;
+  }
+
+  finalizarPartida(true);
+}
+
+function mostrarOpcoesErro(cena){
+  const c=$('choices-container');
+  c.innerHTML='<div class="challenge-title">O que deseja fazer?</div>';
+  const opcoes=[
+    {txt:'🔁 Tentar responder novamente',fn:()=>mostrarPergunta(cena)},
+    {txt:'📒 Ver pistas guardadas',fn:()=>abrirNotebook()},
+    {txt:'📂 Ir para outro caso',fn:()=>mostrarTela('screen-title')}
+  ];
+  if(cena.proxima_cena_erro){opcoes.unshift({txt:'↩ Seguir por outro caminho',fn:()=>irParaCena(cena.proxima_cena_erro)});}
+  opcoes.forEach(o=>{const b=document.createElement('button');b.className='choice-btn';b.textContent=o.txt;b.onclick=o.fn;c.appendChild(b);});
+  c.style.display='flex';
+}
+
+function irParaCena(id){
+  const prox=historiaAtual.cenas.find(c=>c.id===id);
+  if(!prox){console.error('Cena não encontrada:',id);alert('Cena não encontrada: '+id);return;}
+  mostrarCena(prox);
+}
+
+function pistaAtualTexto(){
+  if(!cenaAtual) return '';
+  return cenaAtual.pista_guardavel || cenaAtual.evidencia || cenaAtual.pista || cenaAtual.texto || '';
+}
+
+function chavePistaAtual(){
+  return `${historiaAtual?.id||'caso'}::${cenaAtual?.id||'cena'}`;
+}
+
+function pistaJaGuardada(){
+  const chave=chavePistaAtual();
+  return pistasGuardadas.some(p=>p.chave===chave);
+}
+
+function atualizarBotaoPista(){
+  const btn=$('btn-pista');
+  if(!btn) return;
+  btn.textContent = pistaJaGuardada() ? `📒 Pistas (${pistasGuardadas.length})` : '📒 Guardar pista';
+}
+
+function guardarPistaDaCena(mostrarMensagem=true){
+  const texto=formatarTextoNarrativo(pistaAtualTexto());
+  const chave=chavePistaAtual();
+  if(texto && !pistaJaGuardada()){
+    pistasGuardadas.push({chave,titulo:cenaAtual?.id||'Cena',texto});
+    pistasUsadas=pistasGuardadas.length;
+    atualizarHUD();
+    atualizarBotaoPista();
+    if(mostrarMensagem){
+      mostrarDialogo('📒 Pista guardada','Anotei essa informação no seu caderno de investigação.',()=>abrirNotebook());
+    }
+    return true;
+  }
+  return false;
+}
+
+function usarPista(){
+  const salvou=guardarPistaDaCena(true);
+  if(!salvou) abrirNotebook();
+}
+
+function abrirNotebook(){
+  const painel=$('notebook-panel');
+  const lista=$('notebook-list');
+  if(!pistasGuardadas.length){lista.innerHTML='<div class="note-empty">Nenhuma pista guardada ainda. Investigue uma cena e toque em “Guardar pista”.</div>';}
+  else{
+    lista.innerHTML=pistasGuardadas.map((p,i)=>`<div class="note-item"><strong>Pista ${i+1}</strong><br>${p.texto}</div>`).join('');
+  }
+  painel.style.display='block';
+  $('dialogue-box').style.display='none';
+  $('choices-container').style.display='none';
+}
+
+function fecharNotebook(){
+  $('notebook-panel').style.display='none';
+  if(cenaAtual){
+    // Se há choices já montadas (ex: após erro), restaura choices; senão restaura dialogue
+    const c=$('choices-container');
+    if(c.innerHTML.trim() && c.children.length > 0){
+      c.style.display='flex';
+    } else {
+      $('dialogue-box').style.display='flex';
+    }
+    $('tools-row').style.display='flex';
+  }
+}
+
+function finalizarPartida(){
+  pararMusica();
+  if(pontuacao>recorde){recorde=pontuacao;localStorage.setItem('rozenblit_recorde',recorde);}
+  let rank='Auxiliar de Arquivo';
+  if(pontuacao>=401) rank='Guardião da Memória Musical';
+  else if(pontuacao>=301) rank='Curador Rozenblit';
+  else if(pontuacao>=201) rank='Detetive do Acervo';
+  else if(pontuacao>=101) rank='Investigador Musical';
+  $('end-rank').textContent=rank;
+  $('end-score').textContent=pontuacao;
+  $('end-record').textContent=`Recorde: ${recorde} pts`;
+  mostrarTela('screen-end');
+}
+
+function atualizarHUD(){
+  $('hud-score').textContent=pontuacao;
+  $('hud-pistas').textContent=pistasUsadas;
+}
+
+function tocarMusicaSuspense(){
+  musicaAtiva = false;
+  musicNodes = [];
+  $('btn-som').textContent = '♪ Som';
+}
+function pararMusica(){
+  musicNodes.forEach(n=>{try{if(n.stop)n.stop(); if(n.disconnect)n.disconnect();}catch(e){}});
+  musicNodes=[]; musicaAtiva=false; $('btn-som').textContent='♪ Som';
+}
+function alternarSom(){musicaAtiva?pararMusica():null}// Som ambiente desativado por enquanto  // Use arquivos reais em static/audio/ futuramente.
+
+$('btn-novo-aleatorio').onclick=async()=>{if(!casosIndex.length) await carregarIndiceCasos(); const item=casosIndex[Math.floor(Math.random()*casosIndex.length)]; if(await carregarHistoria(item.id)) iniciarHistoria(historiaAtual);};
+$('btn-escolher-caso').onclick=async()=>{const panel=$('lista-casos-panel'),lista=$('lista-casos'); if(panel.style.display==='block'){panel.style.display='none';return;} if(!casosIndex.length) await carregarIndiceCasos(); lista.innerHTML=''; casosIndex.forEach(c=>{const b=document.createElement('button'); b.textContent=c.titulo||c.id; b.onclick=async()=>{panel.style.display='none'; if(await carregarHistoria(c.id)) iniciarHistoria(historiaAtual);}; lista.appendChild(b);}); panel.style.display='block';};
+$('btn-fechar-lista').onclick=()=>$('lista-casos-panel').style.display='none';
+$('btn-como-jogar').onclick=()=>mostrarTela('screen-howto');
+$('voltar-titulo').onclick=()=>mostrarTela('screen-title');
+$('btn-voltar-museu').onclick=()=>{window.location.href='index.html';};
+$('btn-pista').onclick=usarPista;
+$('btn-fechar-notebook').onclick=fecharNotebook;
+$('btn-som').onclick=alternarSom;
+$('btn-menu-jogo').onclick=()=>{pararMusica();mostrarTela('screen-title');};
+$('end-novo-jogo').onclick=()=>mostrarTela('screen-title');
+$('end-menu').onclick=()=>mostrarTela('screen-title');
+
+(async function init(){await carregarIndiceCasos();$('loading').style.display='none';mostrarTela('screen-title');})();
+</script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Forca do Acervo Rozenblit — Museu Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'playfair': ['"Playfair Display"', 'Georgia', 'serif'], 'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'] },
+                    colors: { 'papel': '#fffaf0', 'verde-cacto': '#315f43', 'barro': '#a44f25', 'ouro': '#c49a3a', 'texto': '#2b241b', 'texto-suave': '#6f604c' }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; user-select: none; }
+        body {
+            background: radial-gradient(circle at 10% 20%, rgba(79,127,82,0.12) 0%, #ede5cf 100%);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: "🎵";
+            font-size: 140px;
+            position: fixed;
+            bottom: -20px;
+            left: -30px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            z-index: 0;
+        }
+        body::after {
+            content: "💿";
+            font-size: 120px;
+            position: fixed;
+            top: 30px;
+            right: -20px;
+            opacity: 0.07;
+            pointer-events: none;
+            transform: rotate(20deg);
+            z-index: 0;
+        }
+        .forca-card {
+            background: rgba(255,250,240,0.96);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(49,95,67,0.3);
+            box-shadow: 0 25px 40px -12px rgba(0,0,0,0.25);
+        }
+        .keyboard-btn {
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+        .keyboard-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            background-color: #c49a3a !important;
+            color: white !important;
+        }
+        .keyboard-btn:active { transform: scale(0.98); }
+        .letra-acertada { animation: pulseLetter 0.3s ease; }
+        @keyframes pulseLetter {
+            0% { transform: scale(1); text-shadow: 0 0 0 #c49a3a; }
+            50% { transform: scale(1.2); text-shadow: 0 0 8px #c49a3a; }
+            100% { transform: scale(1); text-shadow: none; }
+        }
+        .coracao { font-size: 1.8rem; display: inline-block; transition: 0.2s; }
+        .perdido { filter: grayscale(0.6); opacity: 0.5; transform: scale(0.9); }
+        .medalha {
+            font-size: 4rem;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));
+        }
+        .forca-desenho svg { width: 100%; max-width: 220px; margin: 0 auto; display: block; }
+        .dica-box {
+            background: rgba(196,154,58,0.15);
+            border-left: 5px solid #c49a3a;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #315f43;
+            color: #fffaf0;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: #c49a3a; transform: translateY(-2px); }
+        .btn-secondary {
+            background: #fffaf0;
+            border: 1px solid #315f43;
+            color: #315f43;
+            padding: 8px 20px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .btn-secondary:hover { background: #e8dbbf; }
+        .palavra-secreta span {
+            display: inline-block;
+            min-width: 2.2rem;
+            text-align: center;
+            border-bottom: 3px solid #a44f25;
+            margin: 0 5px;
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: #2b241b;
+        }
+        @media (max-width: 640px) {
+            .palavra-secreta span { min-width: 1.5rem; font-size: 1.4rem; margin: 0 2px; }
+            .keyboard-btn { padding: 0.5rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen">
+
+<div id="loading" class="text-center p-8 bg-papel rounded-3xl shadow-xl z-20">
+    <div class="w-16 h-16 border-4 border-verde-cacto border-t-ouro rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="font-playfair text-xl text-verde-cacto">Carregando acervo musical...</p>
+</div>
+
+<div id="jogo-container" class="hidden max-w-5xl w-full mx-auto relative z-10">
+    <div class="forca-card rounded-3xl shadow-2xl overflow-hidden">
+        <!-- CABEÇALHO -->
+        <div class="bg-gradient-to-r from-verde-cacto to-verde-mandacaru px-5 py-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-black/30 rounded-full flex items-center justify-center">
+                    <i data-lucide="help-circle" class="w-5 h-5 text-ouro"></i>
+                </div>
+                <h1 class="font-playfair text-xl text-white">🪢 Forca do Acervo Rozenblit</h1>
+            </div>
+            <div class="flex gap-2 items-center">
+                <span id="pontuacao-display" class="bg-papel text-verde-cacto font-bold px-3 py-1 rounded-full text-sm">🏆 0</span>
+                <span id="recorde-display" class="bg-black/30 text-papel px-2 py-1 rounded-full text-xs">🏅 Recorde: 0</span>
+                <a href="index.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-3 py-1 rounded-full text-sm font-semibold transition flex items-center gap-1 shadow">
+                    <i data-lucide="home" class="w-4 h-4"></i> Museu
+                </a>
+            </div>
+        </div>
+
+        <!-- TELA INICIAL -->
+        <div id="tela-inicial" class="p-6 text-center">
+            <p class="text-lg mb-2">Descubra palavras do universo <strong class="text-barro">Rozenblit</strong></p>
+            <p class="text-texto-suave text-sm mb-5">Artistas • Títulos • Músicas • Gravadoras • Selos</p>
+            
+            <div class="max-w-xs mx-auto mb-6">
+                <label class="block text-left text-sm font-bold text-verde-cacto mb-1">🎚️ Dificuldade</label>
+                <select id="dificuldade" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel">
+                    <option value="facil">🍃 Fácil (7 erros)</option>
+                    <option value="medio" selected>⚡ Médio (6 erros)</option>
+                    <option value="dificil">🔥 Difícil (5 erros)</option>
+                </select>
+                <p class="text-xs text-texto-suave mt-1">Afeta o número de tentativas</p>
+            </div>
+
+            <button id="btn-iniciar" class="btn-primary text-lg px-8 py-3 flex items-center gap-2 mx-auto">
+                <i data-lucide="play" class="w-5 h-5"></i> Começar Jogo
+            </button>
+
+            <div class="mt-6 text-sm text-texto-suave flex justify-center gap-4">
+                <span><i data-lucide="lightbulb" class="w-3 h-3 inline"></i> 2 dicas</span>
+                <span><i data-lucide="heart" class="w-3 h-3 inline"></i> Vidas</span>
+                <span><i data-lucide="trophy" class="w-3 h-3 inline"></i> Ranking</span>
+            </div>
+        </div>
+
+        <!-- TELA DO JOGO -->
+        <div id="tela-jogo" class="hidden p-5 md:p-6">
+            <div class="grid md:grid-cols-[220px_1fr] gap-5">
+                <!-- Área da forca (desenho SVG) -->
+                <div class="forca-desenho bg-papel/40 rounded-2xl p-2 flex justify-center items-center">
+                    <svg id="forca-svg" viewBox="0 0 200 200" width="100%" height="auto">
+                        <!-- Estrutura fixa -->
+                        <line x1="40" y1="180" x2="160" y2="180" stroke="#6f604c" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="100" y1="180" x2="100" y2="30" stroke="#6f604c" stroke-width="4"/>
+                        <line x1="100" y1="30" x2="150" y2="30" stroke="#6f604c" stroke-width="4"/>
+                        <line x1="150" y1="30" x2="150" y2="55" stroke="#6f604c" stroke-width="4"/>
+                        <!-- Cabeça -->
+                        <circle id="parte-cabeca" cx="150" cy="70" r="15" stroke="#a44f25" stroke-width="3" fill="none" display="none"/>
+                        <!-- Corpo -->
+                        <line id="parte-corpo" x1="150" y1="85" x2="150" y2="130" stroke="#a44f25" stroke-width="3" display="none"/>
+                        <!-- Braços -->
+                        <line id="parte-braco-esq" x1="150" y1="95" x2="130" y2="115" stroke="#a44f25" stroke-width="3" display="none"/>
+                        <line id="parte-braco-dir" x1="150" y1="95" x2="170" y2="115" stroke="#a44f25" stroke-width="3" display="none"/>
+                        <!-- Pernas -->
+                        <line id="parte-perna-esq" x1="150" y1="130" x2="130" y2="160" stroke="#a44f25" stroke-width="3" display="none"/>
+                        <line id="parte-perna-dir" x1="150" y1="130" x2="170" y2="160" stroke="#a44f25" stroke-width="3" display="none"/>
+                    </svg>
+                </div>
+
+                <!-- Área da palavra e controles -->
+                <div>
+                    <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+                        <div id="vidas" class="text-2xl">❤️❤️❤️❤️❤️❤️</div>
+                        <div class="flex gap-2">
+                            <button id="dica1-btn" class="btn-dica bg-ouro/20 border border-ouro text-barro px-3 py-1 rounded-full text-sm font-semibold">💡 Dica 1</button>
+                            <button id="dica2-btn" class="btn-dica bg-ouro/20 border border-ouro text-barro px-3 py-1 rounded-full text-sm font-semibold">💡 Dica 2</button>
+                        </div>
+                    </div>
+
+                    <div class="palavra-secreta text-center my-6" id="palavra-container"></div>
+
+                    <div class="text-center text-sm text-texto-suave mb-3" id="categoria-indicador"></div>
+
+                    <div id="dicas-area" class="dica-box p-3 rounded-xl mb-5 text-sm text-texto"></div>
+
+                    <!-- Teclado virtual -->
+                    <div id="teclado-virtual" class="grid grid-cols-7 sm:grid-cols-9 gap-1.5 mt-4"></div>
+
+                    <div class="mt-5 flex justify-center gap-3">
+                        <button id="btn-novo-jogo" class="btn-secondary text-sm">🔄 Nova palavra</button>
+                        <button id="btn-sair" class="btn-secondary text-sm">🏠 Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="tela-fim" class="hidden p-8 text-center">
+            <div id="medalha-final" class="medalha mb-2">🏅</div>
+            <h2 class="font-playfair text-3xl text-verde-cacto">Resultado</h2>
+            <p id="mensagem-final" class="text-lg mt-2"></p>
+            <p id="pontos-final" class="text-5xl font-bold text-ouro my-3">0</p>
+            <p id="titulo-conquistado" class="text-texto-suave italic mb-4"></p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button id="btn-jogar-novamente" class="btn-primary">🔁 Jogar novamente</button>
+                <a href="index.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10">🏛️ Museu</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- DADOS GLOBAIS ----------
+    let catalogo = [];
+    let fichasMap = new Map();
+    let listaPalavras = [];       // array de objetos { palavra, dica1, dica2, categoria }
+    let palavraAtual = null;
+    let letrasDescobertas = new Set();   // letras já acertadas
+    let letrasErradas = new Set();
+    let vidasRestantes = 6;
+    let dificuldade = "medio";
+    let pontuacaoAtual = 0;
+    let dica1Usada = false, dica2Usada = false;
+    let recorde = 0;
+    let jogoAtivo = false;
+    let somAudio = null;  // opcional
+
+    // Elementos DOM
+    const loadingDiv = document.getElementById('loading');
+    const container = document.getElementById('jogo-container');
+    const telaInicial = document.getElementById('tela-inicial');
+    const telaJogo = document.getElementById('tela-jogo');
+    const telaFim = document.getElementById('tela-fim');
+    const vidasSpan = document.getElementById('vidas');
+    const palavraContainer = document.getElementById('palavra-container');
+    const dicasArea = document.getElementById('dicas-area');
+    const tecladoDiv = document.getElementById('teclado-virtual');
+    const pontuacaoDisplay = document.getElementById('pontuacao-display');
+    const recordeDisplay = document.getElementById('recorde-display');
+    const categoriaIndicador = document.getElementById('categoria-indicador');
+    const btnIniciar = document.getElementById('btn-iniciar');
+    const btnNovoJogo = document.getElementById('btn-novo-jogo');
+    const btnSair = document.getElementById('btn-sair');
+    const btnJogarNovamente = document.getElementById('btn-jogar-novamente');
+    const dica1Btn = document.getElementById('dica1-btn');
+    const dica2Btn = document.getElementById('dica2-btn');
+    const dificuldadeSelect = document.getElementById('dificuldade');
+
+    // ---------- CARREGAMENTO DOS JSON ----------
+    async function carregarDados() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json'),
+                fetch('fichas.json')
+            ]);
+            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSONs');
+            const catalogoData = await catalogoRes.json();
+            const fichasData = await fichasRes.json();
+            catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
+            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
+            
+            construirListaPalavras();
+            carregarRecorde();
+            loadingDiv.classList.add('hidden');
+            container.classList.remove('hidden');
+        } catch (err) {
+            loadingDiv.innerHTML = `<p class="text-red-700">Erro: ${err.message}. Verifique os arquivos JSON.</p>`;
+        }
+    }
+
+    // Extrai palavras do catálogo + fichas
+    function construirListaPalavras() {
+        listaPalavras = [];
+        // 1. Artistas
+        const artistasSet = new Set();
+        catalogo.forEach(item => {
+            if (item.artista && item.artista.trim()) artistasSet.add(item.artista.trim());
+        });
+        artistasSet.forEach(artista => {
+            if (artista.length >= 3) {
+                listaPalavras.push({
+                    palavra: artista.toUpperCase(),
+                    dica1: `Artista pernambucano(a) ou nacional registrado(a) pela Rozenblit.`,
+                    dica2: `Presente no catálogo do museu digital.`,
+                    categoria: "Artista"
+                });
+            }
+        });
+        // 2. Títulos de discos
+        catalogo.forEach(item => {
+            if (item.titulo && item.titulo.length >= 3) {
+                listaPalavras.push({
+                    palavra: item.titulo.toUpperCase(),
+                    dica1: `Disco gravado pela ${item.gravadora || 'Rozenblit'}.`,
+                    dica2: `Álbum presente no acervo do museu.`,
+                    categoria: "Título de disco"
+                });
+            }
+        });
+        // 3. Músicas (a partir das fichas)
+        fichasMap.forEach((ficha, id) => {
+            if (ficha.faixas && Array.isArray(ficha.faixas)) {
+                ficha.faixas.forEach(faixa => {
+                    let nomeMusica = faixa.nome;
+                    if (nomeMusica && nomeMusica.length >= 4 && nomeMusica.length <= 35) {
+                        listaPalavras.push({
+                            palavra: nomeMusica.toUpperCase(),
+                            dica1: `Música do acervo Rozenblit.`,
+                            dica2: `Presente no disco ${ficha.numeroCatalogo || 'do catálogo'}.`,
+                            categoria: "Música"
+                        });
+                    }
+                });
+            }
+        });
+        // 4. Gravadoras / Selos
+        const selosSet = new Set();
+        catalogo.forEach(item => {
+            if (item.gravadora && item.gravadora.trim()) selosSet.add(item.gravadora.trim());
+        });
+        selosSet.forEach(selo => {
+            if (selo.length >= 3) {
+                listaPalavras.push({
+                    palavra: selo.toUpperCase(),
+                    dica1: `Selo ou gravadora do acervo Rozenblit.`,
+                    dica2: `Responsável pelo lançamento de diversos discos pernambucanos.`,
+                    categoria: "Gravadora/Selo"
+                });
+            }
+        });
+        // Remove palavras muito curtas ou com números/caracteres especiais (apenas letras e espaços)
+        listaPalavras = listaPalavras.filter(p => /^[A-ZÀ-Ü\s]+$/.test(p.palavra) && p.palavra.length >= 3);
+        // Remove duplicatas
+        const mapUnique = new Map();
+        for (const p of listaPalavras) {
+            if (!mapUnique.has(p.palavra)) mapUnique.set(p.palavra, p);
+        }
+        listaPalavras = Array.from(mapUnique.values());
+        // Embaralha para sorteio aleatório
+        for (let i = listaPalavras.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [listaPalavras[i], listaPalavras[j]] = [listaPalavras[j], listaPalavras[i]];
+        }
+        console.log(`Palavras carregadas: ${listaPalavras.length}`);
+    }
+
+    // ---------- RECORDE ----------
+    function carregarRecorde() {
+        const saved = localStorage.getItem("rozenblit_forca_recorde");
+        if (saved) recorde = parseInt(saved, 10);
+        atualizarDisplayRecorde();
+    }
+    function salvarRecorde() {
+        if (pontuacaoAtual > recorde) {
+            recorde = pontuacaoAtual;
+            localStorage.setItem("rozenblit_forca_recorde", recorde);
+            atualizarDisplayRecorde();
+        }
+    }
+    function atualizarDisplayRecorde() {
+        recordeDisplay.innerText = `🏅 Recorde: ${recorde}`;
+    }
+
+    // ---------- INICIAR JOGO ----------
+    function iniciarJogo(novaPalavra = null) {
+        dificuldade = dificuldadeSelect.value;
+        let maxErros = 6;
+        if (dificuldade === 'facil') maxErros = 7;
+        else if (dificuldade === 'dificil') maxErros = 5;
+        else maxErros = 6;
+        
+        vidasRestantes = maxErros;
+        letrasDescobertas.clear();
+        letrasErradas.clear();
+        dica1Usada = false;
+        dica2Usada = false;
+        pontuacaoAtual = 0;
+        atualizarPontuacaoDisplay();
+        jogoAtivo = true;
+        
+        // Escolhe palavra
+        if (novaPalavra) palavraAtual = novaPalavra;
+        else {
+            if (listaPalavras.length === 0) {
+                alert("Nenhuma palavra disponível. Recarregue os dados.");
+                return;
+            }
+            const indiceAleatorio = Math.floor(Math.random() * listaPalavras.length);
+            palavraAtual = { ...listaPalavras[indiceAleatorio] };
+        }
+        
+        // Atualiza interface
+        categoriaIndicador.innerText = `📀 Categoria: ${palavraAtual.categoria}`;
+        dicasArea.innerHTML = '<span class="italic text-texto-suave">Clique em uma dica para revelar</span>';
+        desenharPalavra();
+        atualizarVidasDisplay();
+        desenharForca();
+        gerarTecladoVirtual();
+        // Habilita dicas
+        dica1Btn.disabled = false;
+        dica2Btn.disabled = false;
+        dica1Btn.classList.remove('opacity-50');
+        dica2Btn.classList.remove('opacity-50');
+        
+        mostrarTela('jogo');
+    }
+
+    function mostrarTela(tela) {
+        telaInicial.classList.add('hidden');
+        telaJogo.classList.add('hidden');
+        telaFim.classList.add('hidden');
+        if (tela === 'inicial') telaInicial.classList.remove('hidden');
+        else if (tela === 'jogo') telaJogo.classList.remove('hidden');
+        else if (tela === 'fim') telaFim.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function desenharPalavra() {
+        const palavra = palavraAtual.palavra;
+        let html = '';
+        for (let letra of palavra) {
+            if (letra === ' ') html += '<span style="border-bottom: none; min-width: 1rem;">&nbsp;</span>';
+            else if (letrasDescobertas.has(letra)) {
+                html += `<span class="letra-acertada">${letra}</span>`;
+            } else {
+                html += `<span>_</span>`;
+            }
+        }
+        palavraContainer.innerHTML = html;
+        // Verifica se ganhou
+        let ganhou = true;
+        for (let letra of palavra) {
+            if (letra !== ' ' && !letrasDescobertas.has(letra)) {
+                ganhou = false;
+                break;
+            }
+        }
+        if (ganhou && jogoAtivo) {
+            finalizarJogo(true);
+        }
+    }
+
+    function atualizarVidasDisplay() {
+        let coracoes = '';
+        const maxVidas = (dificuldade === 'facil') ? 7 : (dificuldade === 'dificil' ? 5 : 6);
+        for (let i = 0; i < maxVidas; i++) {
+            if (i < vidasRestantes) coracoes += '❤️ ';
+            else coracoes += '🖤 ';
+        }
+        vidasSpan.innerHTML = coracoes.trim();
+    }
+
+    function desenharForca() {
+        const partes = ['cabeca', 'corpo', 'braco-esq', 'braco-dir', 'perna-esq', 'perna-dir'];
+        const totalErrosPermitidos = (dificuldade === 'facil') ? 7 : (dificuldade === 'dificil' ? 5 : 6);
+        const errosAtuais = totalErrosPermitidos - vidasRestantes;
+        // Esconde todas
+        for (let i = 0; i < partes.length; i++) {
+            const el = document.getElementById(`parte-${partes[i]}`);
+            if (el) el.style.display = 'none';
+        }
+        // Mostra partes de acordo com erros
+        for (let i = 0; i < errosAtuais && i < partes.length; i++) {
+            const el = document.getElementById(`parte-${partes[i]}`);
+            if (el) el.style.display = 'block';
+        }
+    }
+
+    function gerarTecladoVirtual() {
+        const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        tecladoDiv.innerHTML = '';
+        letras.forEach(letra => {
+            const btn = document.createElement('button');
+            btn.innerText = letra;
+            btn.className = 'keyboard-btn bg-papel border border-verde-cacto/30 rounded-full py-2 text-center font-bold shadow-sm transition';
+            btn.disabled = letrasDescobertas.has(letra) || letrasErradas.has(letra);
+            if (letrasDescobertas.has(letra)) btn.classList.add('bg-green-100', 'text-green-700');
+            else if (letrasErradas.has(letra)) btn.classList.add('bg-red-100', 'text-red-600', 'line-through');
+            btn.onclick = () => tentarLetra(letra);
+            tecladoDiv.appendChild(btn);
+        });
+    }
+
+    function tentarLetra(letra) {
+        if (!jogoAtivo) return;
+        if (letrasDescobertas.has(letra) || letrasErradas.has(letra)) return;
+        
+        const palavra = palavraAtual.palavra;
+        if (palavra.includes(letra)) {
+            letrasDescobertas.add(letra);
+            desenharPalavra();
+            // Pequena animação sonora opcional (se quiser, descomente)
+            // if (somAudio) somAudio.play();
+        } else {
+            letrasErradas.add(letra);
+            vidasRestantes--;
+            atualizarVidasDisplay();
+            desenharForca();
+            if (vidasRestantes === 0) finalizarJogo(false);
+        }
+        gerarTecladoVirtual(); // recria teclado com novas letras desabilitadas
+        // Verifica vitória novamente (pode ter ganho após acertar última letra)
+        let ganhou = true;
+        for (let l of palavra) {
+            if (l !== ' ' && !letrasDescobertas.has(l)) {
+                ganhou = false;
+                break;
+            }
+        }
+        if (ganhou) finalizarJogo(true);
+    }
+
+    function usarDica(numero) {
+        if (!jogoAtivo) return;
+        if (numero === 1 && !dica1Usada) {
+            dica1Usada = true;
+            pontuacaoAtual = 7; // se usar 1 dica, pontuação máxima será 7 (ajustaremos no fim)
+            dicasArea.innerHTML = `<i data-lucide="lightbulb" class="w-4 h-4 inline mr-1"></i> Dica 1: ${palavraAtual.dica1}`;
+            dica1Btn.disabled = true;
+            atualizarPontuacaoDisplay();
+        } else if (numero === 2 && !dica2Usada) {
+            dica2Usada = true;
+            pontuacaoAtual = 5;
+            dicasArea.innerHTML = `<i data-lucide="info" class="w-4 h-4 inline mr-1"></i> Dica 2: ${palavraAtual.dica2}`;
+            dica2Btn.disabled = true;
+            atualizarPontuacaoDisplay();
+        } else {
+            dicasArea.innerHTML = `<i class="text-barro">⚠️ Dica já utilizada!</i>`;
+        }
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function atualizarPontuacaoDisplay() {
+        pontuacaoDisplay.innerText = `🏆 ${pontuacaoAtual}`;
+    }
+
+    function finalizarJogo(vitoria) {
+        jogoAtivo = false;
+        if (vitoria) {
+            let pontosFinais = 10; // base
+            if (dica1Usada) pontosFinais = 7;
+            if (dica2Usada) pontosFinais = 5;
+            pontuacaoAtual = pontosFinais;
+            salvarRecorde();
+            atualizarPontuacaoDisplay();
+            mostrarTelaFim(true);
+        } else {
+            pontuacaoAtual = 0;
+            atualizarPontuacaoDisplay();
+            mostrarTelaFim(false);
+        }
+    }
+
+    function mostrarTelaFim(ganhou) {
+        const medalhaDiv = document.getElementById('medalha-final');
+        const mensagem = document.getElementById('mensagem-final');
+        const pontosFinalSpan = document.getElementById('pontos-final');
+        const tituloSpan = document.getElementById('titulo-conquistado');
+        
+        pontosFinalSpan.innerText = `${pontuacaoAtual}`;
+        if (ganhou) {
+            mensagem.innerHTML = `🎉 Você decifrou a palavra <strong>${palavraAtual.palavra}</strong>! 🎉`;
+            if (pontuacaoAtual === 10) {
+                medalhaDiv.innerHTML = '🥇';
+                tituloSpan.innerText = '🏅 Guardião da Memória Musical';
+            } else if (pontuacaoAtual === 7) {
+                medalhaDiv.innerHTML = '🥈';
+                tituloSpan.innerText = '📖 Pesquisador do Acervo';
+            } else {
+                medalhaDiv.innerHTML = '🥉';
+                tituloSpan.innerText = '🎵 Aprendiz da Rozenblit';
+            }
+        } else {
+            mensagem.innerHTML = `😢 Que pena! A palavra era <strong>${palavraAtual.palavra}</strong>. Continue explorando o museu!`;
+            medalhaDiv.innerHTML = '💔';
+            tituloSpan.innerText = 'Tente novamente!';
+        }
+        mostrarTela('fim');
+    }
+
+    function novoJogo() {
+        iniciarJogo();
+    }
+
+    function voltarMenu() {
+        mostrarTela('inicial');
+    }
+
+    // ---------- EVENTOS ----------
+    btnIniciar.addEventListener('click', () => iniciarJogo());
+    btnNovoJogo.addEventListener('click', () => novoJogo());
+    btnSair.addEventListener('click', () => voltarMenu());
+    btnJogarNovamente.addEventListener('click', () => iniciarJogo());
+    dica1Btn.addEventListener('click', () => usarDica(1));
+    dica2Btn.addEventListener('click', () => usarDica(2));
+
+    // Inicialização
+    carregarDados();
+</script>
+</body>
+</html>

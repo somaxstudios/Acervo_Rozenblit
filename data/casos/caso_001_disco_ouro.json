@@ -1,0 +1,141 @@
+{
+  "id": "caso_001_disco_ouro",
+  "titulo": "O Disco Desaparecido da Série de Ouro",
+  "descricao": "Um raro LP da coleção Série de Ouro desapareceu do acervo da Rozenblit. Sua missão é descobrir onde ele está antes da auditoria da próxima manhã.",
+  "inicio": "18h45",
+  "prazo": "08h00",
+  "cenas": [
+    {
+      "id": "intro",
+      "texto": "O relógio marca 18h45. A auditoria chegará às 08h00. O LP 'Série de Ouro - Vol. 1' desapareceu da Estante B, Gaveta 4. No local você encontra uma etiqueta rasgada e um pequeno pedaço de papel amassado.",
+      "cenario": "museu",
+      "personagem": "curador_m",
+      "som_ambiente": "tic-tac de relógio e passos ecoando",
+      "acoes": [
+        { "texto": "Examinar a etiqueta rasgada", "proxima_cena": "etiqueta" },
+        { "texto": "Investigar o papel amassado", "proxima_cena": "papel" },
+        { "texto": "Ir diretamente ao Arquivo", "proxima_cena": "arquivo" }
+      ]
+    },
+    {
+      "id": "etiqueta",
+      "texto": "Na etiqueta ainda é possível ler: 'GAV 04 - LP 0'. Parece um código interno do Controle de Qualidade.",
+      "cenario": "colecao",
+      "personagem": "arquivista_f",
+      "som_ambiente": "folhas sendo viradas e leve chiado de vinil",
+      "pista_guardavel": "Código etiqueta: GAV 04 - LP 0",
+      "acoes": [ { "texto": "Guardar pista e voltar", "proxima_cena": "intro" } ]
+    },
+    {
+      "id": "papel",
+      "texto": "O papel contém apenas um número escrito à mão: '312'. Ao lado, há um símbolo de nota musical — talvez indique o tempo de uma faixa.",
+      "cenario": "porao_arquivo",
+      "personagem": "jornalista_f",
+      "som_ambiente": "pingos de água e eco distante",
+      "pista_guardavel": "Número no papel: 312 (possível duração da faixa A1)",
+      "acoes": [ { "texto": "Guardar pista e voltar", "proxima_cena": "intro" } ]
+    },
+    {
+      "id": "arquivo",
+      "texto": "Nos registros físicos você encontra uma anotação: 'LP encaminhado para análise técnica'. O nome do técnico foi coberto por corretivo. Há também uma marca de café recente sobre o papel.",
+      "cenario": "arquivo",
+      "personagem": "arquivista_m",
+      "som_ambiente": "máquina de datilografia e folhas sendo empilhadas",
+      "objeto_interativo": "registro manchado de café",
+      "acoes": [
+        { "texto": "Consultar os crachás de acesso", "proxima_cena": "crachas" },
+        { "texto": "Ir para o Almoxarifado", "proxima_cena": "almoxarifado" }
+      ]
+    },
+    {
+      "id": "crachas",
+      "texto": "Três técnicos acessaram o GAV 04 naquele dia: Charles, Ulisses e Rose.",
+      "cenario": "fabrica",
+      "personagem": "curador_f",
+      "som_ambiente": "ruído metálico e vozes abafadas",
+      "tipo_desafio": "pergunta",
+      "pergunta": "Qual deles também registrou entrada na sala de áudio?",
+      "alternativas": [ "Charles", "Ulisses", "Rose" ],
+      "resposta_correta": "Charles",
+      "acerto": "Correto. Charles esteve nas duas salas no mesmo dia.",
+      "erro": "Os registros não confirmam essa pessoa.",
+      "proxima_cena_acerto": "almoxarifado"
+    },
+    {
+      "id": "almoxarifado",
+      "texto": "O almoxarife informa que uma caixa de LPs foi enviada para a triagem por engano. Ele parece nervoso e evita contato visual.",
+      "cenario": "almoxarifado",
+      "personagem": "tecnico_m",
+      "som_ambiente": "caixas sendo arrastadas e rádio tocando baixo",
+      "acoes": [
+        { "texto": "Ir para Triagem", "proxima_cena": "triagem" },
+        { "texto": "Questionar o almoxarife sobre Charles", "proxima_cena": "suspeita_charles" }
+      ]
+    },
+    {
+      "id": "suspeita_charles",
+      "texto": "O almoxarife hesita: 'Charles pediu para guardar algo na prateleira dos discos antigos... mas não era do catálogo atual.'",
+      "cenario": "almoxarifado",
+      "personagem": "tecnico_m",
+      "som_ambiente": "silêncio tenso e leve chiado de vinil",
+      "pista_guardavel": "Charles guardou algo fora do catálogo",
+      "acoes": [ { "texto": "Seguir para Triagem", "proxima_cena": "triagem" } ]
+    },
+    {
+      "id": "triagem",
+      "texto": "Você encontra três capas sem discos. Uma delas tem uma marca circular de café, igual à do registro anterior.",
+      "cenario": "estudio",
+      "personagem": "musico_f",
+      "som_ambiente": "ruído de agulha e música distante",
+      "tipo_desafio": "pergunta",
+      "pergunta": "Qual número de catálogo pertence à Série de Ouro?",
+      "alternativas": [ "LP-001", "RB-102", "LP-450" ],
+      "resposta_correta": "LP-001",
+      "acerto": "A capa correta foi identificada.",
+      "erro": "Essa capa pertence a outro lançamento.",
+      "proxima_cena_acerto": "controle_qualidade"
+    },
+    {
+      "id": "controle_qualidade",
+      "texto": "Você chega ao GAV 04. O técnico Charles está catalogando discos. Ele olha desconfiado e fecha um armário rapidamente.",
+      "cenario": "biblioteca",
+      "personagem": "tecnico_m",
+      "som_ambiente": "som de gavetas e passos lentos",
+      "acoes": [
+        { "texto": "Mostrar a etiqueta encontrada", "proxima_cena": "desafio_final" },
+        { "texto": "Observar o armário fechado", "proxima_cena": "armario" }
+      ]
+    },
+    {
+      "id": "armario",
+      "texto": "O armário está trancado. Há um leve som de música vindo de dentro, como se um toca-discos estivesse ligado.",
+      "cenario": "biblioteca",
+      "personagem": "colecionador_m",
+      "som_ambiente": "música abafada e clique metálico",
+      "acoes": [ { "texto": "Confrontar Charles", "proxima_cena": "desafio_final" } ]
+    },
+    {
+      "id": "desafio_final",
+      "texto": "Charles diz: 'Se realmente está investigando o disco desaparecido, responda: qual era o tempo da Faixa A1?'",
+      "cenario": "estudio",
+      "personagem": "tecnico_m",
+      "som_ambiente": "música de suspense e batidas de coração",
+      "tipo_desafio": "pergunta",
+      "pergunta": "Qual a duração da Faixa A1?",
+      "alternativas": [ "2:45", "3:12", "4:05" ],
+      "resposta_correta": "3:12",
+      "acerto": "O técnico sorri. 'Sabia que alguém viria procurar.' Ele abre o armário e entrega o LP desaparecido. Caso encerrado.",
+      "erro": "Resposta incorreta. Talvez o número encontrado no papel seja uma pista.",
+      "proxima_cena_acerto": "final_sucesso"
+    },
+    {
+      "id": "final_sucesso",
+      "texto": "Você recuperou o disco a tempo para a auditoria. O acervo da Rozenblit está seguro mais uma vez.",
+      "cenario": "museu",
+      "personagem": "curador_f",
+      "som_ambiente": "música triunfante e eco distante",
+      "acoes": [ { "texto": "Voltar ao Menu", "proxima_cena": "intro" } ]
+    }
+  ]
+}
+

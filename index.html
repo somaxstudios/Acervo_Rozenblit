@@ -513,6 +513,7 @@
             <button onclick="navigateTo('historia')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="historia"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História</button>
             <button onclick="navigateTo('catalogo')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="catalogo"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo</button>
             <button onclick="navigateTo('historia'); setTimeout(()=>document.getElementById('galeria-documental')?.scrollIntoView({behavior:'smooth'}),350)" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap"><i data-lucide="images" class="w-4 h-4 inline mr-1"></i>Galeria</button>
+            <button onclick="navigateTo('jogos')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-ouro/15 text-barro hover:bg-ouro/25 border border-ouro/30" data-page="jogos"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos</button>
         </nav>
     </div>
 </header>
@@ -589,6 +590,49 @@
                 <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-gravadoras" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Gravadoras</p></div>
                 <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-artistas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Artistas</p></div>
                 <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-decadas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Décadas</p></div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO JOGOS NA HOME -->
+        <section class="py-16 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="text-center mb-10">
+                <span class="story-kicker">Experiência interativa</span>
+                <h2 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-2">Jogos do Museu</h2>
+                <p class="text-texto-suave mt-4 text-lg max-w-2xl mx-auto leading-relaxed">Explore a história da Rozenblit de forma interativa. Quatro experiências para testar seus conhecimentos sobre a música pernambucana.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+                <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="navigateTo('jogos')">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-3xl mb-4">🔤</div>
+                    <h3 class="font-playfair text-2xl text-verde-cacto">Caça-Palavras</h3>
+                    <p class="text-sm text-texto-suave mt-2 leading-relaxed">Encontre artistas, estilos e termos escondidos na grade musical.</p>
+                    <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Vocabulário</span>
+                </div>
+                <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="navigateTo('jogos')">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-ouro/10 border border-ouro/30 flex items-center justify-center text-3xl mb-4">🪢</div>
+                    <h3 class="font-playfair text-2xl text-verde-cacto">Jogo da Forca</h3>
+                    <p class="text-sm text-texto-suave mt-2 leading-relaxed">Adivinhe os títulos e artistas do catálogo letra por letra.</p>
+                    <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Clássico</span>
+                </div>
+                <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="navigateTo('jogos')">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-azul-recife/10 border border-azul-recife/20 flex items-center justify-center text-3xl mb-4">🎯</div>
+                    <h3 class="font-playfair text-2xl text-verde-cacto">Quiz Cultural</h3>
+                    <p class="text-sm text-texto-suave mt-2 leading-relaxed">Perguntas sobre a história da gravadora, artistas e discos lendários.</p>
+                    <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Trivia</span>
+                </div>
+                <div class="dark-exhibit exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all relative overflow-hidden" onclick="navigateTo('jogos')">
+                    <div class="absolute -right-6 -bottom-6 text-[80px] opacity-10">🏭</div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 mx-auto rounded-2xl bg-ouro/20 border border-ouro/30 flex items-center justify-center text-3xl mb-4">🔍</div>
+                        <h3 class="font-playfair text-2xl text-ouro">Mistérios da Fábrica</h3>
+                        <p class="text-sm text-papel/70 mt-2 leading-relaxed">Investigue pistas e resolva enigmas nos corredores da Rozenblit.</p>
+                        <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-ouro bg-ouro/20 px-3 py-1 rounded-full">Investigação</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-8">
+                <button onclick="navigateTo('jogos')" class="bg-verde-cacto text-papel px-8 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition inline-flex items-center gap-2">
+                    <i data-lucide="gamepad-2" class="w-5 h-5"></i>Acessar sala de jogos
+                </button>
             </div>
         </section>
 
@@ -687,6 +731,134 @@
                             <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Hoje — Acervo digital</h4><p class="text-texto-suave mt-2">O catálogo, as fichas e as imagens documentais reaproximam leitores, pesquisadores e ouvintes dessa história.</p></div>
                         </div>
                     </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JOGOS -->
+    <section id="page-jogos" class="page-section hidden">
+        <div class="max-w-6xl mx-auto px-4 py-16">
+            <div class="text-center mb-12">
+                <span class="story-kicker">Sala interativa</span>
+                <h2 class="font-playfair text-5xl md:text-6xl text-verde-cacto mt-2">Jogos do Museu</h2>
+                <p class="text-texto-suave mt-5 text-lg max-w-2xl mx-auto leading-relaxed">Quatro experiências para explorar a história da Rozenblit e da música pernambucana de forma lúdica e educativa.</p>
+                <div class="flex justify-center gap-3 mt-5 flex-wrap">
+                    <span class="museum-glass px-4 py-2 rounded-full text-sm text-verde-cacto font-semibold"><i data-lucide="users" class="w-3 h-3 inline mr-1"></i>Para todas as idades</span>
+                    <span class="museum-glass px-4 py-2 rounded-full text-sm text-verde-cacto font-semibold"><i data-lucide="graduation-cap" class="w-3 h-3 inline mr-1"></i>Conteúdo educativo</span>
+                    <span class="museum-glass px-4 py-2 rounded-full text-sm text-verde-cacto font-semibold"><i data-lucide="zap" class="w-3 h-3 inline mr-1"></i>Experiência interativa</span>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-7">
+
+                <!-- CAÇA PALAVRAS -->
+                <div class="museum-glass rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all group">
+                    <div class="bg-gradient-to-br from-verde-cacto to-verde-mandacaru p-8 flex items-center gap-5 relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 text-[100px] opacity-15">🔤</div>
+                        <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 z-10">🔤</div>
+                        <div class="z-10">
+                            <h3 class="font-playfair text-3xl text-papel">Caça-Palavras</h3>
+                            <p class="text-papel/70 text-sm mt-1 uppercase tracking-widest font-bold">Vocabulário musical</p>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <p class="text-texto-suave leading-relaxed">Encontre artistas, selos, estilos musicais e termos históricos escondidos em uma grade de letras. Quanto mais você conhece sobre a Rozenblit, mais rápido você vence!</p>
+                        <ul class="mt-4 space-y-2 text-sm text-texto-suave">
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Palavras relacionadas ao frevo, baião e forró</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Nomes de artistas e selos do catálogo</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Termos da indústria fonográfica</li>
+                        </ul>
+                        <button class="mt-6 w-full bg-verde-cacto text-papel py-3 rounded-2xl font-bold hover:bg-verde-mandacaru transition flex items-center justify-center gap-2 group-hover:scale-[1.02]" onclick="alert('Jogo em breve disponível!')">
+                            <i data-lucide="play" class="w-5 h-5"></i>Jogar agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- JOGO DA FORCA -->
+                <div class="museum-glass rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all group">
+                    <div class="bg-gradient-to-br from-ouro to-barro p-8 flex items-center gap-5 relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 text-[100px] opacity-15">🪢</div>
+                        <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 z-10">🪢</div>
+                        <div class="z-10">
+                            <h3 class="font-playfair text-3xl text-papel">Jogo da Forca</h3>
+                            <p class="text-papel/70 text-sm mt-1 uppercase tracking-widest font-bold">Adivinhe letra a letra</p>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <p class="text-texto-suave leading-relaxed">Descubra os nomes de álbuns lendários, artistas históricos e faixas do catálogo da Rozenblit antes que o tempo acabe. Cada dica certa revela um pedaço da memória musical de Pernambuco.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-texto-suave">
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Títulos de discos lendários</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Nomes de artistas do acervo</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Múltiplos níveis de dificuldade</li>
+                        </ul>
+                        <button class="mt-6 w-full bg-ouro text-papel py-3 rounded-2xl font-bold hover:bg-barro transition flex items-center justify-center gap-2 group-hover:scale-[1.02]" onclick="alert('Jogo em breve disponível!')">
+                            <i data-lucide="play" class="w-5 h-5"></i>Jogar agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUIZ CULTURAL -->
+                <div class="museum-glass rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all group">
+                    <div class="bg-gradient-to-br from-azul-recife to-verde-cacto p-8 flex items-center gap-5 relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 text-[100px] opacity-15">🎯</div>
+                        <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 z-10">🎯</div>
+                        <div class="z-10">
+                            <h3 class="font-playfair text-3xl text-papel">Quiz Cultural</h3>
+                            <p class="text-papel/70 text-sm mt-1 uppercase tracking-widest font-bold">Teste seu conhecimento</p>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <p class="text-texto-suave leading-relaxed">Responda perguntas sobre a história da Rozenblit, artistas, discos raros, a enchente de 1975 e curiosidades sobre a música pernambucana. Cada pergunta é uma janela para o passado.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-texto-suave">
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Perguntas sobre frevo, baião e udigrudi</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>História da fábrica e dos selos</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-verde-cacto flex-shrink-0"></i>Pontuação e ranking de acertos</li>
+                        </ul>
+                        <button class="mt-6 w-full bg-azul-recife text-papel py-3 rounded-2xl font-bold hover:bg-verde-cacto transition flex items-center justify-center gap-2 group-hover:scale-[1.02]" onclick="alert('Jogo em breve disponível!')">
+                            <i data-lucide="play" class="w-5 h-5"></i>Jogar agora
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MISTÉRIOS DA FÁBRICA -->
+                <div class="dark-exhibit rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all group relative">
+                    <div class="p-8 flex items-center gap-5 relative overflow-hidden border-b border-ouro/20">
+                        <div class="absolute -right-8 -bottom-8 text-[100px] opacity-10">🏭</div>
+                        <div class="w-20 h-20 bg-ouro/20 border border-ouro/30 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0 z-10">🔍</div>
+                        <div class="z-10">
+                            <h3 class="font-playfair text-3xl text-ouro">Mistérios da Fábrica</h3>
+                            <p class="text-ouro/60 text-sm mt-1 uppercase tracking-widest font-bold">Investigação interativa</p>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <p class="text-papel/75 leading-relaxed">Adentre os corredores da Rozenblit e resolva enigmas ambientados na fábrica histórica de Afogados. Encontre pistas, interrogue personagens e descubra os segredos enterrados entre os vinis e as matrizes.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-papel/65">
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ouro flex-shrink-0"></i>Narrativa ambientada no Recife dos anos 70</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ouro flex-shrink-0"></i>Pistas reais da história da gravadora</li>
+                            <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ouro flex-shrink-0"></i>Múltiplos casos e desfechos</li>
+                        </ul>
+                        <div class="mt-5 bg-ouro/10 border border-ouro/20 rounded-2xl p-4 flex items-center gap-3">
+                            <i data-lucide="clock" class="w-5 h-5 text-ouro flex-shrink-0"></i>
+                            <p class="text-ouro/80 text-sm font-semibold">Em desenvolvimento — lançamento em breve</p>
+                        </div>
+                        <button class="mt-4 w-full bg-ouro/20 border border-ouro/30 text-ouro py-3 rounded-2xl font-bold hover:bg-ouro/30 transition flex items-center justify-center gap-2" onclick="alert('Jogo em breve disponível!')">
+                            <i data-lucide="lock" class="w-5 h-5"></i>Em breve
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CHAMADA EDUCADORES -->
+            <div class="mt-12 museum-glass rounded-3xl p-8 md:p-10 text-center">
+                <p class="text-4xl mb-4">🏫</p>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Para educadores e pesquisadores</h3>
+                <p class="text-texto-suave mt-3 max-w-2xl mx-auto leading-relaxed">Os jogos do Museu Rozenblit foram desenvolvidos como ferramentas pedagógicas para o ensino de história cultural, patrimônio imaterial e identidade nordestina. Indicados para escolas, museus e eventos culturais.</p>
+                <div class="flex flex-wrap justify-center gap-3 mt-6">
+                    <span class="selos-pill px-5 py-2 rounded-full text-sm font-semibold"><i data-lucide="book-open" class="w-4 h-4 inline mr-1"></i>Ensino fundamental e médio</span>
+                    <span class="selos-pill px-5 py-2 rounded-full text-sm font-semibold"><i data-lucide="music" class="w-4 h-4 inline mr-1"></i>Educação musical</span>
+                    <span class="selos-pill px-5 py-2 rounded-full text-sm font-semibold"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História e patrimônio</span>
                 </div>
             </div>
         </div>
@@ -992,7 +1164,6 @@
         const videoUrl = youtubeData.url || `https://www.youtube.com/watch?v=${youtubeData.youtubeId}`;
         const tituloVideo = youtubeData.videoTitle || trackName || 'Faixa disponível no YouTube';
 
-        // Importante: vários vídeos do YouTube bloqueiam reprodução embutida.
         // Por isso não usamos iframe aqui. O botão abre o vídeo direto no YouTube.
         const playerHtml = `
             <div class="track-player">

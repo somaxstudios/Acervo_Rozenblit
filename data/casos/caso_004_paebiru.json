@@ -1,0 +1,166 @@
+{
+"id": "caso_004_paebiru",
+"titulo": "O Mistério das Cópias Perdidas de Paêbirú",
+"descricao": "Anos após a enchente que atingiu a Rozenblit, uma pista sugere que algumas cópias do lendário Paêbirú podem ter sobrevivido. Sua missão é reconstruir os acontecimentos e descobrir o destino da remessa desaparecida.",
+"inicio": "19h15",
+"prazo": "23h00",
+"cenas": [
+{
+"id": "intro",
+"texto": "Durante a catalogação do acervo, uma caixa sem identificação é encontrada no porão. Dentro dela há um envelope marcado apenas com as letras 'PAÊ'.",
+"cenario": "porao_arquivo",
+"personagem": "curador_m",
+"acoes": [
+{
+"texto": "Abrir o envelope",
+"proxima_cena": "envelope"
+},
+{
+"texto": "Consultar o arquivo histórico",
+"proxima_cena": "arquivo"
+}
+]
+},
+
+{
+  "id": "envelope",
+  "texto": "Dentro do envelope há uma lista de distribuição de discos. O nome Paêbirú aparece várias vezes, mas algumas linhas estão apagadas pela água.",
+  "cenario": "arquivo",
+  "personagem": "arquivista_f",
+  "pista_guardavel": "Lista de distribuição parcialmente destruída",
+  "acoes": [
+    {
+      "texto": "Analisar a lista",
+      "proxima_cena": "lista"
+    }
+  ]
+},
+
+{
+  "id": "arquivo",
+  "texto": "Os registros indicam que Paêbirú foi lançado pela Rozenblit em 1975 e fazia parte de um projeto extremamente experimental para a época.",
+  "cenario": "biblioteca",
+  "personagem": "arquivista_m",
+  "pista_guardavel": "Lançamento original em 1975",
+  "acoes": [
+    {
+      "texto": "Investigar a enchente",
+      "proxima_cena": "enchente"
+    }
+  ]
+},
+
+{
+  "id": "enchente",
+  "texto": "Você encontra jornais relatando a grande enchente que atingiu o Recife. O depósito da gravadora foi inundado e boa parte dos discos armazenados foi perdida.",
+  "cenario": "museu",
+  "personagem": "jornalista_f",
+  "pista_guardavel": "Grande parte da tiragem foi destruída pela enchente",
+  "acoes": [
+    {
+      "texto": "Verificar registros de distribuição",
+      "proxima_cena": "lista"
+    }
+  ]
+},
+
+{
+  "id": "lista",
+  "texto": "Alguns nomes ainda são legíveis. Uma anotação diz: 'Parte da remessa já havia saído do depósito antes da inundação'.",
+  "cenario": "arquivo",
+  "personagem": "jornalista_f",
+  "tipo_desafio": "pergunta",
+  "pergunta": "O que essa anotação sugere?",
+  "alternativas": [
+    "Todas as cópias foram destruídas",
+    "Nenhum disco chegou às lojas",
+    "Algumas cópias sobreviveram fora do depósito",
+    "O álbum nunca foi lançado"
+  ],
+  "resposta_correta": "Algumas cópias sobreviveram fora do depósito",
+  "acerto": "Correto. Algumas unidades já estavam fora do local atingido.",
+  "erro": "A anotação aponta justamente para cópias que já haviam saído do depósito.",
+  "proxima_cena_acerto": "matriz"
+},
+
+{
+  "id": "matriz",
+  "texto": "Nos registros técnicos você encontra referências aos quatro lados do disco, identificados pelos elementos Terra, Ar, Fogo e Água.",
+  "cenario": "estudio",
+  "personagem": "tecnico_m",
+  "pista_guardavel": "Os lados do álbum representam os quatro elementos",
+  "acoes": [
+    {
+      "texto": "Continuar investigação",
+      "proxima_cena": "colecionador"
+    }
+  ]
+},
+
+{
+  "id": "colecionador",
+  "texto": "Um colecionador informa que encontrou uma cópia antiga acompanhada de um livreto especial sobre o Caminho da Montanha do Sol.",
+  "cenario": "colecao",
+  "personagem": "colecionador_m",
+  "pista_guardavel": "As cópias originais acompanhavam livreto especial",
+  "acoes": [
+    {
+      "texto": "Examinar o livreto",
+      "proxima_cena": "livreto"
+    }
+  ]
+},
+
+{
+  "id": "livreto",
+  "texto": "O livreto descreve o lendário caminho indígena Peabiru e possui o mesmo projeto gráfico citado nos registros da Rozenblit.",
+  "cenario": "biblioteca",
+  "personagem": "curador_f",
+  "tipo_desafio": "pergunta",
+  "pergunta": "Qual característica ajuda a identificar uma cópia original?",
+  "alternativas": [
+    "Livreto especial",
+    "Capa azul simples",
+    "Apenas um disco",
+    "Etiqueta branca sem impressão"
+  ],
+  "resposta_correta": "Livreto especial",
+  "acerto": "Exatamente. O livreto era parte importante da edição original.",
+  "erro": "Os registros históricos apontam outro elemento distintivo.",
+  "proxima_cena_acerto": "desafio_final"
+},
+
+{
+  "id": "desafio_final",
+  "texto": "Após reunir todas as pistas, você precisa registrar a conclusão oficial do museu.",
+  "cenario": "museu",
+  "personagem": "curador_m",
+  "tipo_desafio": "pergunta",
+  "pergunta": "Qual conclusão melhor resume o destino do Paêbirú?",
+  "alternativas": [
+    "Nunca foi lançado",
+    "Toda a tiragem foi destruída",
+    "Parte da tiragem foi perdida na enchente, mas algumas cópias sobreviveram",
+    "Foi lançado apenas nos anos 2000"
+  ],
+  "resposta_correta": "Parte da tiragem foi perdida na enchente, mas algumas cópias sobreviveram",
+  "acerto": "Correto. O álbum tornou-se lendário justamente porque poucas cópias sobreviveram ao desastre.",
+  "erro": "A resposta não corresponde aos registros históricos encontrados.",
+  "proxima_cena_acerto": "final_sucesso"
+},
+
+{
+  "id": "final_sucesso",
+  "texto": "Caso encerrado. Você ajudou a preservar a história de um dos discos mais importantes da música brasileira e da própria Rozenblit.",
+  "cenario": "museu",
+  "personagem": "curador_f",
+  "acoes": [
+    {
+      "texto": "Voltar ao Menu",
+      "proxima_cena": "intro"
+    }
+  ]
+}
+
+]
+}

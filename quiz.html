@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Quiz do Acervo Rozenblit — Museu Digital da Música Pernambucana</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'playfair': ['"Playfair Display"', 'Georgia', 'serif'], 'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'] },
+                    colors: { 'papel': '#fffaf0', 'verde-cacto': '#315f43', 'barro': '#a44f25', 'ouro': '#c49a3a', 'texto': '#2b241b', 'texto-suave': '#6f604c' }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle at 20% 30%, rgba(79,127,82,0.08) 0%, #efe3c8 100%);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: "🎵";
+            font-size: 140px;
+            position: fixed;
+            bottom: -20px;
+            left: -30px;
+            opacity: 0.1;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            z-index: 0;
+        }
+        body::after {
+            content: "💿";
+            font-size: 120px;
+            position: fixed;
+            top: 30px;
+            right: -20px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(20deg);
+            z-index: 0;
+        }
+        .quiz-card {
+            background: rgba(255,250,240,0.96);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(49,95,67,0.25);
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.25);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(6px);
+            background-color: #315f43;
+            color: white;
+            border-left-color: #c49a3a;
+        }
+        .option-correct { background-color: #2b6e3c; color: white; border-left-color: #ffd966; }
+        .option-wrong { background-color: #a44f25; color: white; text-decoration: line-through; border-left-color: #ffb347; }
+        .btn-primary {
+            background: #315f43;
+            color: #fffaf0;
+            padding: 10px 28px;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .btn-primary:hover { background: #c49a3a; transform: scale(1.02); }
+        .btn-dica {
+            background: rgba(196,154,58,0.2);
+            border: 1px solid #c49a3a;
+            color: #7a5a2a;
+            border-radius: 40px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-dica:hover:not(:disabled) { background: #c49a3a; color: white; }
+        .timer-ring {
+            stroke: #c49a3a;
+            stroke-width: 3;
+            fill: transparent;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+        .medalha {
+            font-size: 5rem;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));
+        }
+        .capa-disco {
+            border-radius: 24px;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255,250,240,0.8);
+            transition: transform 0.3s ease;
+        }
+        .capa-disco:hover { transform: scale(1.02); }
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(196,154,58,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(196,154,58,0); }
+            100% { box-shadow: 0 0 0 0 rgba(196,154,58,0); }
+        }
+        .tempo-esgotado { animation: pulse-gold 0.6s ease-in-out; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen">
+
+<div id="loading" class="text-center p-8 bg-papel rounded-3xl shadow-xl z-20">
+    <div class="w-16 h-16 border-4 border-verde-cacto border-t-ouro rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="font-playfair text-xl text-verde-cacto">Carregando acervo musical...</p>
+</div>
+
+<div id="quiz-container" class="hidden max-w-5xl w-full mx-auto relative z-10">
+    <div class="quiz-card rounded-3xl shadow-2xl overflow-hidden">
+        <!-- Cabeçalho com vinil animado -->
+        <div class="bg-gradient-to-r from-verde-cacto to-verde-mandacaru px-6 py-4 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-black/30 rounded-full flex items-center justify-center">
+                    <i data-lucide="disc-3" class="w-6 h-6 text-ouro"></i>
+                </div>
+                <h1 class="font-playfair text-2xl text-white">🎙️ Quiz do Acervo Rozenblit</h1>
+            </div>
+            <div class="flex gap-3 items-center">
+                <span id="pontuacao" class="bg-papel text-verde-cacto font-bold px-4 py-1.5 rounded-full text-sm shadow">🏆 0 pts</span>
+                <span id="record-display" class="bg-black/30 text-papel px-3 py-1 rounded-full text-xs">🏅 Recorde: 0</span>
+                <!-- Botão Voltar ao Museu -->
+                <a href="index.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-1">
+                    <i data-lucide="home" class="w-4 h-4"></i> <- Voltar ao Museu
+                </a>
+            </div>
+        </div>
+
+        <!-- TELA INICIAL -->
+        <div id="tela-inicial" class="p-8 text-center">
+            <p class="text-lg mb-2">Teste seus conhecimentos sobre a <strong class="text-barro">Rozenblit</strong> e seus discos históricos</p>
+            <p class="text-texto-suave mb-6">🎶 5 perguntas aleatórias • Cronômetro • Dicas especiais</p>
+            
+            <div class="max-w-xs mx-auto mb-6">
+                <label class="block text-left text-sm font-bold text-verde-cacto mb-1">🎚️ Nível de dificuldade</label>
+                <select id="dificuldade" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel">
+                    <option value="facil">🍃 Fácil (30s por pergunta)</option>
+                    <option value="medio" selected>⚡ Médio (20s)</option>
+                    <option value="dificil">🔥 Difícil (10s)</option>
+                </select>
+            </div>
+
+            <button id="btn-iniciar" class="btn-primary text-lg px-8 py-3 flex items-center gap-2 mx-auto">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i> Começar Jornada
+            </button>
+            <div class="mt-6 text-sm text-texto-suave">
+                <span class="inline-block mr-4"><i data-lucide="lightbulb" class="w-3 h-3 inline"></i> 2 dicas por pergunta</span>
+                <span><i data-lucide="clock" class="w-3 h-3 inline"></i> Tempo limitado</span>
+            </div>
+        </div>
+
+        <!-- TELA DE PERGUNTA -->
+        <div id="tela-pergunta" class="hidden p-6 md:p-8">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Área da capa do disco -->
+                <div class="md:w-1/3 flex justify-center">
+                    <div id="capa-container" class="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/70 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                        <img id="capa-imagem" src="" alt="Capa do disco" class="w-full h-full object-cover hidden">
+                        <div id="capa-placeholder" class="text-white text-center p-2">
+                            <i data-lucide="album" class="w-12 h-12 mx-auto mb-2"></i>
+                            <span class="text-xs">🎵 Vinil</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Coluna da pergunta -->
+                <div class="md:w-2/3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-ouro font-bold uppercase tracking-wider">Pergunta <span id="pergunta-atual">1</span>/<span id="total-perguntas">5</span></span>
+                        <div class="flex items-center gap-2 bg-areia/50 px-3 py-1 rounded-full">
+                            <i data-lucide="clock" class="w-4 h-4 text-barro"></i>
+                            <span id="timer" class="font-mono font-bold text-verde-cacto">00</span><span class="text-xs">s</span>
+                        </div>
+                    </div>
+                    <p id="pergunta-texto" class="font-playfair text-2xl md:text-3xl mb-5 leading-tight"></p>
+                    
+                    <div id="opcoes" class="space-y-2 mb-4"></div>
+                    
+                    <div class="flex flex-wrap gap-3 justify-between items-center mt-4">
+                        <div class="flex gap-2">
+                            <button id="dica1-btn" class="btn-dica" disabled><i data-lucide="help-circle" class="w-3 h-3 inline"></i> Dica 1</button>
+                            <button id="dica2-btn" class="btn-dica" disabled><i data-lucide="info" class="w-3 h-3 inline"></i> Dica 2</button>
+                        </div>
+                        <button id="btn-proximo" class="btn-primary disabled:opacity-50" disabled>Próxima <i data-lucide="arrow-right" class="w-4 h-4 inline"></i></button>
+                    </div>
+                    <div id="feedback" class="mt-3 text-sm italic text-center text-texto-suave bg-papel/60 p-2 rounded-xl"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="tela-fim" class="hidden p-8 text-center">
+            <div id="medalha-container" class="medalha my-3">🏅</div>
+            <h2 class="font-playfair text-3xl text-verde-cacto">Resultado Final</h2>
+            <p id="pontuacao-final" class="text-6xl font-bold my-3 text-ouro">0</p>
+            <p id="mensagem-final" class="mb-5 text-texto-suave"></p>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button id="btn-reiniciar" class="btn-primary">🔁 Jogar novamente</button>
+                <a href="index.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10 transition">🏛️ Voltar ao museu</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let catalogo = [];
+    let fichasMap = new Map();
+    let perguntas = [];
+    let perguntaAtualIndex = 0;
+    let pontuacao = 0;
+    let respostaSelecionada = false;
+    let tempoRestante = 20;  // será alterado pela dificuldade
+    let timerInterval = null;
+    let dificuldade = "medio";
+    let recorde = 0;
+    let dica1Usada = false, dica2Usada = false;
+    let totalPerguntas = 5;
+
+    // Carrega recorde do localStorage
+    function carregarRecorde() {
+        const saved = localStorage.getItem("rozenblit_quiz_recorde");
+        if (saved) recorde = parseInt(saved, 10);
+        atualizarRecordeDisplay();
+    }
+    function salvarRecorde() {
+        if (pontuacao > recorde) {
+            recorde = pontuacao;
+            localStorage.setItem("rozenblit_quiz_recorde", recorde);
+            atualizarRecordeDisplay();
+        }
+    }
+    function atualizarRecordeDisplay() {
+        const el = document.getElementById("record-display");
+        if (el) el.innerText = `🏅 Recorde: ${recorde}`;
+    }
+
+    async function carregarDados() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json'),
+                fetch('fichas.json')
+            ]);
+            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSONs');
+            const catalogoData = await catalogoRes.json();
+            const fichasData = await fichasRes.json();
+            catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
+            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
+            
+            // Enriquece com ano e capa (se existir)
+            catalogo.forEach(item => {
+                const ficha = fichasMap.get(item["Ficha Id"]);
+                let ano = null;
+                if (ficha) {
+                    ano = ficha.anoProducao || ficha.anoLancamento || item.ano;
+                    // Tenta obter capa da ficha ou item
+                    item.capa = ficha.capa || item.capa || null;
+                } else {
+                    ano = item.ano;
+                    item.capa = item.capa || null;
+                }
+                if (ano && typeof ano === 'string') ano = ano.match(/(19|20)\d{2}/)?.[0];
+                item.anoReal = ano || 's/d';
+                if (!item.capa) item.capa = null; // usará placeholder
+            });
+            
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            carregarRecorde();
+        } catch (err) {
+            document.getElementById('loading').innerHTML = `<p class="text-red-700">Erro: ${err.message}. Verifique os arquivos JSON.</p>`;
+        }
+    }
+
+    function embaralharArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function gerarDicas(disco, ficha) {
+        const dicas = [];
+        // Dica 1: ano + gravadora
+        dicas.push(`📅 ${disco.anoReal !== 's/d' ? disco.anoReal : 'Ano desconhecido'} · ${disco.gravadora || 'Rozenblit'}`);
+        // Dica 2: informação da ficha técnica ou artista adicional
+        let textoExtra = ficha?.fichaTecnica ? ficha.fichaTecnica.substring(0, 80) : (disco.artista + " é um artista fundamental do acervo.");
+        if (textoExtra.length > 80) textoExtra = textoExtra.substring(0, 77) + "...";
+        dicas.push(`🎼 ${textoExtra}`);
+        return dicas;
+    }
+
+    function gerarPerguntas() {
+        if (!catalogo.length) return [];
+        const selecionados = embaralharArray([...catalogo]).slice(0, totalPerguntas);
+        return selecionados.map(disco => {
+            const tipo = Math.floor(Math.random() * 4);
+            let perguntaTexto = '', respostaCorreta = '', alternativas = [];
+            const ficha = fichasMap.get(disco["Ficha Id"]);
+            const dicas = gerarDicas(disco, ficha);
+            
+            if (tipo === 0) {
+                perguntaTexto = `Quem é o artista responsável pelo disco <strong>"${disco.titulo}"</strong>?`;
+                respostaCorreta = disco.artista;
+                let outros = catalogo.filter(d => d.artista !== disco.artista).map(d => d.artista);
+                outros = [...new Set(outros)];
+                embaralharArray(outros);
+                alternativas = [respostaCorreta, ...outros.slice(0, 3)];
+                embaralharArray(alternativas);
+            } 
+            else if (tipo === 1) {
+                perguntaTexto = `Qual o título do disco do artista <strong>"${disco.artista}"</strong>?`;
+                respostaCorreta = disco.titulo;
+                let outros = catalogo.filter(d => d.titulo !== disco.titulo).map(d => d.titulo);
+                outros = [...new Set(outros)];
+                embaralharArray(outros);
+                alternativas = [respostaCorreta, ...outros.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            else if (tipo === 2) {
+                perguntaTexto = `Em que ano foi lançado/produzido <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
+                respostaCorreta = String(disco.anoReal);
+                let outrosAnos = catalogo.map(d => d.anoReal).filter(a => a !== disco.anoReal && a !== 's/d');
+                outrosAnos = [...new Set(outrosAnos)];
+                embaralharArray(outrosAnos);
+                alternativas = [respostaCorreta, ...outrosAnos.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            else {
+                perguntaTexto = `Qual gravadora/selo lançou <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
+                respostaCorreta = disco.gravadora || 'Rozenblit';
+                let outras = catalogo.filter(d => d.gravadora !== respostaCorreta && d.gravadora).map(d => d.gravadora);
+                outras = [...new Set(outras)];
+                embaralharArray(outras);
+                alternativas = [respostaCorreta, ...outras.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            return { perguntaTexto, alternativas, respostaCorreta, dicas, capa: disco.capa, discoId: disco.ID };
+        });
+    }
+
+    function pararTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    function iniciarTimer() {
+        pararTimer();
+        const timerElement = document.getElementById('timer');
+        tempoRestante = (dificuldade === 'facil') ? 30 : (dificuldade === 'medio' ? 20 : 10);
+        timerElement.innerText = tempoRestante;
+        timerInterval = setInterval(() => {
+            if (respostaSelecionada) return;
+            if (tempoRestante <= 1) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                // tempo esgotado: marca como erro automático
+                if (!respostaSelecionada) {
+                    respostaSelecionada = true;
+                    document.getElementById('feedback').innerHTML = '⏰ Tempo esgotado! Sem pontuação.';
+                    // Desabilita opções
+                    document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                    // Destaca a correta
+                    const botoes = document.querySelectorAll('.option-btn');
+                    const pergunta = perguntas[perguntaAtualIndex];
+                    botoes.forEach(btn => {
+                        if (btn.innerText === pergunta.respostaCorreta) btn.classList.add('option-correct');
+                    });
+                    document.getElementById('btn-proximo').disabled = false;
+                }
+            } else {
+                tempoRestante--;
+                timerElement.innerText = tempoRestante;
+                if (tempoRestante <= 5) timerElement.classList.add('text-red-600', 'font-bold');
+            }
+        }, 1000);
+    }
+
+    function carregarPergunta() {
+        if (perguntaAtualIndex >= perguntas.length) {
+            finalizarQuiz();
+            return;
+        }
+        const p = perguntas[perguntaAtualIndex];
+        document.getElementById('pergunta-texto').innerHTML = p.perguntaTexto;
+        document.getElementById('pergunta-atual').innerText = perguntaAtualIndex + 1;
+        document.getElementById('total-perguntas').innerText = perguntas.length;
+        
+        // Capa
+        const capaImg = document.getElementById('capa-imagem');
+        const capaPlaceholder = document.getElementById('capa-placeholder');
+        if (p.capa && p.capa.trim() !== "") {
+            capaImg.src = p.capa;
+            capaImg.classList.remove('hidden');
+            capaPlaceholder.classList.add('hidden');
+        } else {
+            capaImg.classList.add('hidden');
+            capaPlaceholder.classList.remove('hidden');
+            lucide.createIcons(); // recria ícone placeholder
+        }
+        
+        // Opções
+        const opcoesDiv = document.getElementById('opcoes');
+        opcoesDiv.innerHTML = '';
+        p.alternativas.forEach(alt => {
+            const btn = document.createElement('button');
+            btn.innerText = alt;
+            btn.className = 'option-btn w-full text-left p-3 rounded-xl border border-verde-cacto/20 bg-papel/80 hover:bg-verde-cacto hover:text-white transition mb-2';
+            btn.onclick = () => selecionarResposta(btn, alt, p.respostaCorreta);
+            opcoesDiv.appendChild(btn);
+        });
+        
+        document.getElementById('btn-proximo').disabled = true;
+        document.getElementById('feedback').innerHTML = '';
+        respostaSelecionada = false;
+        dica1Usada = false; dica2Usada = false;
+        document.getElementById('dica1-btn').disabled = false;
+        document.getElementById('dica2-btn').disabled = false;
+        document.getElementById('dica1-btn').classList.remove('opacity-50');
+        document.getElementById('dica2-btn').classList.remove('opacity-50');
+        
+        iniciarTimer();
+    }
+
+    function selecionarResposta(btn, escolha, correta) {
+        if (respostaSelecionada) return;
+        respostaSelecionada = true;
+        pararTimer();
+        const isCorreta = (escolha === correta);
+        if (isCorreta) {
+            pontuacao++;
+            document.getElementById('pontuacao').innerHTML = `🏆 ${pontuacao} pts`;
+            btn.classList.add('option-correct');
+            document.getElementById('feedback').innerHTML = '✅ Correta! +1 ponto';
+        } else {
+            btn.classList.add('option-wrong');
+            document.getElementById('feedback').innerHTML = `❌ Errada! Resposta correta: <strong>${correta}</strong>`;
+            const botoes = document.querySelectorAll('.option-btn');
+            botoes.forEach(b => {
+                if (b.innerText === correta) b.classList.add('option-correct');
+            });
+        }
+        document.getElementById('btn-proximo').disabled = false;
+        // Desabilita todas as opções
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        // Desabilita dicas
+        document.getElementById('dica1-btn').disabled = true;
+        document.getElementById('dica2-btn').disabled = true;
+    }
+
+    function proximaPergunta() {
+        if (!respostaSelecionada) return;
+        pararTimer();
+        perguntaAtualIndex++;
+        if (perguntaAtualIndex < perguntas.length) {
+            carregarPergunta();
+        } else {
+            finalizarQuiz();
+        }
+    }
+
+    function usarDica(numero) {
+        if (respostaSelecionada) return;
+        const p = perguntas[perguntaAtualIndex];
+        if (numero === 1 && !dica1Usada) {
+            dica1Usada = true;
+            document.getElementById('feedback').innerHTML = `💡 Dica 1: ${p.dicas[0]}`;
+            document.getElementById('dica1-btn').disabled = true;
+        } else if (numero === 2 && !dica2Usada) {
+            dica2Usada = true;
+            document.getElementById('feedback').innerHTML = `💡 Dica 2: ${p.dicas[1]}`;
+            document.getElementById('dica2-btn').disabled = true;
+        }
+    }
+
+    function finalizarQuiz() {
+        pararTimer();
+        salvarRecorde();
+        mostrarTela('fim');
+        const pontuacaoFinalEl = document.getElementById('pontuacao-final');
+        pontuacaoFinalEl.innerText = `${pontuacao} / ${perguntas.length}`;
+        let medalha = '', mensagem = '';
+        if (pontuacao === perguntas.length) {
+            medalha = '🥇 Ouro! Conhecedor máximo!';
+            mensagem = 'Parabéns! Você domina o acervo Rozenblit como um verdadeiro pesquisador.';
+        } else if (pontuacao >= 3) {
+            medalha = '🥈 Prata! Bom conhecimento!';
+            mensagem = 'Muito bem! Continue explorando o museu para chegar ao ouro.';
+        } else {
+            medalha = '🥉 Bronze! Hora de estudar o catálogo.';
+            mensagem = 'Que tal dar uma passada pelo acervo e depois tentar novamente?';
+        }
+        document.getElementById('medalha-container').innerHTML = medalha.split(' ')[0];
+        document.getElementById('mensagem-final').innerHTML = `${mensagem}<br><span class="text-sm">🎵 Recorde do navegador: ${recorde} pontos</span>`;
+    }
+
+    function mostrarTela(tela) {
+        document.getElementById('tela-inicial').classList.add('hidden');
+        document.getElementById('tela-pergunta').classList.add('hidden');
+        document.getElementById('tela-fim').classList.add('hidden');
+        document.getElementById(`tela-${tela}`).classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function iniciarQuiz() {
+        dificuldade = document.getElementById('dificuldade').value;
+        pontuacao = 0;
+        perguntaAtualIndex = 0;
+        respostaSelecionada = false;
+        document.getElementById('pontuacao').innerHTML = `🏆 0 pts`;
+        perguntas = gerarPerguntas();
+        if (perguntas.length === 0) {
+            alert("Erro: nenhuma pergunta gerada. Verifique o catálogo.");
+            return;
+        }
+        mostrarTela('pergunta');
+        carregarPergunta();
+    }
+
+    function reiniciar() {
+        iniciarQuiz();
+    }
+
+    // Event listeners
+    document.getElementById('btn-iniciar').addEventListener('click', iniciarQuiz);
+    document.getElementById('btn-proximo').addEventListener('click', proximaPergunta);
+    document.getElementById('btn-reiniciar').addEventListener('click', reiniciar);
+    document.getElementById('dica1-btn').addEventListener('click', () => usarDica(1));
+    document.getElementById('dica2-btn').addEventListener('click', () => usarDica(2));
+    
+    carregarDados();
+</script>
+</body>
+</html>

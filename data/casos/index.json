@@ -1,0 +1,32 @@
+{
+  "historias": [
+    {
+      "id": "001",
+      "titulo": "O Disco Desaparecido da Série de Ouro",
+      "arquivo": "caso_001_disco_ouro.json",
+      "dificuldade": "Iniciante",
+      "descricao": "Um LP da série de ouro não foi registrado no sistema. Encontre a falha na catalogação."
+    },
+    {
+      "id": "002",
+      "titulo": "O Erro na Ficha Técnica do LP de Samba",
+      "arquivo": "caso_002_erro_tecnico.json",
+      "dificuldade": "Intermediário",
+      "descricao": "Dois LPs foram trocados na prateleira. Use a duração das faixas para corrigir o inventário."
+    },
+    {
+      "id": "003",
+      "titulo": "O Disco de Festival que Nunca Chegou",
+      "arquivo": "caso_003_festival.json",
+      "dificuldade": "Avançado",
+      "descricao": "A planilha de prensagem aponta 1000 cópias, mas o estoque indica divergência no catálogo."
+    },
+    {
+      "id": "004",
+      "titulo": "O Mistério das Cópias Perdidas de Paêbirú",
+      "arquivo": "caso_004_paebiru.json",
+      "dificuldade": "Intermediário",
+      "descricao": "Anos após a enchente que atingiu a Rozenblit, uma pista sugere que algumas cópias do lendário Paêbirú podem ter sobrevivido."
+    }
+  ]
+}
