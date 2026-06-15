@@ -136,8 +136,8 @@
             <div class="flex gap-2 items-center">
                 <span id="pontuacao-display" class="bg-papel text-verde-cacto font-bold px-3 py-1 rounded-full text-sm">🏆 0</span>
                 <span id="recorde-display" class="bg-black/30 text-papel px-2 py-1 rounded-full text-xs">🏅 Recorde: 0</span>
-                <a href="index.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-3 py-1 rounded-full text-sm font-semibold transition flex items-center gap-1 shadow">
-                    <i data-lucide="home" class="w-4 h-4"></i> Museu
+                <a href="jogos.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-3 py-1 rounded-full text-sm font-semibold transition flex items-center gap-1 shadow">
+                    <i data-lucide="home" class="w-4 h-4"></i> Voltar
                 </a>
             </div>
         </div>
@@ -228,14 +228,48 @@
             <p id="titulo-conquistado" class="text-texto-suave italic mb-4"></p>
             <div class="flex flex-wrap gap-3 justify-center">
                 <button id="btn-jogar-novamente" class="btn-primary">🔁 Jogar novamente</button>
-                <a href="index.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10">🏛️ Museu</a>
+                <a href="jogos.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10">Voltar</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- DADOS GLOBAIS ----------
+    // ---------- PLAYER GLOBAL DE MÚSICA ----------
+    let bgMusic = null;
+
+    function iniciarMusicaFundo(listaMusicas) {
+        // Se já existir uma música tocando, não cria outra
+        if (bgMusic) return;
+
+        bgMusic = document.createElement('audio');
+        bgMusic.volume = 0.7;
+        bgMusic.loop = false; // troca de faixa manualmente
+        bgMusic.style.display = 'none';
+        document.body.appendChild(bgMusic);
+
+        let indiceAtual = 0;
+
+        function tocarFaixa() {
+            if (!listaMusicas[indiceAtual]) return;
+            bgMusic.src = listaMusicas[indiceAtual];
+            bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
+            indiceAtual = (indiceAtual + 1) % listaMusicas.length;
+        }
+
+        bgMusic.addEventListener('ended', tocarFaixa);
+        tocarFaixa();
+    }
+
+    function pararMusicaFundo() {
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.src = '';
+            bgMusic = null;
+        }
+    }
+
+    // ---------- DADOS GLOBAIS DA FORCA ----------
     let catalogo = [];
     let fichasMap = new Map();
     let listaPalavras = [];       // array de objetos { palavra, dica1, dica2, categoria }
@@ -248,7 +282,6 @@
     let dica1Usada = false, dica2Usada = false;
     let recorde = 0;
     let jogoAtivo = false;
-    let somAudio = null;  // opcional
 
     // Elementos DOM
     const loadingDiv = document.getElementById('loading');
@@ -388,6 +421,13 @@
 
     // ---------- INICIAR JOGO ----------
     function iniciarJogo(novaPalavra = null) {
+        // Inicia a música de fundo automaticamente (apenas se não estiver tocando)
+        iniciarMusicaFundo([
+            '/static/sounds/forca/fundo1.ogg',
+            '/static/sounds/forca/fundo2.ogg',
+            '/static/sounds/forca/fundo3.ogg'
+        ]);
+
         dificuldade = dificuldadeSelect.value;
         let maxErros = 6;
         if (dificuldade === 'facil') maxErros = 7;
@@ -434,7 +474,11 @@
         telaInicial.classList.add('hidden');
         telaJogo.classList.add('hidden');
         telaFim.classList.add('hidden');
-        if (tela === 'inicial') telaInicial.classList.remove('hidden');
+        if (tela === 'inicial') {
+            telaInicial.classList.remove('hidden');
+            // Para a música ao voltar ao menu
+            pararMusicaFundo();
+        }
         else if (tela === 'jogo') telaJogo.classList.remove('hidden');
         else if (tela === 'fim') telaFim.classList.remove('hidden');
         if (window.lucide) lucide.createIcons();
@@ -514,8 +558,6 @@
         if (palavra.includes(letra)) {
             letrasDescobertas.add(letra);
             desenharPalavra();
-            // Pequena animação sonora opcional (se quiser, descomente)
-            // if (somAudio) somAudio.play();
         } else {
             letrasErradas.add(letra);
             vidasRestantes--;

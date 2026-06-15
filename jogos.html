@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogos Interativos — Museu Digital Rozenblit</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            fontFamily: {
+                playfair: ['"Playfair Display"', 'Georgia', 'serif'],
+                sans: ['"Source Sans 3"', 'system-ui', 'sans-serif']
+            },
+            colors: {
+                papel: '#fffaf0',
+                fundo: '#f7f1e3',
+                areia: '#e8d8b8',
+                'verde-cacto': '#315f43',
+                'verde-mandacaru': '#4f7f52',
+                barro: '#a44f25',
+                terracota: '#c96b36',
+                ouro: '#c49a3a',
+                texto: '#2b241b',
+                'texto-suave': '#6f604c'
+            }
+        }
+    }
+}
+</script>
+
+<style>
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 12% 12%, rgba(79,127,82,0.18) 0%, transparent 36%),
+        radial-gradient(circle at 85% 18%, rgba(196,154,58,0.18) 0%, transparent 30%),
+        radial-gradient(circle at 80% 90%, rgba(164,79,37,0.13) 0%, transparent 34%),
+        linear-gradient(180deg, #f7f1e3 0%, #ede5cf 58%, #e8dbbf 100%);
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    color: #2b241b;
+    overflow-x: hidden;
+}
+
+.noise-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.24;
+    background-image:
+        linear-gradient(rgba(49,95,67,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49,95,67,0.04) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(to bottom, black, transparent 80%);
+}
+
+.logo-vinil-rz {
+    width: 52px;
+    height: 52px;
+    position: relative;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, #2b241b 0%, #201b17 55%, #151210 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.22), inset 0 0 8px rgba(255,255,255,.05);
+}
+
+.vinil-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.ring-1 { inset: 5px; }
+.ring-2 { inset: 10px; }
+.ring-3 { inset: 15px; }
+
+.vinil-label {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #c49a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.15);
+}
+
+.vinil-label span {
+    font-family: 'Playfair Display', serif;
+    font-size: 8px;
+    font-weight: 700;
+    color: #315f43;
+    letter-spacing: .08em;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.museum-glass {
+    background: linear-gradient(145deg, rgba(255,250,240,0.92), rgba(232,216,184,0.58));
+    border: 1px solid rgba(49,95,67,0.14);
+    box-shadow: 0 24px 70px rgba(49,95,67,0.12);
+    backdrop-filter: blur(12px);
+}
+
+.dark-exhibit {
+    background: linear-gradient(145deg, rgba(30,24,18,0.85), rgba(20,16,12,0.78));
+    border: 1px solid rgba(196,154,58,0.25);
+    backdrop-filter: blur(12px);
+}
+
+.exhibit-card {
+    transition: transform .28s ease, box-shadow .28s ease;
+}
+.exhibit-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 24px 42px -18px rgba(43,36,27,.36);
+}
+
+.story-kicker {
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #a44f25;
+}
+
+.badge {
+    background: rgba(49,95,67,0.10);
+    padding: 0.3rem 0.9rem;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #315f43;
+    border: 1px solid rgba(49,95,67,0.18);
+}
+
+body::before {
+    content: "🎮";
+    font-size: 140px;
+    position: fixed;
+    bottom: 12px;
+    left: -28px;
+    opacity: 0.07;
+    pointer-events: none;
+    transform: rotate(-12deg);
+    z-index: 0;
+}
+
+body::after {
+    content: "🎼";
+    font-size: 120px;
+    position: fixed;
+    top: 170px;
+    right: -24px;
+    opacity: 0.08;
+    pointer-events: none;
+    transform: rotate(18deg);
+    z-index: 0;
+}
+</style>
+</head>
+
+<body>
+<div class="noise-layer"></div>
+
+<header class="fixed top-0 left-0 right-0 bg-papel/90 backdrop-blur-xl z-50 border-b border-verde-cacto/15 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+        <a href="index.html" class="flex items-center gap-3 group">
+            <div class="logo-vinil-rz transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+                <div class="vinil-ring ring-1"></div>
+                <div class="vinil-ring ring-2"></div>
+                <div class="vinil-ring ring-3"></div>
+                <div class="vinil-label"><span>RZ</span></div>
+            </div>
+            <div class="hidden sm:block">
+                <span class="font-playfair text-xl tracking-tight text-verde-cacto block leading-none">Acervo Rozenblit</span>
+                <span class="text-[11px] uppercase tracking-[0.20em] text-barro">Museu Digital da Música Pernambucana</span>
+            </div>
+        </a>
+
+        <nav class="flex gap-1 overflow-x-auto no-scrollbar">
+            <a href="index.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap">
+                <i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início
+            </a>
+            <a href="index.html#historia" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap">
+                <i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História
+            </a>
+            <a href="index.html#catalogo" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap">
+                <i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo
+            </a>
+            <a href="jogos.html" class="px-3 py-2 rounded-xl text-sm font-bold transition-all bg-verde-cacto text-papel whitespace-nowrap">
+                <i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main class="pt-16 md:pt-20 relative z-10">
+    <section class="py-16 px-4 max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-12">
+            <span class="story-kicker">Experiência interativa</span>
+            <h2 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-2">Jogos do Museu</h2>
+            <p class="text-texto-suave mt-4 text-lg max-w-2xl mx-auto leading-relaxed">Explore a história da Rozenblit de forma interativa. Cinco experiências para testar seus conhecimentos sobre a música pernambucana.</p>
+        </div>
+
+        <!-- Seção de Jogos -->
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            <!-- Caça-Palavras -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='Caca-Palavras.html'">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-4xl mb-4">🔤</div>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Caça-Palavras</h3>
+                <p class="text-base text-texto-suave mt-3 leading-relaxed">Encontre artistas, estilos e termos escondidos na grade musical.</p>
+                <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Vocabulário</span>
+            </div>
+
+            <!-- Jogo da Forca -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='forca.html'">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-ouro/10 border border-ouro/30 flex items-center justify-center text-4xl mb-4">🪢</div>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Jogo da Forca</h3>
+                <p class="text-base text-texto-suave mt-3 leading-relaxed">Adivinhe os títulos e artistas do catálogo letra por letra.</p>
+                <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Clássico</span>
+            </div>
+
+            <!-- Quiz Cultural -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='quiz.html'">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-4xl mb-4">🎯</div>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Quiz Cultural</h3>
+                <p class="text-base text-texto-suave mt-3 leading-relaxed">Perguntas sobre a história da gravadora, artistas e discos lendários.</p>
+                <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Trivia</span>
+            </div>
+
+            <!-- Quebra-Cabeça -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='quebra-cabeca.html'">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-terracota/10 border border-terracota/20 flex items-center justify-center text-4xl mb-4">🧩</div>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Quebra-Cabeça</h3>
+                <p class="text-base text-texto-suave mt-3 leading-relaxed">Monte capas de discos clássicos e cenas da história da Rozenblit.</p>
+                <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Desafio Visual</span>
+            </div>
+
+            <!-- Tetris -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='tetris.html'">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-ouro/10 border border-ouro/30 flex items-center justify-center text-4xl mb-4">🧱</div>
+                <h3 class="font-playfair text-3xl text-verde-cacto">Tetris Rozenblit</h3>
+                <p class="text-base text-texto-suave mt-3 leading-relaxed">Encaixe os blocos musicais e mantenha o ritmo do acervo em dia.</p>
+                <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Agilidade</span>
+            </div>
+
+            <!-- Mistérios da Fábrica -->
+            <div class="dark-exhibit exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all relative overflow-hidden" onclick="location.href='misterio-rozenblit.html'">
+                <div class="absolute -right-6 -bottom-6 text-[80px] opacity-10">🏭</div>
+                <div class="relative z-10">
+                    <div class="w-20 h-20 mx-auto rounded-3xl bg-ouro/20 border border-ouro/30 flex items-center justify-center text-4xl mb-4">🔍</div>
+                    <h3 class="font-playfair text-3xl text-ouro">Mistérios da Fábrica</h3>
+                    <p class="text-base text-papel/70 mt-3 leading-relaxed">Investigue pistas e resolva enigmas nos corredores da Rozenblit.</p>
+                    <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-ouro bg-ouro/20 px-4 py-2 rounded-full">Investigação</span>
+                </div>
+            </div>
+
+            <!-- NOVO: Os LPs Roubados (plataforma de ação) -->
+            <div class="museum-glass exhibit-card rounded-3xl p-8 text-center cursor-pointer hover:shadow-xl transition-all relative overflow-hidden" onclick="location.href='os-lps-roubados.html'">
+                <div class="absolute -right-6 -bottom-6 text-[80px] opacity-10">💿</div>
+                <div class="relative z-10">
+                    <div class="w-20 h-20 mx-auto rounded-3xl bg-barro/10 border border-barro/30 flex items-center justify-center text-4xl mb-4">🏃‍♂️</div>
+                    <h3 class="font-playfair text-3xl text-verde-cacto">Os LPs Roubados</h3>
+                    <p class="text-base text-texto-suave mt-3 leading-relaxed">Alguns LPs raros foram roubados da antiga fábrica. Atravesse a cidade, pule buracos, suba muros, desvie dos ladrões e chegue ao esconderijo antes que os discos desapareçam.</p>
+                    <span class="inline-block mt-5 text-sm font-bold uppercase tracking-widest text-barro bg-barro/10 px-4 py-2 rounded-full">Plataforma</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chamada educadores (opcional) -->
+        <div class="mt-16 museum-glass rounded-3xl p-8 text-center max-w-4xl mx-auto">
+            <p class="text-4xl mb-3">🏫</p>
+            <h3 class="font-playfair text-3xl text-verde-cacto">Para educadores e pesquisadores</h3>
+            <p class="text-texto-suave mt-2 leading-relaxed">Os jogos do Museu Rozenblit são ferramentas pedagógicas para o ensino de história cultural, patrimônio imaterial e identidade nordestina.</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-5">
+                <span class="badge">📚 Ensino fundamental e médio</span>
+                <span class="badge">🎵 Educação musical</span>
+                <span class="badge">🏛️ História e patrimônio</span>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="border-t border-verde-cacto/20 py-8 text-center text-texto-suave text-sm mt-8 relative z-10">
+    <p>Acervo Rozenblit — Museu Digital da Música Pernambucana</p>
+    <p class="text-xs mt-1">© 2026 Acervo Rozenblit. Todos os direitos reservados.</p>
+</footer>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

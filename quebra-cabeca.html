@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Quebra-Cabeças do Acervo - Museu Rozenblit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(145deg, #f7f1e3 0%, #e8dbbf 100%);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
+        }
+        .museum-card {
+            background: rgba(255, 250, 240, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(49, 95, 67, 0.2);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+        }
+        .puzzle-grid {
+            display: grid;
+            gap: 4px;
+            background: #2b241b;
+            padding: 8px;
+            border-radius: 1.5rem;
+            box-shadow: inset 0 0 0 1px rgba(255,255,240,0.3), 0 12px 24px -8px black;
+        }
+        .puzzle-tile {
+            background-size: cover;
+            background-color: #4a3929;
+            border-radius: 12px;
+            transition: 0.05s linear;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .puzzle-tile:active {
+            transform: scale(0.97);
+        }
+        .btn-museu {
+            background: #315f43;
+            color: #fffaf0;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-museu:hover {
+            background: #4f7f52;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #315f43;
+            color: #315f43;
+        }
+        .btn-outline:hover {
+            background: #315f43;
+            color: white;
+        }
+        .curiosity {
+            background: #ede5cf;
+            border-left: 6px solid #c49a3a;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-style: italic;
+        }
+        .capa-miniatura {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #c49a3a;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .capa-miniatura:hover {
+            transform: scale(1.05);
+            border-color: #315f43;
+        }
+        .capa-miniatura.selecionada {
+            border: 3px solid #315f43;
+            box-shadow: 0 0 0 2px #f6c453;
+        }
+        @media (max-width: 640px) {
+            .puzzle-grid { gap: 2px; }
+            .puzzle-tile { border-radius: 6px; }
+            .capa-miniatura { width: 60px; height: 60px; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <a href="jogos.html" class="inline-flex items-center gap-2 text-verde-cacto font-bold hover:underline">
+            ← Voltar
+        </a>
+        <div class="flex gap-3">
+            <div class="bg-white/60 backdrop-blur rounded-full px-4 py-2 text-sm font-bold shadow">
+                🧩 Movimentos: <span id="moveCount">0</span>
+            </div>
+            <div class="bg-white/60 backdrop-blur rounded-full px-4 py-2 text-sm font-bold shadow">
+                ⏱️ Tempo: <span id="timerDisplay">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Título -->
+    <div class="text-center mb-6">
+        <h1 class="font-playfair text-4xl md:text-5xl text-verde-cacto">Quebra-Cabeças do Acervo</h1>
+        <p class="text-texto-suave mt-2">Monte as capas dos discos históricos da Rozenblit</p>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-6">
+        <div class="museum-card p-5 space-y-5">
+            <div>
+                <h2 class="font-playfair text-xl text-verde-cacto mb-3">🎵 Escolha a capa</h2>
+                <div id="capaGallery" class="flex flex-wrap gap-3 justify-center"></div>
+            </div>
+            <div>
+                <label class="block font-bold mb-1 text-texto-suave">Dificuldade (grade):</label>
+                <select id="gridSizeSelect" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel font-semibold">
+                    <option value="3">3x3 - Fácil</option>
+                    <option value="4" selected>4x4 - Médio</option>
+                    <option value="5">5x5 - Difícil</option>
+                </select>
+            </div>
+            <button id="shuffleBtn" class="btn-museu w-full">🔀 Embaralhar peças</button>
+            <div class="text-center">
+                <p class="text-sm font-bold text-verde-cacto mb-2">📷 Imagem original (guia)</p>
+                <div id="imagemGuia" class="flex justify-center">
+                    <img id="guiaImg" src="" alt="Guia" class="rounded-xl shadow-md border-2 border-ouro" style="max-width: 160px; width: 100%;">
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 museum-card p-5">
+            <div class="flex justify-center">
+                <div id="puzzleContainer" class="puzzle-grid" style="width: 100%; max-width: 550px; aspect-ratio: 1 / 1;"></div>
+            </div>
+            <div class="curiosity text-sm mt-5">
+                <strong>📖 Curiosidade do acervo:</strong>
+                <p id="curiosityText" class="mt-1">Selecione uma capa e monte o quebra-cabeça para descobrir mais!</p>
+            </div>
+            <div class="text-center mt-3 text-xs text-texto-suave">
+                💡 Clique em uma peça ao lado do espaço vazio para movê-la.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ---------- PLAYER GLOBAL DE MÚSICA ----------
+let bgMusic = null;
+
+function iniciarMusicaFundo(listaMusicas) {
+    if (bgMusic) return;
+    bgMusic = document.createElement('audio');
+    bgMusic.volume = 0.7;
+    bgMusic.loop = false;
+    bgMusic.style.display = 'none';
+    document.body.appendChild(bgMusic);
+
+    let indiceAtual = 0;
+
+    function tocarFaixa() {
+        if (!listaMusicas[indiceAtual]) return;
+        bgMusic.src = listaMusicas[indiceAtual];
+        bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
+        indiceAtual = (indiceAtual + 1) % listaMusicas.length;
+    }
+
+    bgMusic.addEventListener('ended', tocarFaixa);
+    tocarFaixa();
+}
+
+function pararMusicaFundo() {
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.src = '';
+        bgMusic = null;
+    }
+}
+// ---------- FIM DO PLAYER ----------
+
+const capasInfo = [
+    { arquivo: "capa1.jpg", nome: "Etiqueta Mocambo", curiosidade: "Uma curiosidade pouco conhecida é que, em 1958, poucas horas após a conquista da primeira Copa do Mundo pelo Brasil, a Mocambo já havia colocado nas rádios um disco comemorativo, transformando o acontecimento em memória musical quase imediata." },
+    { arquivo: "capa2.jpg", nome: "Paêbirú - Lula Côrtes e Zé Ramalho", curiosidade: "Uma das maiores curiosidades sobre \"Paêbirú: Caminho da Montanha do Sol\", lançado pela Rozenblit em 1975, é que ele se tornou o vinil mais raro e valioso do Brasil." },
+    { arquivo: "capa3.jpg", nome: "Cartola", curiosidade: "Uma curiosidade impressionante sobre Cartola é que ele só gravou seu primeiro disco solo aos 65 anos, em 1974. Hoje, esse álbum é considerado uma obra-prima da música brasileira." },
+    { arquivo: "capa4.jpg", nome: "Os Baobás – Bye Bye My Darling", curiosidade: "Uma curiosidade é que Os Baobás foram uma das principais bandas da Jovem Guarda em Pernambuco, sendo frequentemente chamados de \"Beatles pernambucanos\". O grupo surgiu em Recife e gravou diversos compactos pela Mocambo." },
+    { arquivo: "capa5.jpg", nome: "Baile Jovem nº 2 – Mancini e os Dez de Ouro", curiosidade: "Essa capa é um exemplo do design moderno e psicodélico adotado pela Rozenblit no final dos anos 1960" },
+    { arquivo: "capa6.jpg", nome: "Isto é Musicanossa!", curiosidade: "Esse LP é um excelente retrato da influência da Bossa Nova e da MPB moderna na segunda metade dos anos 1960" }
+];
+
+const IMAGES_PATH = "static/quebra-cabecas/";
+
+let currentCapa = null;
+let gridSize = 4;
+let tiles = [];
+let emptyIndex = gridSize * gridSize - 1;
+let moveCount = 0;
+let timerSeconds = 0;
+let timerInterval = null;
+let gameCompleted = false;
+let imageObj = null;
+
+const puzzleContainer = document.getElementById("puzzleContainer");
+const moveCountSpan = document.getElementById("moveCount");
+const timerDisplaySpan = document.getElementById("timerDisplay");
+const shuffleBtn = document.getElementById("shuffleBtn");
+const gridSizeSelect = document.getElementById("gridSizeSelect");
+const capaGalleryDiv = document.getElementById("capaGallery");
+const curiosityText = document.getElementById("curiosityText");
+const guiaImg = document.getElementById("guiaImg");
+
+function formatTime(sec) {
+    const mins = Math.floor(sec / 60);
+    const remainSec = sec % 60;
+    return `${mins.toString().padStart(2, '0')}:${remainSec.toString().padStart(2, '0')}`;
+}
+
+function updateUI() {
+    moveCountSpan.innerText = moveCount;
+    timerDisplaySpan.innerText = formatTime(timerSeconds);
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (!gameCompleted && currentCapa) {
+            timerSeconds++;
+            updateUI();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function shuffleTiles() {
+    if (!currentCapa) return;
+    const total = gridSize * gridSize;
+    tiles = Array.from({ length: total }, (_, i) => i);
+    emptyIndex = total - 1;
+    const moves = 250 + Math.floor(Math.random() * 150);
+    for (let i = 0; i < moves; i++) {
+        const neighbors = getMovableNeighbors(emptyIndex);
+        if (neighbors.length > 0) {
+            const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+            swapTiles(randomNeighbor, emptyIndex);
+            emptyIndex = randomNeighbor;
+        }
+    }
+    moveCount = 0;
+    gameCompleted = false;
+    updateUI();
+    renderPuzzle();
+}
+
+function getMovableNeighbors(emptyIdx) {
+    const row = Math.floor(emptyIdx / gridSize);
+    const col = emptyIdx % gridSize;
+    const neighbors = [];
+    if (row > 0) neighbors.push(emptyIdx - gridSize);
+    if (row < gridSize - 1) neighbors.push(emptyIdx + gridSize);
+    if (col > 0) neighbors.push(emptyIdx - 1);
+    if (col < gridSize - 1) neighbors.push(emptyIdx + 1);
+    return neighbors;
+}
+
+function swapTiles(idxA, idxB) {
+    [tiles[idxA], tiles[idxB]] = [tiles[idxB], tiles[idxA]];
+}
+
+function checkVictory() {
+    const solved = tiles.every((val, idx) => val === idx);
+    if (solved && !gameCompleted && currentCapa) {
+        gameCompleted = true;
+        stopTimer();
+        curiosityText.innerHTML = `<strong>✨ Parabéns! Você montou a capa:</strong> ${currentCapa.nome}<br>📖 ${currentCapa.curiosidade}`;
+        setTimeout(() => alert("🏆 Quebra-cabeça concluído! Veja a curiosidade ao lado."), 50);
+    }
+    return solved;
+}
+
+function onTileClick(index) {
+    if (gameCompleted || !currentCapa) return;
+    const neighbors = getMovableNeighbors(emptyIndex);
+    if (neighbors.includes(index)) {
+        swapTiles(index, emptyIndex);
+        emptyIndex = index;
+        moveCount++;
+        updateUI();
+        renderPuzzle();
+        checkVictory();
+    }
+}
+
+function renderPuzzle() {
+    if (!imageObj || !currentCapa) return;
+    const containerWidth = puzzleContainer.clientWidth;
+    const size = containerWidth;
+    puzzleContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    puzzleContainer.innerHTML = "";
+    for (let i = 0; i < tiles.length; i++) {
+        const tileValue = tiles[i];
+        const tileDiv = document.createElement("div");
+        tileDiv.className = "puzzle-tile";
+        tileDiv.style.width = "100%";
+        tileDiv.style.aspectRatio = "1 / 1";
+        if (tileValue === gridSize * gridSize - 1) {
+            tileDiv.style.backgroundImage = "none";
+            tileDiv.style.backgroundColor = "#2b241b";
+            tileDiv.style.boxShadow = "inset 0 0 0 1px #c49a3a30";
+        } else {
+            const originalRow = Math.floor(tileValue / gridSize);
+            const originalCol = tileValue % gridSize;
+            tileDiv.style.backgroundImage = `url(${IMAGES_PATH}${currentCapa.arquivo})`;
+            tileDiv.style.backgroundSize = `${gridSize * 100}%`;
+            tileDiv.style.backgroundPosition = `-${originalCol * 100}% -${originalRow * 100}%`;
+        }
+        tileDiv.addEventListener("click", (e) => {
+            e.stopPropagation();
+            onTileClick(i);
+        });
+        puzzleContainer.appendChild(tileDiv);
+    }
+}
+
+function loadCapa(capa) {
+    if (!capa) return;
+    currentCapa = capa;
+    gameCompleted = false;
+    stopTimer();
+    guiaImg.src = IMAGES_PATH + capa.arquivo;
+    guiaImg.alt = capa.nome;
+    const img = new Image();
+    img.onload = () => {
+        imageObj = img;
+        const total = gridSize * gridSize;
+        tiles = Array.from({ length: total }, (_, i) => i);
+        emptyIndex = total - 1;
+        moveCount = 0;
+        timerSeconds = 0;
+        updateUI();
+        startTimer();
+        shuffleTiles();
+        curiosityText.innerHTML = `🖼️ Capa: ${capa.nome}. Monte o quebra-cabeça para ver a curiosidade completa.`;
+    };
+    img.onerror = () => {
+        console.error("Erro ao carregar imagem:", capa.arquivo);
+        curiosityText.innerHTML = `⚠️ Não foi possível carregar a imagem "${capa.arquivo}". Verifique se o arquivo existe na pasta ${IMAGES_PATH}.`;
+        guiaImg.src = "https://placehold.co/200x200?text=Imagem+não+encontrada";
+    };
+    img.src = IMAGES_PATH + capa.arquivo;
+}
+
+function buildGallery() {
+    capaGalleryDiv.innerHTML = "";
+    capasInfo.forEach((capa, idx) => {
+        const imgUrl = IMAGES_PATH + capa.arquivo;
+        const div = document.createElement("div");
+        div.className = "flex flex-col items-center cursor-pointer";
+        div.innerHTML = `
+            <img src="${imgUrl}" class="capa-miniatura" onerror="this.src='https://placehold.co/80x80?text=Erro'">
+            <span class="text-xs mt-1 text-center font-medium text-verde-cacto">${capa.nome.split(' ')[0]}</span>
+        `;
+        div.addEventListener("click", () => {
+            document.querySelectorAll(".capa-miniatura").forEach(el => el.classList.remove("selecionada"));
+            div.querySelector(".capa-miniatura").classList.add("selecionada");
+            loadCapa(capa);
+        });
+        capaGalleryDiv.appendChild(div);
+    });
+    if (capasInfo.length > 0) {
+        const primeiroItem = capaGalleryDiv.children[0];
+        primeiroItem.querySelector(".capa-miniatura").classList.add("selecionada");
+        loadCapa(capasInfo[0]);
+    }
+}
+
+gridSizeSelect.addEventListener("change", (e) => {
+    gridSize = parseInt(e.target.value);
+    if (currentCapa) loadCapa(currentCapa);
+});
+
+shuffleBtn.addEventListener("click", () => {
+    if (currentCapa) {
+        shuffleTiles();
+        stopTimer();
+        timerSeconds = 0;
+        moveCount = 0;
+        gameCompleted = false;
+        updateUI();
+        startTimer();
+    }
+});
+
+window.addEventListener("resize", () => {
+    if (currentCapa) renderPuzzle();
+});
+
+buildGallery();
+
+// Inicia a música automaticamente
+iniciarMusicaFundo([
+    '/static/sounds/quebra-cabeca/fundo1.ogg',
+    '/static/sounds/quebra-cabeca/fundo2.ogg'
+    
+]);
+</script>
+</body>
+</html>

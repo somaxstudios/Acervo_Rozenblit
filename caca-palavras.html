@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Caça-Palavras do Acervo Rozenblit — Museu Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'playfair': ['"Playfair Display"', 'Georgia', 'serif'], 'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'] },
+                    colors: { 'papel': '#fffaf0', 'verde-cacto': '#315f43', 'barro': '#a44f25', 'ouro': '#c49a3a', 'texto': '#2b241b', 'texto-suave': '#6f604c' }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at 10% 20%, rgba(79,127,82,0.1) 0%, #ede5cf 100%);
+            font-family: 'Source Sans 3', sans-serif;
+            min-height: 100vh;
+            padding: 0.75rem;
+        }
+        .grade-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: center;
+        }
+        .grade-scroll.scroll-20 {
+            justify-content: flex-start;
+        }
+        .grade-container {
+            display: grid;
+            gap: 0;
+            background-color: rgba(255,250,240,0.5);
+            border-radius: 12px;
+            padding: 4px;
+            min-width: max-content;
+        }
+        :root {
+            --cell-size-15-desktop: 48px;
+            --cell-size-20-desktop: 42px;
+            --cell-size-15-mobile: 22px;
+            --cell-size-20-mobile: 28px;
+        }
+        @media (max-width: 640px) {
+            .grade-container[data-size="15"] .grid-cell {
+                width: var(--cell-size-15-mobile);
+                height: var(--cell-size-15-mobile);
+                font-size: 12px;
+            }
+            .grade-container[data-size="20"] .grid-cell {
+                width: var(--cell-size-20-mobile);
+                height: var(--cell-size-20-mobile);
+                font-size: 11px;
+            }
+        }
+        @media (min-width: 641px) {
+            .grade-container[data-size="15"] .grid-cell {
+                width: var(--cell-size-15-desktop);
+                height: var(--cell-size-15-desktop);
+                font-size: 1.2rem;
+            }
+            .grade-container[data-size="20"] .grid-cell {
+                width: var(--cell-size-20-desktop);
+                height: var(--cell-size-20-desktop);
+                font-size: 1rem;
+            }
+        }
+        .grid-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: rgba(255,250,240,0.95);
+            border: 1px solid rgba(49,95,67,0.3);
+            transition: all 0.05s linear;
+            cursor: pointer;
+            font-family: monospace;
+            text-transform: uppercase;
+            touch-action: none;
+        }
+        .grid-cell.selected-start {
+            background-color: #c49a3a;
+            color: white;
+            box-shadow: inset 0 0 0 2px #315f43;
+        }
+        .grid-cell.selected-path {
+            background-color: #a44f25;
+            color: white;
+        }
+        .grid-cell.found {
+            background-color: #315f43;
+            color: white;
+            text-decoration: line-through;
+            opacity: 0.7;
+            cursor: default;
+        }
+        .palavras-chips {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .chip-palavra {
+            background: rgba(255,250,240,0.9);
+            border-radius: 40px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s;
+            border: 1px solid rgba(49,95,67,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip-palavra.found {
+            background-color: #315f43;
+            color: white;
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        .chip-categoria {
+            font-size: 0.6rem;
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 20px;
+        }
+        @media (max-width: 640px) {
+            .palavras-chips {
+                grid-template-columns: repeat(2, 1fr);
+                max-height: 180px;
+            }
+            .chip-palavra {
+                font-size: 0.7rem;
+                padding: 5px 8px;
+            }
+        }
+        .btn-primary, .btn-secondary {
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .btn-primary { background: #315f43; color: #fffaf0; }
+        .btn-primary:hover { background: #c49a3a; transform: translateY(-2px); }
+        .btn-secondary { background: #fffaf0; border: 1px solid #315f43; color: #315f43; }
+        .progress-bar { height: 6px; background: #e0d5c0; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #c49a3a; width: 0%; transition: width 0.3s; }
+        .aviso-scroll {
+            font-size: 0.65rem;
+            text-align: center;
+            margin-top: 6px;
+            color: #a44f25;
+        }
+        @media (max-width: 768px) {
+            .flex-responsive { flex-direction: column; }
+            .painel-lateral { width: 100%; margin-top: 1rem; }
+            .cabecalho-jogo { padding: 0.5rem; }
+        }
+        .medalha { font-size: 3rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+        .dica-extra { background: rgba(196,154,58,0.15); border-left: 4px solid #c49a3a; padding: 8px; border-radius: 12px; font-style: italic; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="text-center p-8 bg-papel rounded-3xl shadow-xl z-20">
+    <div class="w-16 h-16 border-4 border-verde-cacto border-t-ouro rounded-full animate-spin mx-auto mb-4"></div>
+    <p class="font-playfair text-xl text-verde-cacto">Carregando acervo musical...</p>
+</div>
+
+<div id="jogo-container" class="hidden max-w-7xl w-full mx-auto relative z-10">
+    <div class="bg-papel/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-verde-cacto/20">
+        <!-- CABEÇALHO COMPACTO -->
+        <div class="bg-gradient-to-r from-verde-cacto to-verde-mandacaru px-3 py-2 flex flex-wrap justify-between items-center gap-2 cabecalho-jogo">
+            <div class="flex items-center gap-1">
+                <i data-lucide="search" class="w-4 h-4 text-ouro"></i>
+                <h1 class="font-playfair text-sm md:text-lg text-white">🔎 Caça-Palavras Rozenblit</h1>
+            </div>
+            <div class="flex gap-1 items-center">
+                <span id="pontuacao-display" class="bg-papel text-verde-cacto font-bold px-2 py-0.5 rounded-full text-xs">🏆 0</span>
+                <span id="recorde-display" class="bg-black/30 text-papel px-2 py-0.5 rounded-full text-xs">⭐ Recorde: 0</span>
+                <a href="jogos.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-2 py-0.5 rounded-full text-xs font-semibold transition flex items-center gap-1 shadow">
+                    <i data-lucide="home" class="w-3 h-3"></i> Voltar
+                </a>
+            </div>
+        </div>
+
+        <!-- TELA INICIAL -->
+        <div id="tela-inicial" class="p-4 md:p-6 text-center">
+            <p class="text-sm md:text-base mb-2">Encontre as palavras escondidas no universo <strong class="text-barro">Rozenblit</strong></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto mt-3 text-left">
+                <div>
+                    <label class="block font-bold text-verde-cacto text-sm mb-1">📏 Tamanho da grade</label>
+                    <select id="tamanho-grade" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel text-sm">
+                        <option value="15">15x15</option>
+                        <option value="20">20x20</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-verde-cacto text-sm mb-1">🎭 Categoria</label>
+                    <select id="categoria" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel text-sm">
+                        <option value="artistas">Artistas</option>
+                        <option value="titulos">Títulos de discos</option>
+                        <option value="gravadoras">Gravadoras/Selos</option>
+                        <option value="frevo">Frevo</option>
+                        <option value="brega">Brega</option>
+                        <option value="forro">Forró</option>
+                        <option value="aleatorio">Aleatório</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-verde-cacto text-sm mb-1">⚙️ Modo de jogo</label>
+                    <select id="modo-jogo" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel text-sm">
+                        <option value="relax">🌿 Relax (sem tempo)</option>
+                        <option value="3min">⚡ 3 minutos</option>
+                        <option value="5min" selected>⚡ 5 minutos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-verde-cacto text-sm mb-1">🎓 Nível de conhecimento</label>
+                    <select id="nivel-conhecimento" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel text-sm">
+                        <option value="curioso">Visitante Curioso</option>
+                        <option value="conhecedor" selected>Conhecedor do Acervo</option>
+                        <option value="mestre">Mestre Rozenblit</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="btn-iniciar" class="btn-primary w-full py-2 text-sm">🎮 Iniciar Jogo</button>
+                </div>
+            </div>
+            <div class="mt-4 text-xs text-texto-suave flex justify-center gap-2 flex-wrap">
+                <span>↔️ Horizontal</span> <span>↕️ Vertical</span> <span>↖️ Diagonal</span> <span>🔄 Invertida</span>
+                <span>👆 Arraste sobre as letras</span>
+            </div>
+        </div>
+
+        <!-- TELA DO JOGO -->
+        <div id="tela-jogo" class="hidden p-3 md:p-4">
+            <div class="flex-responsive flex lg:flex-row gap-4">
+                <div class="lg:w-2/3">
+                    <div id="grade-scroll-wrapper" class="grade-scroll">
+                        <div id="grade-container" class="grade-container"></div>
+                    </div>
+                    <div id="aviso-scroll" class="aviso-scroll hidden">👉 Arraste a grade para os lados se necessário</div>
+                </div>
+                <div class="painel-lateral lg:w-1/3 space-y-3">
+                    <div class="bg-papel/70 rounded-2xl p-3 shadow">
+                        <div class="flex justify-between items-center flex-wrap gap-1">
+                            <span class="font-playfair text-verde-cacto text-sm">⏱️ <span id="cronometro">00:00</span></span>
+                            <span class="font-playfair text-barro text-sm">🎯 Pontos: <span id="pontos-jogo">0</span></span>
+                        </div>
+                        <div class="progress-bar mt-2"><div id="progresso-fill" class="progress-fill"></div></div>
+                        <p class="text-xs text-texto-suave mt-1">Palavras restantes: <span id="palavras-restantes">0</span></p>
+                    </div>
+                    <div class="bg-papel/70 rounded-2xl p-3 shadow">
+                        <h3 class="font-playfair text-verde-cacto border-b border-ouro/40 pb-1 text-sm">📝 Palavras a encontrar</h3>
+                        <div id="lista-palavras" class="palavras-chips mt-2"></div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="btn-novo-jogo" class="btn-secondary text-xs flex-1">🔄 Nova partida</button>
+                        <button id="btn-sair" class="btn-secondary text-xs flex-1">🏠 Menu</button>
+                    </div>
+                    <div id="dica-extra" class="dica-extra text-xs text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="tela-fim" class="hidden p-5 text-center">
+            <div id="medalha-final" class="medalha mb-1">🏅</div>
+            <h2 class="font-playfair text-xl md:text-2xl text-verde-cacto">🏁 Caça concluído!</h2>
+            <p id="pontuacao-final" class="text-2xl md:text-3xl font-bold text-ouro my-2">0 pts</p>
+            <p id="curiosidade-final" class="text-texto-suave max-w-md mx-auto mb-3 italic text-xs"></p>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button id="btn-jogar-novamente" class="btn-primary text-sm">🔁 Jogar novamente</button>
+                <button id="btn-compartilhar" class="btn-secondary text-sm">📢 Compartilhar</button>
+                <a href="jogos.html" class="bg-papel border border-verde-cacto text-verde-cacto px-3 py-1 rounded-full text-xs"> 🔁 Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- PLAYER GLOBAL DE MÚSICA ----------
+    let bgMusic = null;
+
+    function iniciarMusicaFundo(listaMusicas) {
+        // Se já existir uma música tocando, não cria outra
+        if (bgMusic) return;
+
+        bgMusic = document.createElement('audio');
+        bgMusic.volume = 0.7;
+        bgMusic.loop = false; // vamos trocar as faixas manualmente
+        bgMusic.style.display = 'none';
+        document.body.appendChild(bgMusic);
+
+        let indiceAtual = 0;
+
+        function tocarFaixa() {
+            if (!listaMusicas[indiceAtual]) return;
+            bgMusic.src = listaMusicas[indiceAtual];
+            bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
+            indiceAtual = (indiceAtual + 1) % listaMusicas.length;
+        }
+
+        bgMusic.addEventListener('ended', tocarFaixa);
+        tocarFaixa();
+    }
+
+    function pararMusicaFundo() {
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.src = '';
+            bgMusic = null;
+        }
+    }
+
+    // ---------- DADOS GLOBAIS DO JOGO ----------
+    let catalogo = [];
+    let fichasMap = new Map();
+    let listaPalavrasBase = [];
+    let palavrasDoJogo = [];
+    let grade = [];
+    let tamanhoGrade = 15;
+    let modoJogo = "5min";   // relax, 3min, 5min
+    let categoriaSelecionada = "aleatorio";
+    let nivelConhecimento = "conhecedor";
+    let palavrasEncontradas = new Set();
+    let pontuacaoTotal = 0;
+    let recorde = 0;
+    let cronometroAtivo = false;
+    let tempoRestante = 300; // 5min padrão
+    let intervaloId = null;
+    let selecaoAtiva = false;
+    let startCell = null;
+    let direcaoAtual = null;
+    let touchIdentifier = null;
+
+    const nivelConfig = {
+        curioso: {
+            gridPadrao: 15,
+            minPalavras: 6,
+            maxPalavras: 8,
+            minLen: 4,
+            maxLen: 10,
+            permitirInvertidas: false,
+            direcoes: [[0,1], [1,0]],
+            multiplicadorPontos: 100,
+        },
+        conhecedor: {
+            gridPadrao: 15,
+            minPalavras: 8,
+            maxPalavras: 12,
+            minLen: 5,
+            maxLen: 16,
+            permitirInvertidas: true,
+            direcoes: [[0,1], [1,0], [1,1], [1,-1], [0,-1]],
+            multiplicadorPontos: 150,
+        },
+        mestre: {
+            gridPadrao: 20,
+            minPalavras: 12,
+            maxPalavras: 18,
+            minLen: 6,
+            maxLen: 22,
+            permitirInvertidas: true,
+            direcoes: [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],
+            multiplicadorPontos: 250,
+        }
+    };
+
+    // Elementos DOM
+    const loadingDiv = document.getElementById('loading');
+    const container = document.getElementById('jogo-container');
+    const telaInicial = document.getElementById('tela-inicial');
+    const telaJogo = document.getElementById('tela-jogo');
+    const telaFim = document.getElementById('tela-fim');
+    const btnIniciar = document.getElementById('btn-iniciar');
+    const btnNovoJogo = document.getElementById('btn-novo-jogo');
+    const btnSair = document.getElementById('btn-sair');
+    const btnJogarNovamente = document.getElementById('btn-jogar-novamente');
+    const btnCompartilhar = document.getElementById('btn-compartilhar');
+    const gradeContainer = document.getElementById('grade-container');
+    const listaPalavrasDiv = document.getElementById('lista-palavras');
+    const pontuacaoDisplay = document.getElementById('pontuacao-display');
+    const recordeDisplay = document.getElementById('recorde-display');
+    const pontosJogoSpan = document.getElementById('pontos-jogo');
+    const palavrasRestantesSpan = document.getElementById('palavras-restantes');
+    const progressoFill = document.getElementById('progresso-fill');
+    const cronometroSpan = document.getElementById('cronometro');
+    const dicaExtraDiv = document.getElementById('dica-extra');
+    const avisoScroll = document.getElementById('aviso-scroll');
+    const gradeScrollWrapper = document.getElementById('grade-scroll-wrapper');
+
+    // ---------- FUNÇÕES AUXILIARES ----------
+    function normalizarPalavra(texto) {
+        let norm = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        norm = norm.toUpperCase();
+        norm = norm.replace(/[^A-Z]/g, '');
+        return norm;
+    }
+
+    async function carregarDados() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json'),
+                fetch('fichas.json')
+            ]);
+            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSONs');
+            const catalogoData = await catalogoRes.json();
+            const fichasData = await fichasRes.json();
+            catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
+            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
+            construirBasePalavras();
+            carregarRecorde();
+            loadingDiv.classList.add('hidden');
+            container.classList.remove('hidden');
+        } catch (err) {
+            loadingDiv.innerHTML = `<p class="text-red-700">Erro: ${err.message}. Verifique os JSONs.</p>`;
+        }
+    }
+
+    function construirBasePalavras() {
+        listaPalavrasBase = [];
+        const adicionar = (original, categoria, dica) => {
+            const normalizada = normalizarPalavra(original);
+            if (normalizada.length >= 3) {
+                listaPalavrasBase.push({ original, palavra: normalizada, categoria, dica });
+            }
+        };
+        const artistasSet = new Set();
+        catalogo.forEach(item => { if (item.artista) artistasSet.add(item.artista.trim()); });
+        artistasSet.forEach(art => adicionar(art, "artistas", `Artista presente no acervo Rozenblit.`));
+        const titulosSet = new Set();
+        catalogo.forEach(item => { if (item.titulo) titulosSet.add(item.titulo.trim()); });
+        titulosSet.forEach(tit => adicionar(tit, "titulos", `Disco do catálogo Rozenblit.`));
+        const selosSet = new Set();
+        catalogo.forEach(item => { if (item.gravadora) selosSet.add(item.gravadora.trim()); });
+        selosSet.forEach(sel => adicionar(sel, "gravadoras", `Selo ou gravadora da Rozenblit.`));
+        const tematicas = {
+            frevo: ["Frevo", "Clube", "Passista", "Orquestra", "Maracatu", "Galo", "Lata"],
+            brega: ["Brega", "Romântico", "Cabaré", "Apaixonado", "Coração"],
+            forro: ["Forró", "Sanfona", "Zabumba", "Balanço", "Xote", "Arruda"]
+        };
+        for (let cat in tematicas) {
+            tematicas[cat].forEach(pal => adicionar(pal, cat, `Palavra relacionada a ${cat}.`));
+        }
+        const unique = new Map();
+        for (const p of listaPalavrasBase) unique.set(p.palavra, p);
+        listaPalavrasBase = Array.from(unique.values());
+    }
+
+    function selecionarPalavrasPorDificuldade(categoria, nivel, tamanhoGrid) {
+        const cfg = nivelConfig[nivel];
+        let filtradas = listaPalavrasBase.filter(p => categoria === "aleatorio" || p.categoria === categoria);
+        filtradas = filtradas.filter(p => p.palavra.length >= cfg.minLen && p.palavra.length <= cfg.maxLen);
+        if (filtradas.length === 0) filtradas = listaPalavrasBase.slice();
+        for (let i = filtradas.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [filtradas[i], filtradas[j]] = [filtradas[j], filtradas[i]];
+        }
+        const quantidade = Math.min(cfg.maxPalavras, Math.max(cfg.minPalavras, Math.floor(tamanhoGrid / 2.5)));
+        return filtradas.slice(0, quantidade);
+    }
+
+    function podeColocarPalavra(grade, palavra, linha, col, dirLinha, dirCol) {
+        const N = grade.length;
+        for (let i = 0; i < palavra.length; i++) {
+            const l = linha + i * dirLinha;
+            const c = col + i * dirCol;
+            if (l < 0 || l >= N || c < 0 || c >= N) return false;
+            if (grade[l][c] !== '' && grade[l][c] !== palavra[i]) return false;
+        }
+        return true;
+    }
+
+    function colocarPalavra(grade, palavra, linha, col, dirLinha, dirCol) {
+        for (let i = 0; i < palavra.length; i++) {
+            const l = linha + i * dirLinha;
+            const c = col + i * dirCol;
+            grade[l][c] = palavra[i];
+        }
+    }
+
+    function gerarGrade(tamanho, palavras, direcoesPermitidas) {
+        const N = tamanho;
+        let grade = Array(N).fill().map(() => Array(N).fill(''));
+        for (let p of palavras) {
+            let colocada = false;
+            let tentativas = 0;
+            const palavraNorm = p.palavra;
+            while (!colocada && tentativas < 500) {
+                const dir = direcoesPermitidas[Math.floor(Math.random() * direcoesPermitidas.length)];
+                const linha = Math.floor(Math.random() * N);
+                const col = Math.floor(Math.random() * N);
+                if (podeColocarPalavra(grade, palavraNorm, linha, col, dir[0], dir[1])) {
+                    colocarPalavra(grade, palavraNorm, linha, col, dir[0], dir[1]);
+                    colocada = true;
+                }
+                tentativas++;
+            }
+            if (!colocada) console.warn(`Palavra ${palavraNorm} não colocada.`);
+        }
+        const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                if (grade[i][j] === '') grade[i][j] = letras[Math.floor(Math.random() * letras.length)];
+            }
+        }
+        return grade;
+    }
+
+    function iniciarPartida() {
+        // Inicia a música de fundo automaticamente (apenas se não estiver tocando)
+        iniciarMusicaFundo([
+            '/static/sounds/caca-palavras/fundo1.ogg',
+            '/static/sounds/caca-palavras/fundo2.ogg',
+            '/static/sounds/caca-palavras/fundo3.ogg',
+            '/static/sounds/caca-palavras/fundo4.ogg',
+            '/static/sounds/caca-palavras/fundo5.ogg'
+        ]);
+
+        tamanhoGrade = parseInt(document.getElementById('tamanho-grade').value);
+        categoriaSelecionada = document.getElementById('categoria').value;
+        modoJogo = document.getElementById('modo-jogo').value;
+        nivelConhecimento = document.getElementById('nivel-conhecimento').value;
+        
+        const cfg = nivelConfig[nivelConhecimento];
+        if (nivelConhecimento === 'mestre' && tamanhoGrade !== 20) tamanhoGrade = 20;
+        if (nivelConhecimento === 'curioso' && tamanhoGrade !== 15) tamanhoGrade = 15;
+        
+        let palavrasBase = selecionarPalavrasPorDificuldade(categoriaSelecionada, nivelConhecimento, tamanhoGrade);
+        if (palavrasBase.length < 4) palavrasBase = selecionarPalavrasPorDificuldade("aleatorio", nivelConhecimento, tamanhoGrade);
+        palavrasDoJogo = palavrasBase;
+        
+        const direcoes = cfg.direcoes;
+        grade = gerarGrade(tamanhoGrade, palavrasDoJogo, direcoes);
+        palavrasEncontradas.clear();
+        pontuacaoTotal = 0;
+        atualizarInterfaceJogo();
+        renderizarGrade();
+        renderizarListaPalavras();
+        
+        if (intervaloId) clearInterval(intervaloId);
+        
+        // Configuração do tempo conforme modo selecionado
+        if (modoJogo === "relax") {
+            cronometroAtivo = false;
+            cronometroSpan.innerText = "--:--";
+        } else if (modoJogo === "3min") {
+            tempoRestante = 180;
+            cronometroAtivo = true;
+            atualizarCronometroDisplay();
+            intervaloId = setInterval(() => {
+                if (tempoRestante <= 1) {
+                    clearInterval(intervaloId);
+                    finalizarJogoPorTempo();
+                } else {
+                    tempoRestante--;
+                    atualizarCronometroDisplay();
+                }
+            }, 1000);
+        } else if (modoJogo === "5min") {
+            tempoRestante = 300;
+            cronometroAtivo = true;
+            atualizarCronometroDisplay();
+            intervaloId = setInterval(() => {
+                if (tempoRestante <= 1) {
+                    clearInterval(intervaloId);
+                    finalizarJogoPorTempo();
+                } else {
+                    tempoRestante--;
+                    atualizarCronometroDisplay();
+                }
+            }, 1000);
+        }
+        
+        dicaExtraDiv.innerHTML = "✨ Toque e arraste sobre as letras para formar palavras!";
+        
+        if (tamanhoGrade === 20 && window.innerWidth <= 640) {
+            gradeScrollWrapper.classList.add('scroll-20');
+            avisoScroll.classList.remove('hidden');
+        } else {
+            gradeScrollWrapper.classList.remove('scroll-20');
+            avisoScroll.classList.add('hidden');
+        }
+        mostrarTela('jogo');
+    }
+
+    function atualizarCronometroDisplay() {
+        const minutos = Math.floor(tempoRestante / 60);
+        const segundos = tempoRestante % 60;
+        cronometroSpan.innerText = `${minutos.toString().padStart(2,'0')}:${segundos.toString().padStart(2,'0')}`;
+    }
+
+    function finalizarJogoPorTempo() {
+        if (palavrasEncontradas.size === palavrasDoJogo.length) return;
+        cronometroAtivo = false;
+        mostrarTelaFim(false);
+    }
+
+    function atualizarInterfaceJogo() {
+        const total = palavrasDoJogo.length;
+        const encontradas = palavrasEncontradas.size;
+        const restantes = total - encontradas;
+        palavrasRestantesSpan.innerText = restantes;
+        const percentual = (encontradas / total) * 100;
+        progressoFill.style.width = `${percentual}%`;
+        pontosJogoSpan.innerText = pontuacaoTotal;
+        pontuacaoDisplay.innerText = `🏆 ${pontuacaoTotal}`;
+    }
+
+    function renderizarGrade() {
+        const N = tamanhoGrade;
+        gradeContainer.className = `grade-container`;
+        gradeContainer.setAttribute('data-size', N);
+        gradeContainer.style.gridTemplateColumns = `repeat(${N}, minmax(0, 1fr))`;
+        gradeContainer.innerHTML = '';
+        for (let i = 0; i < N; i++) {
+            for (let j = 0; j < N; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.textContent = grade[i][j];
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                // Eventos mouse e touch
+                cell.addEventListener('mousedown', (e) => iniciarSelecao(e, i, j));
+                cell.addEventListener('mouseenter', (e) => continuarSelecao(e, i, j));
+                cell.addEventListener('mouseup', () => finalizarSelecao());
+                cell.addEventListener('touchstart', (e) => { e.preventDefault(); const touch = e.touches[0]; touchIdentifier = touch.identifier; iniciarSelecao(e, i, j); });
+                cell.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = Array.from(e.touches).find(t => t.identifier === touchIdentifier);
+                    if (!touch) return;
+                    const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (elem && elem.classList && elem.classList.contains('grid-cell') && elem.dataset) {
+                        continuarSelecao(null, parseInt(elem.dataset.row), parseInt(elem.dataset.col));
+                    }
+                });
+                cell.addEventListener('touchend', (e) => { e.preventDefault(); finalizarSelecao(); touchIdentifier = null; });
+                gradeContainer.appendChild(cell);
+            }
+        }
+        // Marcar células já encontradas (caso haja reinício)
+        palavrasDoJogo.forEach(palavraObj => {
+            if (palavrasEncontradas.has(palavraObj.palavra)) {
+                // Como não temos as posições mapeadas, apenas reaplicar a classe found não é trivial.
+                // Aqui seria necessário guardar as posições de cada palavra. Por simplicidade, a grade será limpa.
+            }
+        });
+    }
+
+    function iniciarSelecao(e, row, col) {
+        if (cronometroAtivo === false && modoJogo !== "relax") return;
+        const cellDiv = document.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
+        if (cellDiv && cellDiv.classList.contains('found')) return;
+        selecaoAtiva = true;
+        startCell = { row, col };
+        direcaoAtual = null;
+        limparPreview();
+        highlightPreview(row, col);
+    }
+
+    function continuarSelecao(e, row, col) {
+        if (!selecaoAtiva || !startCell) return;
+        const deltaRow = row - startCell.row;
+        const deltaCol = col - startCell.col;
+        if (deltaRow === 0 && deltaCol === 0) return;
+        let dirRow = 0, dirCol = 0;
+        if (deltaRow !== 0) dirRow = deltaRow > 0 ? 1 : -1;
+        if (deltaCol !== 0) dirCol = deltaCol > 0 ? 1 : -1;
+        if (deltaRow !== 0 && deltaCol !== 0 && Math.abs(deltaRow) !== Math.abs(deltaCol)) return;
+        const passo = (dirRow !== 0 || dirCol !== 0) ? Math.max(Math.abs(deltaRow), Math.abs(deltaCol)) : 1;
+        direcaoAtual = { dirRow, dirCol, passo };
+        limparPreview();
+        highlightPreview(startCell.row, startCell.col);
+        for (let i = 1; i <= passo; i++) {
+            const nr = startCell.row + i * dirRow;
+            const nc = startCell.col + i * dirCol;
+            if (nr >= 0 && nr < tamanhoGrade && nc >= 0 && nc < tamanhoGrade) {
+                highlightPreview(nr, nc);
+            }
+        }
+    }
+
+    function highlightPreview(row, col) {
+        const cells = document.querySelectorAll('.grid-cell');
+        const idx = row * tamanhoGrade + col;
+        if (cells[idx] && !cells[idx].classList.contains('found')) {
+            if (row === startCell.row && col === startCell.col) cells[idx].classList.add('selected-start');
+            else cells[idx].classList.add('selected-path');
+        }
+    }
+
+    function limparPreview() {
+        document.querySelectorAll('.grid-cell.selected-start, .grid-cell.selected-path').forEach(cell => {
+            if (!cell.classList.contains('found')) cell.classList.remove('selected-start', 'selected-path');
+        });
+    }
+
+    function finalizarSelecao() {
+        if (!selecaoAtiva || !startCell || !direcaoAtual) {
+            limparPreview();
+            selecaoAtiva = false;
+            startCell = null;
+            return;
+        }
+        const { dirRow, dirCol, passo } = direcaoAtual;
+        let palavraFormada = '';
+        let posicoes = [];
+        for (let i = 0; i <= passo; i++) {
+            const nr = startCell.row + i * dirRow;
+            const nc = startCell.col + i * dirCol;
+            if (nr >= 0 && nr < tamanhoGrade && nc >= 0 && nc < tamanhoGrade) {
+                palavraFormada += grade[nr][nc];
+                posicoes.push(`${nr},${nc}`);
+            }
+        }
+        let palavraEncontradaObj = null;
+        for (let p of palavrasDoJogo) {
+            if (!palavrasEncontradas.has(p.palavra)) {
+                if (palavraFormada === p.palavra || palavraFormada.split('').reverse().join('') === p.palavra) {
+                    palavraEncontradaObj = p;
+                    break;
+                }
+            }
+        }
+        if (palavraEncontradaObj) {
+            palavrasEncontradas.add(palavraEncontradaObj.palavra);
+            const cfg = nivelConfig[nivelConhecimento];
+            let pontos = cfg.multiplicadorPontos;
+            if (modoJogo !== "relax" && cronometroAtivo) {
+                const bonusTempo = Math.floor(tempoRestante / 15) * 10;
+                pontos += bonusTempo;
+            }
+            pontuacaoTotal += pontos;
+            // Marcar células como found
+            posicoes.forEach(pos => {
+                const [r,c] = pos.split(',');
+                const idx = parseInt(r) * tamanhoGrade + parseInt(c);
+                const cellDiv = document.querySelectorAll('.grid-cell')[idx];
+                if (cellDiv) cellDiv.classList.add('found');
+            });
+            atualizarInterfaceJogo();
+            renderizarListaPalavras();
+            if (palavrasEncontradas.size === palavrasDoJogo.length) {
+                if (intervaloId) clearInterval(intervaloId);
+                mostrarTelaFim(true);
+            }
+        }
+        limparPreview();
+        selecaoAtiva = false;
+        startCell = null;
+        direcaoAtual = null;
+    }
+
+    function renderizarListaPalavras() {
+        listaPalavrasDiv.innerHTML = '';
+        palavrasDoJogo.forEach(p => {
+            const chip = document.createElement('div');
+            chip.className = 'chip-palavra';
+            if (palavrasEncontradas.has(p.palavra)) chip.classList.add('found');
+            chip.innerHTML = `
+                <span class="truncate">${p.original}</span>
+                <span class="chip-categoria">${p.categoria}</span>
+            `;
+            listaPalavrasDiv.appendChild(chip);
+        });
+        atualizarInterfaceJogo();
+    }
+
+    function mostrarTelaFim(vitoria) {
+        if (intervaloId) clearInterval(intervaloId);
+        if (vitoria) {
+            if (pontuacaoTotal > recorde) {
+                recorde = pontuacaoTotal;
+                localStorage.setItem("rozenblit_caca_recorde", recorde);
+                atualizarDisplayRecorde();
+            }
+            document.getElementById('pontuacao-final').innerHTML = `${pontuacaoTotal} pts`;
+            let medalha = '';
+            if (pontuacaoTotal >= 2000) medalha = '🥇 Ouro';
+            else if (pontuacaoTotal >= 1000) medalha = '🥈 Prata';
+            else medalha = '🥉 Bronze';
+            document.getElementById('medalha-final').innerHTML = medalha;
+            const curiosidades = [
+                "Paêbirú, de Lula Côrtes e Zé Ramalho, é o disco mais valioso do Brasil.",
+                "A Rozenblit chegou a ter 22% do mercado nacional de discos.",
+                "O selo Mocambo foi criado para registrar frevos e músicas regionais.",
+                "Bartô Galeno possui diversos registros preservados no museu.",
+                "A fábrica ficava na Estrada dos Remédios, em Afogados, Recife."
+            ];
+            const curiosidade = curiosidades[Math.floor(Math.random() * curiosidades.length)];
+            document.getElementById('curiosidade-final').innerText = curiosidade;
+        } else {
+            document.getElementById('pontuacao-final').innerHTML = `⏰ Tempo esgotado!<br>${pontuacaoTotal} pts`;
+            document.getElementById('medalha-final').innerHTML = '⏳';
+            document.getElementById('curiosidade-final').innerText = "Que tal tentar novamente com mais agilidade?";
+        }
+        mostrarTela('fim');
+    }
+
+    function atualizarDisplayRecorde() {
+        const saved = localStorage.getItem("rozenblit_caca_recorde");
+        recorde = saved ? parseInt(saved) : 0;
+        recordeDisplay.innerText = `⭐ Recorde: ${recorde}`;
+    }
+    function carregarRecorde() {
+        const saved = localStorage.getItem("rozenblit_caca_recorde");
+        recorde = saved ? parseInt(saved) : 0;
+        atualizarDisplayRecorde();
+    }
+
+    function mostrarTela(tela) {
+        telaInicial.classList.add('hidden');
+        telaJogo.classList.add('hidden');
+        telaFim.classList.add('hidden');
+        if (tela === 'inicial') telaInicial.classList.remove('hidden');
+        else if (tela === 'jogo') telaJogo.classList.remove('hidden');
+        else if (tela === 'fim') telaFim.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function compartilharResultado() {
+        const texto = `Acabei de fazer ${pontuacaoTotal} pontos no Caça-Palavras do Acervo Rozenblit! 🎵🔎 Venha testar seu conhecimento.`;
+        if (navigator.share) navigator.share({ title: 'Caça-Palavras Rozenblit', text: texto });
+        else alert("Copie o resultado: " + texto);
+    }
+
+    // Eventos
+    btnIniciar.addEventListener('click', () => iniciarPartida());
+    btnNovoJogo.addEventListener('click', () => iniciarPartida());
+    btnSair.addEventListener('click', () => mostrarTela('inicial'));
+    btnJogarNovamente.addEventListener('click', () => iniciarPartida());
+    btnCompartilhar.addEventListener('click', compartilharResultado);
+
+    carregarDados();
+</script>
+</body>
+</html>

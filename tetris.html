@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tetris Rozenblit • Acervo Musical</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Estrutura fixa da tela – sem rolagem vertical desnecessária */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            height: 100dvh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Fundo com cactos (estético) */
+        .scinerary-background {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f2ebd9 0%, #ffffff 100%);
+        }
+        .cactus-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 140px;
+        }
+        .cactus {
+            position: absolute;
+            bottom: -10px;
+            font-size: 4rem;
+            opacity: 0.12;
+            animation: moveLeft 18s linear infinite;
+        }
+        .cactus-1 { animation-delay: 0s; animation-duration: 22s; font-size: 5rem; }
+        .cactus-2 { animation-delay: 5s; animation-duration: 16s; font-size: 3.5rem; }
+        .cactus-3 { animation-delay: 11s; animation-duration: 28s; font-size: 4.5rem; }
+        @keyframes moveLeft {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-150px); }
+        }
+
+        /* CAMADA PRINCIPAL – sem rolagem, tudo visível */
+        .game-arcade {
+            position: relative;
+            z-index: 10;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 10px 10px 10px;
+            gap: 8px;
+        }
+
+        /* VISOR RETRO (Pontos + Estágio) */
+        .visor {
+            background: #1e1914;
+            border: 3px solid #315f43;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .visor-item {
+            text-align: center;
+        }
+        .visor-label {
+            color: #c49a3a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .visor-value {
+            color: #9cff8a;
+            font-family: 'Courier New', monospace;
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 0 5px #6f6;
+        }
+
+        /* ÁREA DO TABULEIRO – expansível mas sem forçar rolagem */
+        .board-area {
+            flex: 1 1 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 0;
+            margin: 4px 0;
+        }
+        canvas {
+            background: #1e1914;
+            border-radius: 1.2rem;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+            display: block;
+            border: 3px solid #315f43;
+            width: auto;
+            height: 100%;
+            max-height: 58vh;
+            aspect-ratio: 10 / 20;
+            image-rendering: crisp-edges;
+        }
+
+        /* CONTROLES (D-PAD e botões de ação) – fixos na parte inferior */
+        .controls-panel {
+            flex-shrink: 0;
+            background: rgba(255, 250, 240, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            border: 1px solid rgba(49, 95, 67, 0.2);
+            padding: 12px 12px 10px;
+            margin-top: 4px;
+        }
+
+        /* Layout do D-PAD: setas na horizontal, abaixo linha com girar e queda rápida */
+        .arrow-row {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 14px;
+        }
+        .arrow-btn {
+            background: #f7f1e3;
+            border: 1px solid rgba(49, 95, 67, 0.4);
+            color: #315f43;
+            width: 70px;
+            height: 64px;
+            border-radius: 1.2rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.05s linear;
+            touch-action: manipulation;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 14px;
+        }
+        .action-btn {
+            background: #f7f1e3;
+            border: 1px solid rgba(49, 95, 67, 0.4);
+            color: #315f43;
+            width: 100px;
+            height: 58px;
+            border-radius: 1.2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.05s linear;
+            touch-action: manipulation;
+        }
+        .action-btn.hard {
+            background: #e7dfcf;
+        }
+        .arrow-btn:active, .action-btn:active {
+            background: #315f43;
+            color: white;
+            transform: scale(0.95);
+        }
+
+        /* Botões inferiores (reiniciar, pausar e voltar) */
+        .bottom-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .cmd-btn {
+            background: #315f43;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.05s linear;
+            flex: 1;
+            justify-content: center;
+        }
+        .cmd-btn:active {
+            transform: scale(0.96);
+            background: #4f7f52;
+        }
+        .back-link {
+            background: rgba(255,250,240,0.9);
+            color: #315f43;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.8rem;
+            padding: 8px 16px;
+            border-radius: 2rem;
+            border: 1px solid rgba(49,95,67,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .back-link:active {
+            background: #e2d8c8;
+        }
+
+        /* Toast de desbloqueio */
+        .album-toast {
+            background: #a44f25;
+            color: white;
+            border-radius: 1rem;
+            padding: 6px 10px;
+            text-align: center;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            display: none;
+            flex-shrink: 0;
+        }
+        .album-toast strong {
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* Para desktop, mantém aparência harmônica */
+        @media (min-width: 800px) {
+            .game-arcade {
+                max-width: 700px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            canvas {
+                max-height: 60vh;
+            }
+            .arrow-btn {
+                width: 80px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
+            .action-btn {
+                width: 120px;
+                height: 64px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="scinerary-background">
+    <div class="cactus-container">
+        <div class="cactus cactus-1">🌵</div>
+        <div class="cactus cactus-2">🌵</div>
+        <div class="cactus cactus-3">🌵</div>
+    </div>
+</div>
+
+<div class="game-arcade">
+    <!-- VISOR RETRO -->
+    <div class="visor">
+        <div class="visor-item">
+            <div class="visor-label">PONTOS</div>
+            <div class="visor-value" id="scoreDisplay">0</div>
+        </div>
+        <div class="visor-item">
+            <div class="visor-label">ESTÁGIO</div>
+            <div class="visor-value" id="linesDisplay">0</div>
+        </div>
+    </div>
+
+    <!-- TOAST para desbloqueio (aparece ao limpar linhas) -->
+    <div class="album-toast" id="albumToast">
+        💿 <span id="toastAlbumName">A BANDINHA DO INSTITUTO ARRUDA CAMARA</span> · <span id="toastArtist">VARIOS</span>
+    </div>
+
+    <!-- TABULEIRO (ocupa espaço flexível) -->
+    <div class="board-area">
+        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+    </div>
+
+    <!-- PAINEL DE CONTROLE (fixo na parte inferior) -->
+    <div class="controls-panel">
+        <!-- Setas direcionais (◀ ▼ ▶) -->
+        <div class="arrow-row">
+            <div class="arrow-btn" data-action="left">◀</div>
+            <div class="arrow-btn" data-action="down">▼</div>
+            <div class="arrow-btn" data-action="right">▶</div>
+        </div>
+        <!-- Ações: Girar 🔄  e  Queda Rápida ⬇⬇ -->
+        <div class="action-row">
+            <div class="action-btn" data-action="rotate">🔄 GIRAR</div>
+            <div class="action-btn hard" data-action="hard">⬇⬇ QUEDA</div>
+        </div>
+
+        <!-- Botões de ação: Reiniciar / Pausar + Voltar -->
+        <div class="bottom-buttons">
+            <button class="cmd-btn" id="resetBtn">🔄 REINICIAR</button>
+            <button class="cmd-btn" id="pauseBtn">⏸️ PAUSAR</button>
+            <div class="back-link" id="backBtn">← VOLTAR</div>
+        </div>
+    </div>
+</div>
+
+<audio id="bgMusic" hidden>
+    <source src="static/sounds/tetris/fundo1.ogg" type="audio/ogg">
+</audio>
+
+<script>
+    (function(){
+        // ------------------- ELEMENTOS -------------------
+        const canvas = document.getElementById('tetrisCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreSpan = document.getElementById('scoreDisplay');
+        const linesSpan = document.getElementById('linesDisplay');
+        const albumToast = document.getElementById('albumToast');
+        const toastAlbum = document.getElementById('toastAlbumName');
+        const toastArtistSpan = document.getElementById('toastArtist');
+        const resetBtn = document.getElementById('resetBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const backBtn = document.getElementById('backBtn');
+        const bgMusic = document.getElementById('bgMusic');
+
+        // ------------------- ÁUDIO AMBIENTE -------------------
+        let musicPlaying = false;  // controle interno para saber se a música está ativa
+
+        function iniciarMusica() {
+            bgMusic.volume = 0.45;
+            bgMusic.loop = true;
+            const start = () => {
+                bgMusic.play().then(() => {
+                    musicPlaying = true;
+                }).catch(() => {});
+                document.removeEventListener('click', start);
+                document.removeEventListener('touchstart', start);
+            };
+            bgMusic.play().then(() => {
+                musicPlaying = true;
+            }).catch(() => {
+                document.addEventListener('click', start, { once: true });
+                document.addEventListener('touchstart', start, { once: true });
+            });
+        }
+
+        function pausarMusica() {
+            if (bgMusic && !bgMusic.paused) {
+                bgMusic.pause();
+                musicPlaying = false;
+            }
+        }
+
+        function retomarMusica() {
+            if (bgMusic && bgMusic.paused && musicPlaying === false) {
+                // tenta retomar apenas se houve interação prévia
+                bgMusic.play().then(() => {
+                    musicPlaying = true;
+                }).catch(() => {});
+            } else if (bgMusic && bgMusic.paused) {
+                bgMusic.play().catch(() => {});
+                musicPlaying = true;
+            }
+        }
+
+        window.addEventListener('load', iniciarMusica);
+
+        // ------------------- CONSTANTES DO JOGO -------------------
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = canvas.width / COLS; // 30px
+
+        let board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+        let score = 0;
+        let linesTotal = 0;
+        let activePiece = null;
+        let gameLoop = null;
+        let gameActive = true;
+        let paused = false;
+        let toastTimeout = null;
+
+        // Catálogo musical (desbloqueio temático)
+        const CATALOGO = [
+            { titulo: "1 FESTIVAL DE M. POPULAR DO CEARA", artista: "JOAO ROBERTO KELLY" },
+            { titulo: "2° FESTIVAL DO FREVO", artista: "VARIOS" },
+            { titulo: "A BANDINHA DO INSTITUTO ARRUDA CAMARA", artista: "VARIOS" },
+            { titulo: "CAPIBA 25 ANOS DE FREVO", artista: "CLAUDIONOR GERMANO" },
+            { titulo: "FORRO DO BOM", artista: "CARLOS DINIZ" },
+            { titulo: "TEM QUE QUERER", artista: "CARMELIA ALVES" },
+            { titulo: "GRANDE LIQUIDAÇÃO", artista: "TOM ZÉ" },
+            { titulo: "PAÊBIRÚ", artista: "LULA CÔRTES / ZÉ RAMALHO" },
+            { titulo: "ROSA DE SANGUE", artista: "LULA CÔRTES" },
+            { titulo: "O DIVINO CARTOLA", artista: "CARTOLA" },
+            { titulo: "SAMBAS DE CAPIBA", artista: "CLAUDIONOR GERMANO" },
+            { titulo: "VIVA O FREVO", artista: "ORQ. DE FREVOS MOCAMBO" },
+            { titulo: "O QUE EU FIZ... E VOCÊ GOSTOU", artista: "NELSON FERREIRA" }
+        ];
+
+        // Peças Tetris
+        const PIECES = [
+            { shape: [[1,1,1,1]], color: '#315f43' },  // I
+            { shape: [[1,1],[1,1]], color: '#c49a3a' }, // O
+            { shape: [[0,1,0],[1,1,1]], color: '#a44f25' }, // T
+            { shape: [[1,0,0],[1,1,1]], color: '#c96b36' }, // L
+            { shape: [[0,0,1],[1,1,1]], color: '#8c421f' }, // J
+            { shape: [[0,1,1],[1,1,0]], color: '#416e53' }, // S
+            { shape: [[1,1,0],[0,1,1]], color: '#b58628' }   // Z
+        ];
+
+        function randomPiece() {
+            const idx = Math.floor(Math.random() * PIECES.length);
+            const piece = PIECES[idx];
+            return {
+                shape: piece.shape.map(row => [...row]),
+                color: piece.color,
+                x: Math.floor((COLS - piece.shape[0].length) / 2),
+                y: 0
+            };
+        }
+
+        // ---------- DESENHO COM GRADE (para melhor localização) ----------
+        function drawBlock(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+            ctx.strokeStyle = 'rgba(255,255,240,0.1)';
+            ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+        }
+
+        function drawGrid() {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(210, 190, 150, 0.5)';
+            ctx.lineWidth = 0.8;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * BLOCK_SIZE, 0);
+                ctx.lineTo(i * BLOCK_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let j = 0; j <= ROWS; j++) {
+                ctx.beginPath();
+                ctx.moveTo(0, j * BLOCK_SIZE);
+                ctx.lineTo(canvas.width, j * BLOCK_SIZE);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawBoard() {
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (board[row][col]) {
+                        drawBlock(col, row, board[row][col]);
+                    } else {
+                        ctx.fillStyle = '#1e1914';
+                        ctx.fillRect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+                    }
+                }
+            }
+        }
+
+        function drawPiece(piece) {
+            if (!piece) return;
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[0].length; c++) {
+                    if (piece.shape[r][c]) {
+                        drawBlock(piece.x + c, piece.y + r, piece.color);
+                    }
+                }
+            }
+        }
+
+        function drawPausedOverlay() {
+            if (!paused || !gameActive) return;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = 'bold 20px "Space Grotesk", system-ui';
+            ctx.fillStyle = '#f7f1e3';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⏸️ PAUSADO', canvas.width/2, canvas.height/2);
+            ctx.font = '12px monospace';
+            ctx.fillStyle = '#ffe3d1';
+            ctx.fillText('Toque em "Retomar"', canvas.width/2, canvas.height/2 + 30);
+            ctx.textAlign = 'left';
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard();
+            if (activePiece) drawPiece(activePiece);
+            drawGrid();
+            if (paused && gameActive) drawPausedOverlay();
+        }
+
+        // ---------- MECÂNICA ----------
+        function collide(piece, offsetX, offsetY) {
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[0].length; c++) {
+                    if (piece.shape[r][c]) {
+                        const newX = piece.x + c + offsetX;
+                        const newY = piece.y + r + offsetY;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS || newY < 0) return true;
+                        if (newY >= 0 && board[newY][newX]) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function mergePiece() {
+            for (let r = 0; r < activePiece.shape.length; r++) {
+                for (let c = 0; c < activePiece.shape[0].length; c++) {
+                    if (activePiece.shape[r][c]) {
+                        const y = activePiece.y + r;
+                        const x = activePiece.x + c;
+                        if (y >= 0 && y < ROWS && x >= 0 && x < COLS) {
+                            board[y][x] = activePiece.color;
+                        }
+                    }
+                }
+            }
+            clearLines();
+            spawnNewPiece();
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            for (let row = ROWS-1; row >= 0; row--) {
+                let full = true;
+                for (let col = 0; col < COLS; col++) {
+                    if (!board[row][col]) { full = false; break; }
+                }
+                if (full) {
+                    board.splice(row, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    row++;
+                    linesCleared++;
+                }
+            }
+            if (linesCleared > 0) {
+                score += linesCleared * 100;
+                linesTotal += linesCleared;
+                scoreSpan.innerText = score;
+                linesSpan.innerText = linesTotal;
+                showRandomAlbumUnlock();
+            }
+        }
+
+        function showRandomAlbumUnlock() {
+            const item = CATALOGO[Math.floor(Math.random() * CATALOGO.length)];
+            toastAlbum.innerText = item.titulo;
+            toastArtistSpan.innerText = item.artista;
+            albumToast.style.display = "block";
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                albumToast.style.display = "none";
+            }, 2000);
+        }
+
+        function spawnNewPiece() {
+            activePiece = randomPiece();
+            if (collide(activePiece, 0, 0)) {
+                gameActive = false;
+                if (gameLoop) clearInterval(gameLoop);
+                setTimeout(() => alert(`🎵 Fim de jogo!\nPontos: ${score} · Estágio: ${linesTotal}`), 20);
+                render();
+            } else {
+                render();
+            }
+        }
+
+        function movePiece(dx, dy) {
+            if (!gameActive || paused || !activePiece) return false;
+            if (!collide(activePiece, dx, dy)) {
+                activePiece.x += dx;
+                activePiece.y += dy;
+                render();
+                return true;
+            } else if (dy === 1) {
+                mergePiece();
+                render();
+            }
+            return false;
+        }
+
+        function rotatePiece() {
+            if (!gameActive || paused || !activePiece) return;
+            const matrix = activePiece.shape;
+            const rotated = matrix[0].map((_, idx) => matrix.map(row => row[idx]).reverse());
+            const original = activePiece.shape;
+            activePiece.shape = rotated;
+            if (collide(activePiece, 0, 0)) {
+                activePiece.shape = original;
+            } else {
+                render();
+            }
+        }
+
+        function hardDrop() {
+            if (!gameActive || paused || !activePiece) return;
+            while (!collide(activePiece, 0, 1)) {
+                activePiece.y++;
+            }
+            mergePiece();
+            render();
+        }
+
+        // *** PAUSE sincronizado com a música ***
+        function togglePause() {
+            if (!gameActive) return;
+            paused = !paused;
+            if (paused) {
+                pausarMusica();
+                pauseBtn.innerText = "▶️ RETOMAR";
+            } else {
+                retomarMusica();
+                pauseBtn.innerText = "⏸️ PAUSAR";
+            }
+            render();
+        }
+
+        function resetGame() {
+            board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+            score = 0;
+            linesTotal = 0;
+            scoreSpan.innerText = "0";
+            linesSpan.innerText = "0";
+            gameActive = true;
+            if (paused) {
+                paused = false;
+                pauseBtn.innerText = "⏸️ PAUSAR";
+                // se o jogo estava pausado e resetamos, garantimos que a música volte a tocar
+                retomarMusica();
+            }
+            albumToast.style.display = "none";
+            if (toastTimeout) clearTimeout(toastTimeout);
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(() => {
+                if (gameActive && !paused) movePiece(0, 1);
+            }, 450);
+            spawnNewPiece();
+            render();
+        }
+
+        // ---------- EVENTOS ----------
+        window.addEventListener('keydown', (e) => {
+            const key = e.key;
+            if (key === 'p' || key === 'P' || key === 'Escape') {
+                e.preventDefault();
+                togglePause();
+                return;
+            }
+            if (!gameActive || paused) {
+                if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(key)) e.preventDefault();
+                return;
+            }
+            if (key === 'ArrowLeft') { movePiece(-1,0); e.preventDefault(); }
+            else if (key === 'ArrowRight') { movePiece(1,0); e.preventDefault(); }
+            else if (key === 'ArrowDown') { movePiece(0,1); e.preventDefault(); }
+            else if (key === 'ArrowUp' || key === ' ') { rotatePiece(); e.preventDefault(); }
+        });
+
+        const allBtns = document.querySelectorAll('[data-action]');
+        allBtns.forEach(btn => {
+            const handler = (e) => {
+                e.preventDefault();
+                if (!gameActive || paused) return;
+                const action = btn.dataset.action;
+                if (action === 'left') movePiece(-1,0);
+                else if (action === 'right') movePiece(1,0);
+                else if (action === 'rotate') rotatePiece();
+                else if (action === 'down') movePiece(0,1);
+                else if (action === 'hard') hardDrop();
+            };
+            btn.addEventListener('click', handler);
+            btn.addEventListener('touchstart', handler, { passive: false });
+        });
+
+        resetBtn.addEventListener('click', resetGame);
+        pauseBtn.addEventListener('click', togglePause);
+        
+        backBtn.addEventListener('click', (e) => {
+            if (gameActive && (score > 0 || linesTotal > 0)) {
+                if (!confirm("Sair do jogo? Progresso será perdido.")) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+            window.location.href = "jogos.html";
+        });
+
+        // INICIALIZAÇÃO
+        resetGame();
+    })();
+</script>
+</body>
+</html>
