@@ -272,8 +272,8 @@ async function iniciarHistoria(historia){
   if(!historia) return;
   // Inicia a música automaticamente
   iniciarMusicaFundo([
-    '/static/sounds/misterio/fundo1.ogg',
-    '/static/sounds/misterio/fundo2.ogg'
+    './static/sounds/misterio/fundo1.ogg',
+    './static/sounds/misterio/fundo2.ogg'
   ]);
   pontuacao=0;pistasUsadas=0;pistasGuardadas=[];atualizarHUD();atualizarBotaoPista();
   configurarVisualHistoria();
