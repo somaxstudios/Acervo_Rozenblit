@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Os LPs Roubados da Rozenblit</title>
 
 <style>
@@ -17,6 +17,7 @@
 }
 
 *{box-sizing:border-box}
+
 body{
     margin:0;
     overflow:hidden;
@@ -26,7 +27,6 @@ body{
         #080611;
     font-family:Inter, system-ui, Arial, sans-serif;
     color:white;
-    touch-action: pan-x pan-y; /* permite rolagem, mas os botões terão touch-action: manipulation */
 }
 
 #gameWrap{
@@ -43,13 +43,12 @@ canvas{
     height:100vh;
     display:block;
     background:#0b1020;
-    touch-action: none; /* evita rolagem ao arrastar no canvas */
 }
 
 .screen{
     position:absolute;
     inset:0;
-    z-index:15;
+    z-index:10;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -156,7 +155,6 @@ button.secondary{
     backdrop-filter:blur(12px);
     font-weight:900;
     box-shadow:0 10px 30px rgba(0,0,0,.25);
-    pointer-events:none;
 }
 
 .progressOuter{
@@ -185,54 +183,12 @@ kbd{
     font-weight:900;
 }
 
-/* ===== CONTROLES MOBILE ===== */
-#mobileControls {
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    right: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 10px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(12px);
-    border-radius: 60px;
-    width: fit-content;
-    margin: 0 auto;
-    pointer-events: auto;
-    transition: opacity 0.2s;
-}
-
-.mobile-btn {
-    background: rgba(246,196,83,0.85);
-    border: none;
-    color: #1f1a10;
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 48px;
-    font-size: 20px;
-    min-width: 70px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    cursor: pointer;
-    touch-action: manipulation;
-    transition: 0.07s linear;
-    font-family: monospace;
-    letter-spacing: 1px;
-}
-
-.mobile-btn:active {
-    transform: scale(0.96);
-    background: #ffdf8a;
-}
-
+/* Botão Voltar (página jogos.html) */
 #btnVoltar{
     position:fixed;
     bottom:20px;
     right:20px;
-    z-index:25;
+    z-index:20;
     background:rgba(0,0,0,0.7);
     backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,0.3);
@@ -249,26 +205,6 @@ kbd{
     background:var(--gold);
     color:#111;
 }
-
-@media (max-width: 700px) {
-    .mobile-btn {
-        padding: 8px 14px;
-        font-size: 16px;
-        min-width: 55px;
-    }
-    #mobileControls {
-        gap: 8px;
-        bottom: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .mobile-btn {
-        padding: 6px 10px;
-        font-size: 13px;
-        min-width: 48px;
-    }
-}
 </style>
 </head>
 
@@ -283,20 +219,11 @@ kbd{
             <div class="pill" id="score">⭐ 0</div>
             <div class="pill" id="starPower">✨ 0s</div>
         </div>
+
         <div>
             <div class="pill">🚪 Esconderijo</div>
             <div class="progressOuter"><div id="progressBar"></div></div>
         </div>
-    </div>
-
-    <!-- Botões de controle mobile (aparecem quando o jogo está em execução) -->
-    <div id="mobileControls" style="display: none;">
-        <button class="mobile-btn" data-action="left">◀</button>
-        <button class="mobile-btn" data-action="right">▶</button>
-        <button class="mobile-btn" data-action="jump">⬆ Pular</button>
-        <button class="mobile-btn" data-action="down">⬇ Agachar</button>
-        <button class="mobile-btn" data-action="throw">🎯 Jogar</button>
-        <button class="mobile-btn" data-action="pause">⏸ Pausa</button>
     </div>
 
     <button id="btnVoltar" onclick="location.href='jogos.html'">↩️ Voltar aos Jogos</button>
@@ -367,74 +294,12 @@ resize();
 const W = () => innerWidth;
 const H = () => innerHeight;
 
-// Controles via teclado + toque (mobile)
 const keys = {};
 addEventListener("keydown", e => {
-    const key = e.key.toLowerCase();
-    keys[key] = true;
-    if([" ","arrowup","arrowdown","arrowleft","arrowright","x","p"].includes(key)) e.preventDefault();
+    keys[e.key.toLowerCase()] = true;
+    if([" ","arrowup","arrowdown","arrowleft","arrowright","x","p"].includes(e.key.toLowerCase())) e.preventDefault();
 });
 addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
-
-// Sistema de botões móveis
-const mobileBtns = document.querySelectorAll(".mobile-btn");
-let mobileActions = {
-    left: false, right: false, jump: false, down: false, throw: false, pause: false
-};
-mobileBtns.forEach(btn => {
-    const action = btn.dataset.action;
-    btn.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        if(action === "pause") {
-            // Simula tecla P
-            keys["p"] = true;
-            setTimeout(() => keys["p"] = false, 150);
-        } else if(action === "throw") {
-            keys["x"] = true;
-            setTimeout(() => keys["x"] = false, 100);
-        } else {
-            mobileActions[action] = true;
-        }
-    });
-    btn.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        if(action !== "pause" && action !== "throw") {
-            mobileActions[action] = false;
-        }
-    });
-    // Para mouse (teste em desktop)
-    btn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        if(action === "pause") {
-            keys["p"] = true;
-            setTimeout(() => keys["p"] = false, 150);
-        } else if(action === "throw") {
-            keys["x"] = true;
-            setTimeout(() => keys["x"] = false, 100);
-        } else {
-            mobileActions[action] = true;
-        }
-    });
-    btn.addEventListener("mouseup", () => {
-        if(action !== "pause" && action !== "throw") mobileActions[action] = false;
-    });
-});
-
-// Integrar ações mobile com as teclas virtuais
-function updateMobileControls() {
-    // Esquerda/direita
-    if(mobileActions.left) keys["arrowleft"] = true;
-    else if(!mobileActions.left && keys["arrowleft"] && !mobileActions.right) delete keys["arrowleft"];
-    if(mobileActions.right) keys["arrowright"] = true;
-    else if(!mobileActions.right && keys["arrowright"] && !mobileActions.left) delete keys["arrowright"];
-    // Pular (espaço ou seta cima)
-    if(mobileActions.jump) keys[" "] = true;
-    else if(!mobileActions.jump && keys[" "]) delete keys[" "];
-    // Agachar
-    if(mobileActions.down) keys["arrowdown"] = true;
-    else if(!mobileActions.down && keys["arrowdown"]) delete keys["arrowdown"];
-    // Throw já é tratado diretamente
-}
 
 let state = "menu";
 let cameraX = 0;
@@ -453,7 +318,7 @@ let rainParticles = [];
 let bgMusic = null;
 function initMusic(){
     try{
-        bgMusic = new Audio("./static/sounds/lps-roubados/fundo_music.ogg");
+        bgMusic = new Audio("./static/sounds/fundo_music.ogg");
         bgMusic.loop = true;
         bgMusic.volume = 0.5;
         bgMusic.load();
@@ -461,7 +326,7 @@ function initMusic(){
 }
 function playMusic(){
     if(bgMusic && state === "play" && !paused){
-        bgMusic.play().catch(e=>console.warn("Autoplay bloqueado:", e));
+        bgMusic.play().catch(e=>console.warn("Autoplay bloqueado ou arquivo não encontrado:", e));
     }
 }
 function pauseMusic(){
@@ -496,10 +361,7 @@ let particles = [];
 let stars = [];
 let door = {x:5350,y:0,w:86,h:130,open:false};
 
-function groundY(){
-
-    return innerWidth <= 768 ? H() - 160 : H() - 100;
-}
+function groundY(){ return H() - 92; }
 
 function resetGame(){
     cameraX = 0;
@@ -597,16 +459,12 @@ function updateHUD(){
 }
 
 function startGame(){
-    // Esconde telas
     document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
     resetGame();
     state = "play";
     stopMusic();
     initMusic();
     playMusic();
-    // Mostra controles mobile
-    const mobileDiv = document.getElementById("mobileControls");
-    if(mobileDiv) mobileDiv.style.display = "flex";
 }
 
 function showInstructions(){
@@ -631,9 +489,6 @@ function endGame(win){
     const endText = document.getElementById("endText");
     endScreen.classList.remove("hidden");
     pauseMusic();
-    // Esconde controles mobile
-    const mobileDiv = document.getElementById("mobileControls");
-    if(mobileDiv) mobileDiv.style.display = "none";
 
     if(win){
         endBadge.textContent = "Missão concluída";
@@ -679,9 +534,6 @@ let shake = 0;
 
 function update(){
     if(state !== "play") return;
-
-    // Integra controles mobile antes de ler as teclas
-    updateMobileControls();
 
     if(keys["p"]){
         keys["p"] = false;
@@ -881,7 +733,7 @@ function update(){
     });
     particles = particles.filter(p=>p.life>0);
 
-    if(rects(player,door) && (keys["arrowup"] || keys["w"] || mobileActions.jump)){
+    if(rects(player,door) && (keys["arrowup"] || keys["w"])){
         door.open = true;
         score += player.lps * 50;
         updateHUD();
@@ -1164,7 +1016,7 @@ function loop(){
     draw();
 }
 
-initMusic(); // pré-carrega
+initMusic(); // pré-carrega (opcional)
 loop();
 </script>
 </body>

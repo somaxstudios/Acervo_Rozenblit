@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>História — Acervo Rozenblit</title>
+    <meta name="description" content="Exposição permanente do Acervo Rozenblit: história, fábrica, frevo, design, cheias e galeria documental.">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'playfair': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'papel': '#fffaf0',
+                        'fundo': '#f7f1e3',
+                        'areia': '#e8d8b8',
+                        'verde-cacto': '#315f43',
+                        'verde-mandacaru': '#4f7f52',
+                        'barro': '#a44f25',
+                        'terracota': '#c96b36',
+                        'ouro': '#c49a3a',
+                        'azul-recife': '#245f73',
+                        'texto': '#2b241b',
+                        'texto-suave': '#6f604c',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 12%, rgba(79,127,82,0.18) 0%, transparent 36%),
+                radial-gradient(circle at 85% 18%, rgba(196,154,58,0.18) 0%, transparent 30%),
+                radial-gradient(circle at 80% 90%, rgba(164,79,37,0.13) 0%, transparent 34%),
+                linear-gradient(180deg, #f7f1e3 0%, #ede5cf 58%, #e8dbbf 100%);
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            color: #2b241b;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "🌵";
+            font-size: 150px;
+            position: fixed;
+            bottom: 10px;
+            left: -35px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            z-index: 0;
+        }
+        body::after {
+            content: "🎼";
+            font-size: 120px;
+            position: fixed;
+            top: 170px;
+            right: -24px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(18deg);
+            z-index: 0;
+        }
+        .cacto-decor {
+            position: fixed;
+            bottom: 42px;
+            right: 28px;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+            font-size: 86px;
+        }
+        .noise-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.26;
+            background-image:
+                linear-gradient(rgba(49,95,67,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(49,95,67,0.04) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, transparent 80%);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #efe3c8; }
+        ::-webkit-scrollbar-thumb { background: #a44f25; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #315f43; }
+
+        .museum-photo::after{
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 18px 24px;
+            color: white;
+            font-size: 14px;
+            letter-spacing: .05em;
+            background: linear-gradient(
+                to top,
+                rgba(0,0,0,.75),
+                rgba(0,0,0,0)
+            );
+        }        
+
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #f7f1e3 60%, #e8d8b8 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .hidden-loading { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .page-section { transition: opacity 0.3s ease; position: relative; z-index: 2; }
+        .animate-page { animation: pageFadeUp 0.65s ease both; }
+        @keyframes pageFadeUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .catalogo-card-enter { animation: cardFade 0.45s ease both; }
+        @keyframes cardFade {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hero-title-enter { animation: heroTitle 0.75s ease both; }
+        @keyframes heroTitle {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .float-soft { animation: floatSoft 5s ease-in-out infinite; }
+        @keyframes floatSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .pulse-glow { animation: pulseGlow 3.8s ease-in-out infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 18px 44px rgba(49,95,67,0.26); }
+            50% { box-shadow: 0 24px 70px rgba(196,154,58,0.38); }
+        }
+        .vinyl-spin {
+            background:
+                radial-gradient(circle at center, #2b241b 0 7%, #fffaf0 7% 11%, #315f43 11% 18%, #15120f 18% 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22), inset 0 0 0 6px rgba(255,250,240,0.1);
+            animation: rodar 34s linear infinite;
+        }
+        .vinyl-spin::before {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle, transparent 0 9px, rgba(255,255,255,0.08) 10px 11px);
+        }
+        .vinyl-spin::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 14%; height: 14%;
+            transform: translate(-50%, -50%);
+            background: #c49a3a;
+            border-radius: 50%;
+            border: 7px solid #fffaf0;
+        }
+        @keyframes rodar { to { transform: rotate(360deg); } }
+        .hero-card {
+            background: linear-gradient(145deg, rgba(255,250,240,0.94), rgba(232,216,184,0.62));
+            border: 1px solid rgba(49,95,67,0.14);
+            box-shadow: 0 24px 70px rgba(49,95,67,0.13);
+            backdrop-filter: blur(12px);
+        }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-7px); box-shadow: 0 22px 34px -12px rgba(49,95,67,0.24); }
+        .artist-cover-name {
+            text-shadow: 0 2px 12px rgba(0,0,0,0.22);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1, .line-clamp-2, .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1 { -webkit-line-clamp: 1; }
+        .line-clamp-2 { -webkit-line-clamp: 2; }
+        .line-clamp-3 { -webkit-line-clamp: 3; }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(255,250,240,0.82);
+            border: 1px solid rgba(79,127,82,0.3);
+            color: #315f43;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .page-btn:hover { background: #315f43; color: white; border-color: #315f43; transform: translateY(-2px); }
+        .page-btn.active { background: #315f43; color: white; border-color: #315f43; box-shadow: 0 4px 8px rgba(49,95,67,0.2); }
+        .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .filtro-gravadora-btn.active { background: #315f43 !important; color: #fffaf0 !important; border-color: #315f43 !important; }
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #c49a3a;
+            border: 4px solid #fffaf0;
+            box-shadow: 0 0 0 2px rgba(49,95,67,0.28);
+        }
+        .timeline-line {
+            position: relative;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(#315f43, #c49a3a, #a44f25);
+            opacity: 0.32;
+        }
+
+        .museum-glass {
+            background: linear-gradient(145deg, rgba(255,250,240,0.92), rgba(232,216,184,0.58));
+            border: 1px solid rgba(49,95,67,0.14);
+            box-shadow: 0 24px 70px rgba(49,95,67,0.12);
+            backdrop-filter: blur(12px);
+        }
+        .story-kicker { letter-spacing: 0.24em; text-transform: uppercase; font-size: 0.78rem; font-weight: 800; color: #a44f25; }
+        .museum-photo {
+            background: linear-gradient(135deg, rgba(49,95,67,0.9), rgba(164,79,37,0.75)), radial-gradient(circle at center, rgba(196,154,58,0.55), transparent 55%);
+            min-height: 240px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .museum-photo::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 18px;
+            bottom: 16px;
+            right: 18px;
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #fffaf0;
+            font-size: 1.35rem;
+            line-height: 1.15;
+            text-shadow: 0 8px 24px rgba(0,0,0,0.36);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        #capitulo-origem img{
+            transition: all .5s ease;
+        }
+
+        #capitulo-origem img:hover{
+            transform: scale(1.03);
+            box-shadow:
+                0 25px 60px rgba(49,95,67,.20),
+                0 10px 30px rgba(196,154,58,.15);
+        }
+
+        .museum-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; filter: sepia(0.18) contrast(1.05); }
+        .museum-photo.has-image::before { content:''; position:absolute; inset:0; z-index:1; background: linear-gradient(to top, rgba(20,14,8,.72), transparent 58%); pointer-events: none; }
+        .museum-photo.has-image::after { z-index:2; }
+        .exhibit-card { transition: transform .28s ease, box-shadow .28s ease; }
+        .exhibit-card:hover { transform: translateY(-6px); box-shadow: 0 24px 40px -18px rgba(43,36,27,.35); }
+        .archive-strip { display:flex; gap:14px; overflow-x:auto; padding-bottom:10px; scroll-snap-type:x mandatory; }
+        .archive-strip > div { scroll-snap-align:start; min-width:260px; cursor: pointer; }
+        .chapter-number { font-family:'Playfair Display', Georgia, serif; color:#c49a3a; font-size:4.4rem; line-height:.8; opacity:.8; }
+        .selos-pill { background: rgba(255,250,240,.76); border:1px solid rgba(196,154,58,.42); color:#315f43; }
+        .quote-panel { border-left: 5px solid #c49a3a; background: rgba(49,95,67,0.06); }
+        .dark-exhibit { background: linear-gradient(135deg, #24160f 0%, #452312 54%, #0f1f18 100%); color:#fffaf0; }
+        .story-nav { position: sticky; top: 92px; }
+
+        /* modal de imagem expandida */
+        .image-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .image-modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #fffaf0;
+            border-radius: 28px;
+            padding: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            cursor: default;
+        }
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 20px;
+            display: block;
+            margin: 0 auto;
+        }
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 42px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 300;
+        }
+        .close-modal-btn:hover { color: #c49a3a; transform: scale(1.05); }
+
+        /* LOGO VINIL ROZENBLIT */
+        .logo-vinil-rz{
+            width:52px;
+            height:52px;
+            position:relative;
+            border-radius:50%;
+            background:
+                radial-gradient(circle at center,
+                    #2b241b 0%,
+                    #201b17 55%,
+                    #151210 100%
+                );
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            box-shadow:
+                0 6px 18px rgba(0,0,0,.22),
+                inset 0 0 8px rgba(255,255,255,.05);
+        }
+
+        .vinil-ring{
+            position:absolute;
+            border-radius:50%;
+            border:1px solid rgba(255,255,255,.08);
+        }
+
+        .ring-1{ inset:5px; }
+        .ring-2{ inset:10px; }
+        .ring-3{ inset:15px; }
+
+        .vinil-label{
+            width:18px;
+            height:18px;
+            border-radius:50%;
+            background:#c49a3a;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:10;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.15);
+        }
+
+        .vinil-label span{
+            font-family:'Playfair Display', serif;
+            font-size:8px;
+            font-weight:700;
+            color:#315f43;
+            letter-spacing:.08em;
+        }
+
+        .no-scrollbar::-webkit-scrollbar{ display:none; }
+        .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+
+        /* player styles */
+        .track-item {
+            transition: all 0.2s ease;
+        }
+        .btn-ouvir {
+            background: #315f43;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-ouvir:hover {
+            background: #c49a3a;
+            transform: scale(1.02);
+        }
+        .btn-indisponivel {
+            background: #e0d5c0;
+            color: #6f604c;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: default;
+        }
+        .track-player {
+            margin-top: 8px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(255,250,240,0.95), rgba(232,216,184,0.62));
+            border: 1px solid rgba(49,95,67,0.22);
+            padding: 12px;
+        }
+        .track-player-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .track-player-title {
+            font-size: 0.82rem;
+            color: #315f43;
+            font-weight: 700;
+        }
+        .track-player-note {
+            font-size: 0.72rem;
+            color: #6f604c;
+            margin-top: 2px;
+        }
+        .btn-youtube-open {
+            background: #c49a3a;
+            color: #fffaf0;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-youtube-open:hover {
+            background: #315f43;
+            transform: translateY(-1px);
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="noise-layer"></div>
+<div class="cacto-decor">🌵🌵</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+    <div class="text-center px-6">
+        <div class="w-20 h-20 vinyl-spin mx-auto mb-5"></div>
+        <p class="font-playfair text-2xl text-verde-cacto">Acervo Rozenblit</p>
+        <p class="text-sm text-barro mt-1">Abrindo a exposição digital...</p>
+    </div>
+</div>
+
+
+<!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 bg-papel/90 backdrop-blur-xl z-50 border-b border-verde-cacto/15 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+        <a href="index.html" class="flex items-center gap-3 group">
+            <div class="logo-vinil-rz transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+                <div class="vinil-ring ring-1"></div>
+                <div class="vinil-ring ring-2"></div>
+                <div class="vinil-ring ring-3"></div>
+                <div class="vinil-label"><span>RZ</span></div>
+            </div>
+            <div class="hidden sm:block">
+                <span class="font-playfair text-xl tracking-tight text-verde-cacto block leading-none">Acervo Rozenblit</span>
+                <span class="text-[11px] uppercase tracking-[0.20em] text-barro">Museu Digital da Música Pernambucana</span>
+            </div>
+        </a>
+        <nav class="flex gap-1 overflow-x-auto no-scrollbar">
+            <button onclick="location.href='index.html'" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="home"><i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início</button>
+            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="historia"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História</button>
+            <button onclick="location.href='catalogo.html'" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="catalogo"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo</button>
+            <button onclick="document.getElementById('galeria-documental')?.scrollIntoView({behavior:'smooth'})" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap"><i data-lucide="images" class="w-4 h-4 inline mr-1"></i>Galeria</button>
+            <button onclick="location.href='jogos.html'" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-ouro/15 text-barro hover:bg-ouro/25 border border-ouro/30" data-page="jogos"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos</button>
+
+        </nav>
+    </div>
+</header>
+
+
+<main class="pt-16 md:pt-20">
+<section id="page-historia" class="page-section animate-page">
+        <div class="max-w-7xl mx-auto px-4 py-16 relative z-10">
+            <div class="text-center mb-12"><span class="story-kicker">Exposição permanente</span><h2 class="font-playfair text-5xl md:text-7xl text-verde-cacto mt-4">A História da Rozenblit</h2><p class="text-texto-suave max-w-3xl mx-auto mt-4 text-lg leading-relaxed">Uma narrativa visual e sonora sobre a fábrica que aproximou indústria, frevo, design, rádio, carnaval e identidade pernambucana.</p></div>
+            <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+                <aside class="hidden lg:block story-nav"><div class="museum-glass rounded-3xl p-5"><p class="font-playfair text-2xl text-verde-cacto mb-3">Percurso</p><button onclick="document.getElementById('capitulo-origem').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">01 · Origem</button><button onclick="document.getElementById('capitulo-fabrica').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">02 · Fábrica</button><button onclick="document.getElementById('capitulo-frevo').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">03 · Frevo</button><button onclick="document.getElementById('capitulo-design').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">04 · Design</button><button onclick="document.getElementById('capitulo-cheia').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">05 · Cheias</button><button onclick="document.getElementById('galeria-documental').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">06 · Galeria</button></div></aside>
+                <div class="space-y-10">
+                    <!-- CAPÍTULO 01 -->
+                    <section id="capitulo-origem" class="museum-glass rounded-[2rem] overflow-hidden">
+                        <div class="grid lg:grid-cols-[420px_1fr]">
+                            <div class="flex items-center justify-center p-8 bg-gradient-to-br from-areia/30 via-papel to-areia/10 border-r border-verde-cacto/10">
+                                <div class="text-center"><div class="relative mx-auto"><img src="static/capa/capa_rozenblit.jpg" alt="Rozenblit" class="w-[300px] h-[300px] object-cover rounded-[2rem] shadow-2xl border border-verde-cacto/15"></div><p class="text-xs uppercase tracking-[0.25em] text-barro mt-5">Recife · Pernambuco</p><p class="text-sm text-texto-suave mt-2 max-w-[280px] mx-auto">A marca que se tornaria o principal símbolo da indústria fonográfica do Norte-Nordeste.</p></div>
+                            </div>
+                            <div class="p-8 md:p-10 lg:p-12">
+                                <p class="chapter-number">01</p><span class="story-kicker">Antes da fábrica</span><h3 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-3 leading-tight">O sonho de fazer Pernambuco ouvir a própria voz</h3><div class="w-24 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro rounded-full mt-6 mb-8"></div>
+                                <div class="space-y-6 text-texto-suave leading-relaxed text-lg"><p>Muito antes de existir uma fábrica de discos na Estrada dos Remédios, Pernambuco já produzia música em abundância. O frevo dominava as ruas durante o carnaval, as rádios revelavam novos intérpretes, compositores criavam melodias que atravessavam gerações e orquestras animavam bailes por toda a região.</p><p>Mas havia um problema.</p><p>Grande parte dessa música precisava viajar para o Sudeste para ser registrada em disco. Os artistas pernambucanos dependiam de gravadoras localizadas principalmente no Rio de Janeiro e em São Paulo. Muitas vezes, a música nascida no Recife era gravada longe de casa, distante dos músicos, das ruas e do ambiente cultural que a inspirava.</p><p>Era como se Pernambuco cantasse, mas outra região fosse responsável por registrar sua voz.</p><p>Foi nesse contexto que surgiu uma ideia ousada: criar uma estrutura capaz de gravar, prensar e distribuir discos sem que a cultura pernambucana precisasse deixar sua terra de origem.</p><p>Mais do que um empreendimento industrial, essa visão representava uma afirmação cultural. Significava permitir que o Nordeste contasse sua própria história, utilizando seus próprios artistas, seus próprios músicos e sua própria identidade.</p><p>Quando a Rozenblit surgiria alguns anos depois, ela não estaria apenas fabricando discos. Estaria ajudando Pernambuco a preservar sua memória sonora.</p></div>
+                                <div class="quote-panel rounded-2xl p-6 mt-10"><blockquote class="font-playfair text-2xl md:text-3xl text-verde-cacto italic leading-relaxed">"Pela primeira vez, Pernambuco não seria apenas inspiração. Tornaria-se também o lugar onde sua música seria eternizada."</blockquote></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CAPÍTULO 02 -->
+                    <section id="capitulo-fabrica" class="museum-glass rounded-[2rem] overflow-hidden">
+                        <div class="museum-photo h-[650px]" id="foto-fabrica" data-label="A Fábrica Rozenblit na Estrada dos Remédios, símbolo da indústria fonográfica pernambucana"></div>
+                        <div class="p-8 md:p-12 lg:p-14">
+                            <p class="chapter-number">02</p><span class="story-kicker">1954 · Estrada dos Remédios · Recife</span><h3 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-3 leading-tight">A fábrica que fez Pernambuco gravar sua própria história</h3><div class="w-24 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro rounded-full mt-6 mb-8"></div>
+                            <div class="max-w-4xl space-y-6 text-texto-suave leading-relaxed text-lg"><p>Quando a Fábrica de Discos Rozenblit iniciou suas atividades em 1954, Pernambuco passou a possuir algo raro no Brasil daquela época: uma indústria fonográfica completa, capaz de transformar música em disco sem depender dos grandes centros do Sudeste.</p><p>Instalada na Estrada dos Remédios, no bairro de Afogados, a fábrica reunia em um único complexo industrial todas as etapas da produção fonográfica. Ali eram gravadas matrizes, prensados os discos de vinil, impressas as capas, montadas as embalagens e preparados os lançamentos que chegariam às rádios, lojas e colecionadores de todo o país.</p><p>Em um período em que a indústria cultural brasileira estava concentrada principalmente entre Rio de Janeiro e São Paulo, a Rozenblit demonstrava que Pernambuco possuía capacidade técnica, artística e empresarial para produzir seus próprios registros sonoros em larga escala.</p><p>Os corredores da fábrica eram movimentados diariamente por músicos, compositores, maestros, técnicos de gravação, ilustradores, fotógrafos, prensistas e funcionários especializados. Cada disco que saía da linha de produção carregava o trabalho de dezenas de profissionais responsáveis por transformar cultura em memória permanente.</p><p>Mais do que uma empresa, a Rozenblit tornou-se um símbolo da modernização pernambucana. Seus equipamentos industriais, sua capacidade de prensagem e sua rede de distribuição permitiram que frevos, cocos, cirandas, boleros, sambas e inúmeros artistas populares ultrapassassem as fronteiras do estado e alcançassem ouvintes em todo o Brasil.</p><p>Durante décadas, milhares de discos deixaram os galpões da Estrada dos Remédios levando consigo não apenas música, mas também a identidade cultural de Pernambuco. Cada vinil produzido preservava histórias, sotaques, ritmos e tradições que hoje formam um dos mais importantes patrimônios sonoros do Nordeste.</p></div>
+                            <div class="mt-10 bg-verde-cacto/5 border-l-4 border-ouro rounded-r-2xl p-6"><h4 class="font-playfair text-2xl text-verde-cacto mb-3">Uma potência cultural do Nordeste</h4><p class="text-texto-suave leading-relaxed">A Rozenblit tornou-se a maior indústria fonográfica do Norte-Nordeste brasileiro. Sua estrutura permitiu registrar e preservar parte fundamental da memória musical pernambucana, transformando o Recife em um dos principais polos de produção de discos do país durante boa parte do século XX.</p></div>
+                            <div class="mt-12"><h4 class="font-playfair text-3xl text-verde-cacto mb-6">Os selos que construíram uma história</h4><div class="grid sm:grid-cols-3 gap-4"><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Mocambo</h5><p class="text-sm text-texto-suave mt-2">Frevo, música regional, carnaval e manifestações populares.</p></div><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Passarela</h5><p class="text-sm text-texto-suave mt-2">Artistas populares e lançamentos voltados ao grande público.</p></div><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Solar</h5><p class="text-sm text-texto-suave mt-2">Projetos especiais, novos artistas e produções experimentais.</p></div></div></div>
+                        </div>
+                    </section>
+
+                    <!-- CAPÍTULO 03 -->
+                    <section id="capitulo-frevo" class="dark-exhibit rounded-[2rem] p-8 md:p-10 overflow-hidden relative">
+                        <div class="absolute -right-10 -bottom-16 text-[180px] opacity-10">🎺</div>
+                        <div class="relative z-10 grid md:grid-cols-[0.8fr_1.2fr] gap-8 items-center"><div><p class="chapter-number">03</p><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">Frevo como documento</span><h3 class="font-playfair text-4xl mt-2">O som do carnaval ganhou permanência</h3></div><div class="space-y-4 text-papel/82 leading-relaxed"><p>O frevo foi amplamente reproduzido pela Rozenblit e ganhou circulação para além do carnaval e das ruas. Discos, capas e fichas passaram a registrar orquestras, compositores, intérpretes, arranjos e repertórios.</p><p>Por isso, cada item do catálogo pode ser tratado como fonte histórica: não apenas uma música, mas uma prova material de como Pernambuco representou a si mesmo.</p></div></div>
+                    </section>
+
+                    <!-- CAPÍTULO 04 -->
+                    <section id="capitulo-design" class="museum-glass rounded-[2rem] p-8 md:p-10">
+                        <div class="grid md:grid-cols-[1fr_1fr] gap-8 items-center"><div><p class="chapter-number">04</p><span class="story-kicker">Capas, selos e cultura visual</span><h3 class="font-playfair text-4xl text-verde-cacto mt-2">O disco também era imagem</h3><p class="text-texto-suave mt-4 leading-relaxed">Uma pesquisa Feita pela UFPE mostra que as capas da Rozenblit podem ser lidas como objetos de cultura material: elas guardam escolhas gráficas, símbolos, cores, letras, assinaturas e modos de representar o frevo.</p><p class="text-texto-suave mt-4 leading-relaxed">Nesta versão do museu, a galeria de imagens podem virar uma exposição permanente: capas por década, selos, logomarcas, fotos da fábrica e documentos.</p></div><div id="mini-galeria-design" class="grid grid-cols-2 gap-3"></div></div>
+                    </section>
+
+                    <!-- CAPÍTULO 05 -->
+                    <section id="capitulo-cheia" class="dark-exhibit rounded-[2rem] overflow-hidden">
+                        <div class="museum-photo h-[550px]" id="foto-cheia" data-label="As águas que levaram parte da memória sonora de Pernambuco" style="background-image:url('static/historia/enchente.jpg');"></div>
+                        <div class="p-8 md:p-12"><p class="chapter-number">05</p><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">1975 · Perda e resistência</span><h3 class="font-playfair text-5xl mt-3">Quando as águas levaram mais do que discos</h3><div class="w-24 h-1 bg-gradient-to-r from-ouro via-papel to-ouro rounded-full mt-6 mb-8"></div><div class="max-w-4xl space-y-6 text-papel/85 text-lg leading-relaxed"><p>Em algum lugar entre os corredores da fábrica, empilhados em estantes, armários e depósitos, estavam guardados milhares de registros sonoros. Vozes. Arranjos. Ensaios. Matrizes. Histórias inteiras gravadas em fita magnética e vinil.</p><p>Então vieram as águas.</p><p>As cheias do Rio Capibaribe atingiram a região e invadiram parte das instalações da Rozenblit. Equipamentos foram danificados. Documentos desapareceram. Fitas se perderam. Matrizes foram destruídas.</p><p>Mas talvez a maior perda não tenha sido material.</p><p>Muitas gravações nunca mais puderam ser recuperadas. Algumas versões originais desapareceram para sempre. Ensaios, registros de estúdio e documentos históricos deixaram de existir naquele momento.</p><p>Quando uma gravação desaparece, não se perde apenas uma música. Perde-se uma voz. Um sotaque. Um músico. Um arranjo. Um instante da história que jamais poderá ser recriado.</p></div><div class="my-12 max-w-5xl mx-auto text-center"><blockquote class="font-playfair text-3xl md:text-5xl leading-tight text-ouro italic">"A enchente não levou apenas discos. Levou capítulos inteiros da memória musical pernambucana."</blockquote></div><div class="max-w-4xl mx-auto space-y-6 text-papel/85 text-lg leading-relaxed"><p>Décadas depois, colecionadores, pesquisadores, universidades e apaixonados pela música brasileira ainda tentam localizar exemplares sobreviventes, restaurar gravações e reconstruir informações perdidas.</p><p>Cada disco encontrado hoje é mais do que um objeto. É um sobrevivente.</p><p>Cada capa preservada. Cada ficha técnica recuperada. Cada faixa digitalizada. Cada fotografia restaurada. Representa uma pequena vitória contra o esquecimento.</p></div><div class="mt-12 bg-papel/10 border border-papel/15 rounded-[2rem] p-8"><h4 class="font-playfair text-3xl text-ouro mb-4">Por que este museu existe?</h4><p class="text-papel/85 leading-relaxed text-lg">Este acervo digital nasce justamente para impedir que novas perdas aconteçam. Catalogar, digitalizar e contextualizar não é apenas organizar informações. É proteger a memória cultural de Pernambuco para as próximas gerações.</p><p class="text-papel/85 leading-relaxed text-lg mt-4">Cada disco preservado aqui é uma resposta ao tempo, às enchentes, aos incêndios e ao esquecimento.</p></div></div>
+                    </section>
+
+                    <!-- GALERIA DOCUMENTAL -->
+                    <section id="galeria-documental" class="museum-glass rounded-[2rem] p-8 md:p-10">
+                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6"><div><span class="story-kicker">Acervo fotográfico</span><h3 class="font-playfair text-4xl text-verde-cacto mt-2">Galeria documental</h3><p class="text-texto-suave mt-3 max-w-2xl">Clique em qualquer imagem para expandir e apreciar os detalhes históricos.</p></div></div>
+                        <div id="galeria-historia" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+                    </section>
+
+                    <section class="museum-glass rounded-[2rem] p-8 md:p-10">
+                        <h3 class="font-playfair text-4xl text-verde-cacto text-center mb-10">Linha do tempo cultural</h3>
+                        <div class="timeline-line pl-14 space-y-8">
+                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">1953 — O selo Mocambo anuncia um novo caminho</h4><p class="text-texto-suave mt-2">O primeiro disco do selo consolida a ideia de registrar o frevo com músicos e intérpretes pernambucanos.</p></div>
+                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">1954 — A fábrica é aberta no Recife</h4><p class="text-texto-suave mt-2">A Rozenblit nasce em Afogados com ambição industrial e cultural.</p></div>
+                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Anos 1960 — Auge e expansão</h4><p class="text-texto-suave mt-2">A empresa amplia selos, catálogo e presença nacional, sem abandonar o repertório regional.</p></div>
+                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Anos 1970 — Psicodelia, frevo e contracultura</h4><p class="text-texto-suave mt-2">A Rozenblit participa de obras lendárias do udigrudi pernambucano e da música brasileira.</p></div>
+                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Hoje — Acervo digital</h4><p class="text-texto-suave mt-2">O catálogo, as fichas e as imagens documentais reaproximam leitores, pesquisadores e ouvintes dessa história.</p></div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+</main>
+<!-- MODAL IMAGEM -->
+<div id="modal-imagem" class="fixed inset-0 hidden items-center justify-center z-[10000]" onclick="fecharModalImagem()">
+    <div class="image-modal" onclick="fecharModalImagem()"><span class="close-modal-btn">&times;</span><div class="image-modal-content" onclick="event.stopPropagation()"><img id="modal-imagem-src" src="" alt="Imagem ampliada"></div></div>
+</div>
+
+<footer class="border-t border-verde-cacto/20 py-8 text-center text-texto-suave text-sm mt-12 relative z-10">
+    <p>Acervo Rozenblit — Museu Digital da Música Pernambucana</p>
+    <p class="text-xs mt-1">© 2026 Acervo Rozenblit. Todos os direitos reservados.</p>
+</footer>
+
+
+<script>
+    // ======================== GALERIAS ========================
+    const imagensGaleria = [
+        { src: "static/galeria/1_fabrica.jpg", legenda: "Fábrica Rozenblit em Afogados" },
+        { src: "static/galeria/2_capas_historicas.jpg", legenda: "Capas históricas" },
+        { src: "static/galeria/3_jose_rozenblit.jpg", legenda: "José Rozenblit" },
+        { src: "static/galeria/4_selos.jpg", legenda: "Selos Mocambo, Passarela e Solar" },
+        { src: "static/galeria/5_frevo_orquestra.jpg", legenda: "Registro de frevo" },
+        { src: "static/galeria/1_image.jpg" , legenda: "Imagem 1" },
+        { src: "static/galeria/2_image.jpg" , legenda: "Imagem 2" },
+        { src: "static/galeria/3_image.jpg" , legenda: "Imagem 3" },
+        { src: "static/galeria/4_image.jpg" , legenda: "Imagem 4" },
+        { src: "static/galeria/5_image.jpg" , legenda: "Imagem 5" },
+        { src: "static/galeria/6_image.jpg" , legenda: "Imagem 6" },
+        { src: "static/galeria/7_image.jpg" , legenda: "Imagem 7" },
+        { src: "static/galeria/8_image.jpg" , legenda: "Imagem 8" },
+        { src: "static/galeria/9_image.jpg" , legenda: "Imagem 9" },
+        { src: "static/galeria/10_image.jpg", legenda: "Imagem 10" }
+    ];
+    const imagensDesign = [
+        { src: "static/historia/1_capa_rozenblit.jpg", legenda: "Capa emblemática" },
+        { src: "static/historia/2_selo_mocambo.jpg", legenda: "Selo Mocambo" },
+        { src: "static/historia/4_artista_estudio.jpg", legenda: "Artista no estúdio" }
+    ];
+
+    function abrirModalImagem(src, legenda) {
+        const modal = document.getElementById('modal-imagem');
+        const imgEl = document.getElementById('modal-imagem-src');
+        imgEl.src = src;
+        imgEl.alt = legenda || "Imagem ampliada";
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function fecharModalImagem() { const modal = document.getElementById('modal-imagem'); modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
+    function renderizarGalerias() {
+        const homeGaleria = document.getElementById('galeria-home');
+        if (homeGaleria) homeGaleria.innerHTML = imagensGaleria.slice(0,4).map(img => `<div onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><div class="museum-photo has-image" data-label="${escapeAttr(img.legenda)}"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div></div>`).join('');
+        const historiaGaleria = document.getElementById('galeria-historia');
+        if (historiaGaleria) historiaGaleria.innerHTML = imagensGaleria.map(img => `<div class="exhibit-card cursor-pointer" onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><div class="museum-photo has-image rounded-3xl" data-label="${escapeAttr(img.legenda)}"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div><p class="text-xs text-texto-suave mt-2 px-1">${escapeHtml(img.legenda)}</p></div>`).join('');
+        const miniDesign = document.getElementById('mini-galeria-design');
+        if (miniDesign) miniDesign.innerHTML = imagensDesign.slice(0,4).map(img => `<div class="museum-photo has-image rounded-3xl min-h-[170px] cursor-pointer" data-label="${escapeAttr(img.legenda)}" onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div>`).join('');
+        const fotoFabrica = document.getElementById('foto-fabrica');
+        if (fotoFabrica) { fotoFabrica.classList.add('has-image'); fotoFabrica.innerHTML = `<img src="static/fabrica/fabrica_rozenblit.jpg" alt="Fábrica Rozenblit" loading="lazy" onclick="abrirModalImagem('static/fabrica/fabrica_rozenblit.jpg','Fábrica na Estrada dos Remédios')">`; fotoFabrica.setAttribute('data-label', 'Fábrica na Estrada dos Remédios'); }
+        if (window.lucide) lucide.createIcons();
+    }
+
+
+    function normalizarTexto(str) { return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+    function normalizarAno(valor) { if(!valor) return null; const match = String(valor).match(/(19|20)\d{2}/); return match ? Number(match[0]) : null; }
+    function escapeHtml(str) { return String(str??'').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    function escapeAttr(str) { return String(str??'').replace(/[\'"<>]/g, '').trim(); }
+
+
+    function fecharModal() {}
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') { fecharModal(); fecharModalImagem(); } });
+
+
+
+    // Inicialização
+    renderizarGalerias();
+    document.getElementById('loading-screen')?.classList.add('hidden-loading');
+    if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

@@ -493,10 +493,11 @@
     </div>
 </div>
 
+
 <!-- HEADER -->
 <header class="fixed top-0 left-0 right-0 bg-papel/90 backdrop-blur-xl z-50 border-b border-verde-cacto/15 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
-        <a href="#" onclick="navigateTo('home'); return false;" class="flex items-center gap-3 group">
+        <a href="index.html" class="flex items-center gap-3 group">
             <div class="logo-vinil-rz transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
                 <div class="vinil-ring ring-1"></div>
                 <div class="vinil-ring ring-2"></div>
@@ -509,16 +510,14 @@
             </div>
         </a>
         <nav class="flex gap-1 overflow-x-auto no-scrollbar">
-            <button onclick="navigateTo('home')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="home"><i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início</button>
-            <button onclick="navigateTo('historia')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="historia"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História</button>
-            <button onclick="navigateTo('catalogo')" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap" data-page="catalogo"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo</button>
-            <button onclick="navigateTo('historia'); setTimeout(()=>document.getElementById('galeria-documental')?.scrollIntoView({behavior:'smooth'}),350)" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap"><i data-lucide="images" class="w-4 h-4 inline mr-1"></i>Galeria</button>
-            <button onclick="location.href='jogos.html'" class="nav-link px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-ouro/15 text-barro hover:bg-ouro/25 border border-ouro/30" data-page="jogos"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos</button>
-
+            <a href="index.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-verde-cacto text-papel"><i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início</a>
+            <a href="historia.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap text-texto-suave hover:text-verde-cacto hover:bg-verde-cacto/5"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História</a>
+            <a href="catalogo.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap text-texto-suave hover:text-verde-cacto hover:bg-verde-cacto/5"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo</a>
+            <a href="historia.html#galeria-documental" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap"><i data-lucide="images" class="w-4 h-4 inline mr-1"></i>Galeria</a>
+            <a href="jogos.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-ouro/15 text-barro hover:bg-ouro/25 border border-ouro/30"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos</a>
         </nav>
     </div>
 </header>
-
 <main class="pt-16 md:pt-20">
     <!-- HOME -->
     <section id="page-home" class="page-section animate-page">
@@ -539,8 +538,8 @@
                         <div class="w-28 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro my-7 rounded-full"></div>
                         <p class="text-texto-suave text-lg md:text-xl max-w-2xl leading-relaxed" id="home-desc">Um museu digital para preservar discos, capas, fichas técnicas, artistas, selos e memórias da fábrica que ajudou Pernambuco a ser ouvido pelo Brasil.</p>
                         <div class="flex flex-col sm:flex-row gap-4 mt-9">
-                            <button onclick="navigateTo('historia')" class="bg-verde-cacto text-papel px-7 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition flex items-center justify-center gap-2"><i data-lucide="landmark" class="w-5 h-5"></i>Entrar no museu</button>
-                            <button onclick="navigateTo('catalogo')" class="bg-papel/85 border border-verde-cacto/30 text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:bg-verde-cacto/5 transition flex items-center justify-center gap-2"><i data-lucide="disc-3" class="w-5 h-5"></i>Explorar catálogo</button>
+                            <button onclick="location.href='historia.html'" class="bg-verde-cacto text-papel px-7 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition flex items-center justify-center gap-2"><i data-lucide="landmark" class="w-5 h-5"></i>Entrar no museu</button>
+                            <button onclick="location.href='catalogo.html'" class="bg-papel/85 border border-verde-cacto/30 text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:bg-verde-cacto/5 transition flex items-center justify-center gap-2"><i data-lucide="disc-3" class="w-5 h-5"></i>Explorar catálogo</button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-10 max-w-2xl">
                             <div class="museum-glass rounded-2xl p-4"><p class="font-playfair text-3xl text-ouro">1954</p><p class="text-xs text-texto-suave mt-1">fábrica no Recife</p></div>
@@ -579,7 +578,7 @@
         <section class="py-10 px-4 max-w-7xl mx-auto relative z-10">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
                 <div><span class="story-kicker">Galeria documental</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Imagens que contam a história</h2></div>
-                <button onclick="navigateTo('historia'); setTimeout(()=>document.getElementById('galeria-documental')?.scrollIntoView({behavior:'smooth'}),350)" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver galeria <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                <button onclick="location.href='historia.html#galeria-documental'" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver galeria <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
             </div>
             <div id="galeria-home" class="archive-strip"></div>
         </section>
@@ -603,7 +602,7 @@
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-8">
     <!-- Caça-Palavras -->
-    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='caca-palavras.html'">
+    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='Caca-Palavras.html'">
         <div class="w-16 h-16 mx-auto rounded-2xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-3xl mb-4">🔤</div>
         <h3 class="font-playfair text-2xl text-verde-cacto">Caça-Palavras</h3>
         <p class="text-sm text-texto-suave mt-2 leading-relaxed">Encontre artistas, estilos e termos escondidos na grade musical.</p>
@@ -660,101 +659,19 @@
                 <div class="absolute -right-8 -top-10 text-[160px] opacity-10">🎼</div>
                 <div class="grid md:grid-cols-[1.3fr_0.7fr] gap-8 items-center relative z-10">
                     <div><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">Cultura, frevo e memória</span><h2 class="font-playfair text-4xl md:text-5xl mt-3">A fábrica que transformou Recife em rota fonográfica</h2><p class="mt-4 text-papel/80 leading-relaxed max-w-2xl">Da prensagem ao design das capas, da Rádio Clube ao carnaval, a Rozenblit fez da música pernambucana um patrimônio em circulação.</p></div>
-                    <div class="flex md:justify-end"><button onclick="navigateTo('historia')" class="bg-papel text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg">Ver exposição</button></div>
+                    <div class="flex md:justify-end"><button onclick="location.href='historia.html'" class="bg-papel text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg">Ver exposição</button></div>
                 </div>
             </div>
         </section>
 
         <section class="py-16 px-4 max-w-6xl mx-auto relative z-10">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4"><div><span class="story-kicker">Obras lendárias</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Destaques do acervo</h2></div><button onclick="navigateTo('catalogo')" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver catálogo completo <i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4"><div><span class="story-kicker">Obras lendárias</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Destaques do acervo</h2></div><button onclick="location.href='catalogo.html'" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver catálogo completo <i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
             <div id="destaques-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mt-10"></div>
         </section>
     </section>
 
-    <!-- CATÁLOGO -->
-    <section id="page-catalogo" class="page-section hidden">
-        <div class="max-w-7xl mx-auto px-4 py-12 relative z-10">
-            <div class="text-center mb-9"><span class="text-barro text-sm uppercase tracking-[0.22em] font-bold">Acervo pesquisável</span><h2 class="font-playfair text-5xl text-verde-cacto mt-3">Catálogo Completo</h2><p class="text-center text-texto-suave mt-3">Explore a discografia histórica da Rozenblit e selos parceiros</p></div>
-            <div class="hero-card rounded-3xl p-5 mb-8">
-                <div class="flex flex-col md:flex-row gap-3 mb-3"><input type="text" id="search-input" placeholder="🔍 Buscar por título, artista ou gravadora..." class="flex-1 border border-verde-cacto/20 rounded-2xl px-5 py-3 bg-papel focus:outline-none focus:ring-2 focus:ring-verde-cacto/40" oninput="filtrarCatalogo()"><span id="catalogo-count" class="text-texto-suave text-sm self-center bg-areia/40 px-4 py-2 rounded-full"></span></div>
-                <div id="filtros-gravadoras" class="flex flex-wrap gap-2 mt-2"></div>
-            </div>
-            <div id="catalogo-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
-            <div id="no-results" class="text-center py-20 hidden hero-card rounded-3xl"><i data-lucide="search-x" class="w-12 h-12 text-texto-suave mx-auto mb-3"></i><p class="text-verde-cacto font-medium">Nenhum disco encontrado.</p></div>
-            <div id="pagination-container" class="pagination-container mt-8"></div>
-        </div>
-    </section>
 
-    <!-- HISTÓRIA -->
-    <section id="page-historia" class="page-section hidden">
-        <div class="max-w-7xl mx-auto px-4 py-16 relative z-10">
-            <div class="text-center mb-12"><span class="story-kicker">Exposição permanente</span><h2 class="font-playfair text-5xl md:text-7xl text-verde-cacto mt-4">A História da Rozenblit</h2><p class="text-texto-suave max-w-3xl mx-auto mt-4 text-lg leading-relaxed">Uma narrativa visual e sonora sobre a fábrica que aproximou indústria, frevo, design, rádio, carnaval e identidade pernambucana.</p></div>
-            <div class="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
-                <aside class="hidden lg:block story-nav"><div class="museum-glass rounded-3xl p-5"><p class="font-playfair text-2xl text-verde-cacto mb-3">Percurso</p><button onclick="document.getElementById('capitulo-origem').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">01 · Origem</button><button onclick="document.getElementById('capitulo-fabrica').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">02 · Fábrica</button><button onclick="document.getElementById('capitulo-frevo').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">03 · Frevo</button><button onclick="document.getElementById('capitulo-design').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">04 · Design</button><button onclick="document.getElementById('capitulo-cheia').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">05 · Cheias</button><button onclick="document.getElementById('galeria-documental').scrollIntoView({behavior:'smooth'})" class="block w-full text-left py-2 text-texto-suave hover:text-verde-cacto">06 · Galeria</button></div></aside>
-                <div class="space-y-10">
-                    <!-- CAPÍTULO 01 -->
-                    <section id="capitulo-origem" class="museum-glass rounded-[2rem] overflow-hidden">
-                        <div class="grid lg:grid-cols-[420px_1fr]">
-                            <div class="flex items-center justify-center p-8 bg-gradient-to-br from-areia/30 via-papel to-areia/10 border-r border-verde-cacto/10">
-                                <div class="text-center"><div class="relative mx-auto"><img src="static/capa/capa_rozenblit.jpg" alt="Rozenblit" class="w-[300px] h-[300px] object-cover rounded-[2rem] shadow-2xl border border-verde-cacto/15"></div><p class="text-xs uppercase tracking-[0.25em] text-barro mt-5">Recife · Pernambuco</p><p class="text-sm text-texto-suave mt-2 max-w-[280px] mx-auto">A marca que se tornaria o principal símbolo da indústria fonográfica do Norte-Nordeste.</p></div>
-                            </div>
-                            <div class="p-8 md:p-10 lg:p-12">
-                                <p class="chapter-number">01</p><span class="story-kicker">Antes da fábrica</span><h3 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-3 leading-tight">O sonho de fazer Pernambuco ouvir a própria voz</h3><div class="w-24 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro rounded-full mt-6 mb-8"></div>
-                                <div class="space-y-6 text-texto-suave leading-relaxed text-lg"><p>Muito antes de existir uma fábrica de discos na Estrada dos Remédios, Pernambuco já produzia música em abundância. O frevo dominava as ruas durante o carnaval, as rádios revelavam novos intérpretes, compositores criavam melodias que atravessavam gerações e orquestras animavam bailes por toda a região.</p><p>Mas havia um problema.</p><p>Grande parte dessa música precisava viajar para o Sudeste para ser registrada em disco. Os artistas pernambucanos dependiam de gravadoras localizadas principalmente no Rio de Janeiro e em São Paulo. Muitas vezes, a música nascida no Recife era gravada longe de casa, distante dos músicos, das ruas e do ambiente cultural que a inspirava.</p><p>Era como se Pernambuco cantasse, mas outra região fosse responsável por registrar sua voz.</p><p>Foi nesse contexto que surgiu uma ideia ousada: criar uma estrutura capaz de gravar, prensar e distribuir discos sem que a cultura pernambucana precisasse deixar sua terra de origem.</p><p>Mais do que um empreendimento industrial, essa visão representava uma afirmação cultural. Significava permitir que o Nordeste contasse sua própria história, utilizando seus próprios artistas, seus próprios músicos e sua própria identidade.</p><p>Quando a Rozenblit surgiria alguns anos depois, ela não estaria apenas fabricando discos. Estaria ajudando Pernambuco a preservar sua memória sonora.</p></div>
-                                <div class="quote-panel rounded-2xl p-6 mt-10"><blockquote class="font-playfair text-2xl md:text-3xl text-verde-cacto italic leading-relaxed">"Pela primeira vez, Pernambuco não seria apenas inspiração. Tornaria-se também o lugar onde sua música seria eternizada."</blockquote></div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- CAPÍTULO 02 -->
-                    <section id="capitulo-fabrica" class="museum-glass rounded-[2rem] overflow-hidden">
-                        <div class="museum-photo h-[650px]" id="foto-fabrica" data-label="A Fábrica Rozenblit na Estrada dos Remédios, símbolo da indústria fonográfica pernambucana"></div>
-                        <div class="p-8 md:p-12 lg:p-14">
-                            <p class="chapter-number">02</p><span class="story-kicker">1954 · Estrada dos Remédios · Recife</span><h3 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-3 leading-tight">A fábrica que fez Pernambuco gravar sua própria história</h3><div class="w-24 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro rounded-full mt-6 mb-8"></div>
-                            <div class="max-w-4xl space-y-6 text-texto-suave leading-relaxed text-lg"><p>Quando a Fábrica de Discos Rozenblit iniciou suas atividades em 1954, Pernambuco passou a possuir algo raro no Brasil daquela época: uma indústria fonográfica completa, capaz de transformar música em disco sem depender dos grandes centros do Sudeste.</p><p>Instalada na Estrada dos Remédios, no bairro de Afogados, a fábrica reunia em um único complexo industrial todas as etapas da produção fonográfica. Ali eram gravadas matrizes, prensados os discos de vinil, impressas as capas, montadas as embalagens e preparados os lançamentos que chegariam às rádios, lojas e colecionadores de todo o país.</p><p>Em um período em que a indústria cultural brasileira estava concentrada principalmente entre Rio de Janeiro e São Paulo, a Rozenblit demonstrava que Pernambuco possuía capacidade técnica, artística e empresarial para produzir seus próprios registros sonoros em larga escala.</p><p>Os corredores da fábrica eram movimentados diariamente por músicos, compositores, maestros, técnicos de gravação, ilustradores, fotógrafos, prensistas e funcionários especializados. Cada disco que saía da linha de produção carregava o trabalho de dezenas de profissionais responsáveis por transformar cultura em memória permanente.</p><p>Mais do que uma empresa, a Rozenblit tornou-se um símbolo da modernização pernambucana. Seus equipamentos industriais, sua capacidade de prensagem e sua rede de distribuição permitiram que frevos, cocos, cirandas, boleros, sambas e inúmeros artistas populares ultrapassassem as fronteiras do estado e alcançassem ouvintes em todo o Brasil.</p><p>Durante décadas, milhares de discos deixaram os galpões da Estrada dos Remédios levando consigo não apenas música, mas também a identidade cultural de Pernambuco. Cada vinil produzido preservava histórias, sotaques, ritmos e tradições que hoje formam um dos mais importantes patrimônios sonoros do Nordeste.</p></div>
-                            <div class="mt-10 bg-verde-cacto/5 border-l-4 border-ouro rounded-r-2xl p-6"><h4 class="font-playfair text-2xl text-verde-cacto mb-3">Uma potência cultural do Nordeste</h4><p class="text-texto-suave leading-relaxed">A Rozenblit tornou-se a maior indústria fonográfica do Norte-Nordeste brasileiro. Sua estrutura permitiu registrar e preservar parte fundamental da memória musical pernambucana, transformando o Recife em um dos principais polos de produção de discos do país durante boa parte do século XX.</p></div>
-                            <div class="mt-12"><h4 class="font-playfair text-3xl text-verde-cacto mb-6">Os selos que construíram uma história</h4><div class="grid sm:grid-cols-3 gap-4"><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Mocambo</h5><p class="text-sm text-texto-suave mt-2">Frevo, música regional, carnaval e manifestações populares.</p></div><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Passarela</h5><p class="text-sm text-texto-suave mt-2">Artistas populares e lançamentos voltados ao grande público.</p></div><div class="selos-pill rounded-2xl p-6 text-center"><h5 class="font-playfair text-2xl text-verde-cacto">Solar</h5><p class="text-sm text-texto-suave mt-2">Projetos especiais, novos artistas e produções experimentais.</p></div></div></div>
-                        </div>
-                    </section>
-
-                    <!-- CAPÍTULO 03 -->
-                    <section id="capitulo-frevo" class="dark-exhibit rounded-[2rem] p-8 md:p-10 overflow-hidden relative">
-                        <div class="absolute -right-10 -bottom-16 text-[180px] opacity-10">🎺</div>
-                        <div class="relative z-10 grid md:grid-cols-[0.8fr_1.2fr] gap-8 items-center"><div><p class="chapter-number">03</p><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">Frevo como documento</span><h3 class="font-playfair text-4xl mt-2">O som do carnaval ganhou permanência</h3></div><div class="space-y-4 text-papel/82 leading-relaxed"><p>O frevo foi amplamente reproduzido pela Rozenblit e ganhou circulação para além do carnaval e das ruas. Discos, capas e fichas passaram a registrar orquestras, compositores, intérpretes, arranjos e repertórios.</p><p>Por isso, cada item do catálogo pode ser tratado como fonte histórica: não apenas uma música, mas uma prova material de como Pernambuco representou a si mesmo.</p></div></div>
-                    </section>
-
-                    <!-- CAPÍTULO 04 -->
-                    <section id="capitulo-design" class="museum-glass rounded-[2rem] p-8 md:p-10">
-                        <div class="grid md:grid-cols-[1fr_1fr] gap-8 items-center"><div><p class="chapter-number">04</p><span class="story-kicker">Capas, selos e cultura visual</span><h3 class="font-playfair text-4xl text-verde-cacto mt-2">O disco também era imagem</h3><p class="text-texto-suave mt-4 leading-relaxed">Uma pesquisa Feita pela UFPE mostra que as capas da Rozenblit podem ser lidas como objetos de cultura material: elas guardam escolhas gráficas, símbolos, cores, letras, assinaturas e modos de representar o frevo.</p><p class="text-texto-suave mt-4 leading-relaxed">Nesta versão do museu, a galeria de imagens podem virar uma exposição permanente: capas por década, selos, logomarcas, fotos da fábrica e documentos.</p></div><div id="mini-galeria-design" class="grid grid-cols-2 gap-3"></div></div>
-                    </section>
-
-                    <!-- CAPÍTULO 05 -->
-                    <section id="capitulo-cheia" class="dark-exhibit rounded-[2rem] overflow-hidden">
-                        <div class="museum-photo h-[550px]" id="foto-cheia" data-label="As águas que levaram parte da memória sonora de Pernambuco" style="background-image:url('static/historia/enchente.jpg');"></div>
-                        <div class="p-8 md:p-12"><p class="chapter-number">05</p><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">1975 · Perda e resistência</span><h3 class="font-playfair text-5xl mt-3">Quando as águas levaram mais do que discos</h3><div class="w-24 h-1 bg-gradient-to-r from-ouro via-papel to-ouro rounded-full mt-6 mb-8"></div><div class="max-w-4xl space-y-6 text-papel/85 text-lg leading-relaxed"><p>Em algum lugar entre os corredores da fábrica, empilhados em estantes, armários e depósitos, estavam guardados milhares de registros sonoros. Vozes. Arranjos. Ensaios. Matrizes. Histórias inteiras gravadas em fita magnética e vinil.</p><p>Então vieram as águas.</p><p>As cheias do Rio Capibaribe atingiram a região e invadiram parte das instalações da Rozenblit. Equipamentos foram danificados. Documentos desapareceram. Fitas se perderam. Matrizes foram destruídas.</p><p>Mas talvez a maior perda não tenha sido material.</p><p>Muitas gravações nunca mais puderam ser recuperadas. Algumas versões originais desapareceram para sempre. Ensaios, registros de estúdio e documentos históricos deixaram de existir naquele momento.</p><p>Quando uma gravação desaparece, não se perde apenas uma música. Perde-se uma voz. Um sotaque. Um músico. Um arranjo. Um instante da história que jamais poderá ser recriado.</p></div><div class="my-12 max-w-5xl mx-auto text-center"><blockquote class="font-playfair text-3xl md:text-5xl leading-tight text-ouro italic">"A enchente não levou apenas discos. Levou capítulos inteiros da memória musical pernambucana."</blockquote></div><div class="max-w-4xl mx-auto space-y-6 text-papel/85 text-lg leading-relaxed"><p>Décadas depois, colecionadores, pesquisadores, universidades e apaixonados pela música brasileira ainda tentam localizar exemplares sobreviventes, restaurar gravações e reconstruir informações perdidas.</p><p>Cada disco encontrado hoje é mais do que um objeto. É um sobrevivente.</p><p>Cada capa preservada. Cada ficha técnica recuperada. Cada faixa digitalizada. Cada fotografia restaurada. Representa uma pequena vitória contra o esquecimento.</p></div><div class="mt-12 bg-papel/10 border border-papel/15 rounded-[2rem] p-8"><h4 class="font-playfair text-3xl text-ouro mb-4">Por que este museu existe?</h4><p class="text-papel/85 leading-relaxed text-lg">Este acervo digital nasce justamente para impedir que novas perdas aconteçam. Catalogar, digitalizar e contextualizar não é apenas organizar informações. É proteger a memória cultural de Pernambuco para as próximas gerações.</p><p class="text-papel/85 leading-relaxed text-lg mt-4">Cada disco preservado aqui é uma resposta ao tempo, às enchentes, aos incêndios e ao esquecimento.</p></div></div>
-                    </section>
-
-                    <!-- GALERIA DOCUMENTAL -->
-                    <section id="galeria-documental" class="museum-glass rounded-[2rem] p-8 md:p-10">
-                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6"><div><span class="story-kicker">Acervo fotográfico</span><h3 class="font-playfair text-4xl text-verde-cacto mt-2">Galeria documental</h3><p class="text-texto-suave mt-3 max-w-2xl">Clique em qualquer imagem para expandir e apreciar os detalhes históricos.</p></div></div>
-                        <div id="galeria-historia" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-                    </section>
-
-                    <section class="museum-glass rounded-[2rem] p-8 md:p-10">
-                        <h3 class="font-playfair text-4xl text-verde-cacto text-center mb-10">Linha do tempo cultural</h3>
-                        <div class="timeline-line pl-14 space-y-8">
-                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">1953 — O selo Mocambo anuncia um novo caminho</h4><p class="text-texto-suave mt-2">O primeiro disco do selo consolida a ideia de registrar o frevo com músicos e intérpretes pernambucanos.</p></div>
-                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">1954 — A fábrica é aberta no Recife</h4><p class="text-texto-suave mt-2">A Rozenblit nasce em Afogados com ambição industrial e cultural.</p></div>
-                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Anos 1960 — Auge e expansão</h4><p class="text-texto-suave mt-2">A empresa amplia selos, catálogo e presença nacional, sem abandonar o repertório regional.</p></div>
-                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Anos 1970 — Psicodelia, frevo e contracultura</h4><p class="text-texto-suave mt-2">A Rozenblit participa de obras lendárias do udigrudi pernambucano e da música brasileira.</p></div>
-                            <div class="relative timeline-dot"><h4 class="font-playfair text-2xl text-barro">Hoje — Acervo digital</h4><p class="text-texto-suave mt-2">O catálogo, as fichas e as imagens documentais reaproximam leitores, pesquisadores e ouvintes dessa história.</p></div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-    </section>
-
+</main>
 <!-- MODAL DETALHE DISCO -->
 <div id="modal-detalhe" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="fecharModal()">
     <div class="bg-papel rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto mx-4 p-6 relative shadow-2xl" onclick="event.stopPropagation()">
@@ -862,306 +779,52 @@
         if (window.lucide) lucide.createIcons();
     }
 
-    // ======================== CATÁLOGO + YOUTUBE ========================
-    let catalogo = [];
-    let fichasMap = new Map();
-    let youtubePorTrackId = new Map(); // trackId -> { youtubeId, url, status }
-    let catalogoExibido = [];
-    let filtroGravadora = null;
-    let buscaTexto = "";
-    let currentPage = 1;
-    const ITENS_POR_PAGINA = 10;
 
-    async function carregarYoutubeJson() {
-        const arquivosYoutube = ['youtube_ids_corrigidos.json', 'youtube.json'];
-        for (const arquivo of arquivosYoutube) {
-            try {
-                const resposta = await fetch(arquivo, { cache: 'no-store' });
-                if (resposta.ok) {
-                    console.log(`✅ Arquivo de áudio carregado: ${arquivo}`);
-                    return resposta;
-                }
-            } catch (e) {
-                console.warn(`⚠️ Não foi possível carregar ${arquivo}`);
-            }
-        }
-        return null;
-    }
 
-    function normalizarTrackId(trackId) {
-        return String(trackId || '').trim();
-    }
-
-    async function carregarDados() {
+    async function carregarEstatisticas() {
         try {
             const [catalogoRes, fichasRes] = await Promise.all([
-                fetch('catalogo.json'),
-                fetch('fichas.json')
+                fetch('catalogo.json', { cache: 'no-store' }),
+                fetch('fichas.json', { cache: 'no-store' })
             ]);
-            const youtubeRes = await carregarYoutubeJson();
-            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSON');
-            let catalogoData = await catalogoRes.json();
-            const fichasData = await fichasRes.json();
-            catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
-            if (!fichasData.fichas) throw new Error('Formato fichas.json inválido');
-            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
-
-            // Carregar mapa do YouTube se disponível
-            if (youtubeRes && youtubeRes.ok) {
-                const youtubeData = await youtubeRes.json();
-                // Suporta tanto "links" quanto "tracks"
-                const tracksArray = youtubeData.links || youtubeData.tracks;
-                if (tracksArray && Array.isArray(tracksArray)) {
-                    tracksArray.forEach(link => {
-                        const trackIdNormalizado = normalizarTrackId(link.trackId);
-                        if (trackIdNormalizado && link.youtubeId) {
-                            youtubePorTrackId.set(trackIdNormalizado, {
-                                youtubeId: String(link.youtubeId).trim(),
-                                url: link.url || `https://www.youtube.com/watch?v=${String(link.youtubeId).trim()}`,
-                                status: link.status || 'confirmado',
-                                videoTitle: link.videoTitle || '',
-                                channel: link.channel || ''
-                            });
-                        }
-                    });
-                    console.log(`✅ YouTube links carregados: ${youtubePorTrackId.size} faixas`);
-                } else {
-                    console.warn("⚠️ youtube.json não possui chave 'links' nem 'tracks'");
-                }
-            } else {
-                console.warn("⚠️ youtube.json não encontrado ou erro no carregamento");
+            if (!catalogoRes.ok) throw new Error('catalogo.json não encontrado');
+            const catalogo = await catalogoRes.json();
+            let fichas = [];
+            if (fichasRes.ok) {
+                const fichasData = await fichasRes.json();
+                fichas = Array.isArray(fichasData) ? fichasData : (fichasData.fichas || []);
             }
-
-            aplicarFiltros();
-            atualizarEstatisticas();
-            gerarFiltrosGravadora();
-            const desc = document.getElementById('home-desc');
-            if (desc) desc.innerText = `Explore ${catalogo.length} títulos que atravessam frevo, carnaval, vinil e a história afetiva da música pernambucana.`;
-        } catch (error) {
-            console.error(error);
-            document.getElementById('loading-screen').innerHTML = `<div class="text-center text-red-700 bg-papel p-6 rounded-2xl"><p>Erro ao carregar dados: ${escapeHtml(error.message)}</p></div>`;
-        } finally {
-            setTimeout(() => { document.getElementById('loading-screen')?.classList.add('hidden-loading'); if(window.lucide) lucide.createIcons(); navigateTo('home', false); }, 450);
+            const gravadoras = new Set(catalogo.map(i => i.gravadora).filter(Boolean));
+            const artistas = new Set(catalogo.map(i => i.artista).filter(Boolean));
+            const decadas = new Set(fichas.map(f => f.anoLancamento || f.anoProducao).filter(Boolean).map(a => Math.floor(Number(a) / 10) * 10));
+            document.getElementById('stat-total').textContent = catalogo.length || '—';
+            document.getElementById('stat-gravadoras').textContent = gravadoras.size || '—';
+            document.getElementById('stat-artistas').textContent = artistas.size || '—';
+            document.getElementById('stat-decadas').textContent = decadas.size || '—';
+        } catch (erro) {
+            console.warn('Não foi possível carregar estatísticas:', erro);
         }
     }
 
-    function atualizarEstatisticas() {
-        const total = catalogo.length;
-        const gravadoras = new Set(catalogo.map(i => i.gravadora).filter(Boolean));
-        const artistas = new Set(catalogo.map(i => i.artista).filter(Boolean));
-        const decadas = new Set();
-        catalogo.forEach(item => { const ficha = fichasMap.get(item["Ficha Id"]); const ano = normalizarAno(ficha?.anoProducao || ficha?.anoLancamento || item.ano); if(ano) decadas.add(Math.floor(ano/10)*10); });
-        document.getElementById('stat-total').innerText = total;
-        document.getElementById('stat-gravadoras').innerText = gravadoras.size;
-        document.getElementById('stat-artistas').innerText = artistas.size;
-        document.getElementById('stat-decadas').innerText = decadas.size || '—';
+    function fecharModal() {
+        const modal = document.getElementById('modal-detalhe');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
-    function gerarFiltrosGravadora() {
-        const container = document.getElementById('filtros-gravadoras');
-        if(!container) return;
-        const gravadoras = [...new Set(catalogo.map(i => i.gravadora).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-        let html = `<button class="filtro-gravadora-btn active px-3 py-1 rounded-full text-sm border transition" data-gravadora="" onclick="filtrarPorGravadora('')">🌵 Todas</button>`;
-        gravadoras.forEach(g => { html += `<button class="filtro-gravadora-btn px-3 py-1 rounded-full text-sm border transition bg-papel/70 text-texto-suave" data-gravadora="${escapeAttr(g)}" onclick="filtrarPorGravadora('${escapeAttr(g)}')">${escapeHtml(g)}</button>`; });
-        container.innerHTML = html;
-        atualizarBotoesFiltro();
+    function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[ch]));
     }
+    function escapeAttr(str) { return escapeHtml(str).replace(/`/g, '&#096;'); }
 
-    function atualizarBotoesFiltro() {
-        document.querySelectorAll('.filtro-gravadora-btn').forEach(btn => {
-            const btnGrav = btn.getAttribute('data-gravadora');
-            const active = (!filtroGravadora && !btnGrav) || (btnGrav === filtroGravadora);
-            btn.classList.toggle('active', active);
-            btn.style.background = active ? '#315f43' : 'rgba(255,250,240,0.75)';
-            btn.style.color = active ? '#fffaf0' : '#6f604c';
-        });
-    }
-
-    function filtrarPorGravadora(gravadora) { filtroGravadora = gravadora || null; currentPage = 1; aplicarFiltros(); atualizarBotoesFiltro(); }
-    function filtrarCatalogo() { const input = document.getElementById('search-input'); buscaTexto = normalizarTexto(input.value.trim()); currentPage = 1; aplicarFiltros(); }
-
-    function aplicarFiltros() {
-        let resultados = [...catalogo];
-        if(filtroGravadora) resultados = resultados.filter(item => item.gravadora === filtroGravadora);
-        if(buscaTexto) resultados = resultados.filter(item => normalizarTexto(item.titulo).includes(buscaTexto) || normalizarTexto(item.artista).includes(buscaTexto) || normalizarTexto(item.gravadora).includes(buscaTexto));
-        catalogoExibido = resultados;
-        renderizarCatalogo();
-        renderizarPaginacao();
-    }
-
-    function renderizarPaginacao() {
-        const totalItens = catalogoExibido.length;
-        const totalPaginas = Math.ceil(totalItens / ITENS_POR_PAGINA);
-        const container = document.getElementById('pagination-container');
-        if(!container) return;
-        const countSpan = document.getElementById('catalogo-count');
-        if(countSpan) countSpan.innerText = totalPaginas > 0 ? `${totalItens} título${totalItens !== 1 ? 's' : ''} · Pág. ${currentPage}/${totalPaginas}` : '0 títulos';
-        if(totalPaginas <= 1) { container.innerHTML = ''; return; }
-        let pagHtml = `<button class="page-btn ${currentPage===1 ? 'disabled' : ''}" onclick="mudarPagina(${currentPage-1})">‹ Anterior</button>`;
-        let inicio = Math.max(1, currentPage-2), fim = Math.min(totalPaginas, currentPage+2);
-        if(inicio > 1) { pagHtml += `<button class="page-btn" onclick="mudarPagina(1)">1</button>`; if(inicio > 2) pagHtml += `<span class="text-texto-suave self-end px-1">...</span>`; }
-        for(let i=inicio; i<=fim; i++) pagHtml += `<button class="page-btn ${i===currentPage ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
-        if(fim < totalPaginas) { if(fim < totalPaginas-1) pagHtml += `<span class="text-texto-suave self-end px-1">...</span>`; pagHtml += `<button class="page-btn" onclick="mudarPagina(${totalPaginas})">${totalPaginas}</button>`; }
-        pagHtml += `<button class="page-btn ${currentPage===totalPaginas ? 'disabled' : ''}" onclick="mudarPagina(${currentPage+1})">Próximo ›</button>`;
-        container.innerHTML = pagHtml;
-    }
-
-    function mudarPagina(novaPagina) { const totalPaginas = Math.ceil(catalogoExibido.length / ITENS_POR_PAGINA); if(novaPagina<1 || novaPagina>totalPaginas) return; currentPage = novaPagina; renderizarCatalogo(); renderizarPaginacao(); document.getElementById('catalogo-grid')?.scrollIntoView({ behavior:'smooth', block:'start' }); }
-
-    function renderizarCatalogo() {
-        const grid = document.getElementById('catalogo-grid');
-        const noResults = document.getElementById('no-results');
-        if(!grid) return;
-        if(catalogoExibido.length === 0) { grid.innerHTML = ''; noResults?.classList.remove('hidden'); document.getElementById('pagination-container').innerHTML = ''; return; }
-        noResults?.classList.add('hidden');
-        const inicio = (currentPage-1)*ITENS_POR_PAGINA;
-        const itensPagina = catalogoExibido.slice(inicio, inicio+ITENS_POR_PAGINA);
-        grid.innerHTML = itensPagina.map((item,idx) => cardProduto(item, idx)).join('');
-        if(window.lucide) lucide.createIcons();
-    }
-
-    function cardProduto(item, idx) {
-        const ficha = fichasMap.get(item["Ficha Id"]);
-        const ano = normalizarAno(ficha?.anoProducao || ficha?.anoLancamento || item.ano);
-        return `<div class="bg-papel/92 rounded-2xl overflow-hidden shadow-sm card-hover cursor-pointer transition hover:shadow-md catalogo-card-enter" style="animation-delay:${idx*0.045}s" onclick="abrirModalCatalogo(${item.ID})"><div class="aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro flex items-center justify-center relative p-3 text-center overflow-hidden"><div class="absolute inset-3 rounded-full border border-white/35"></div><div class="absolute -right-8 -bottom-8 w-28 h-28 rounded-full bg-white/10"></div><span class="relative z-10 text-white font-playfair font-bold text-lg leading-tight artist-cover-name">${escapeHtml(item.artista||'Artista')}</span></div><div class="p-3"><h3 class="font-playfair text-sm font-bold text-verde-cacto line-clamp-2">${escapeHtml(item.titulo)}</h3><p class="text-xs text-texto-suave mt-1 line-clamp-1">${escapeHtml(item.artista)}</p><div class="flex flex-wrap gap-1 mt-2">${item.gravadora ? `<span class="text-[11px] text-barro bg-barro/10 px-2 py-0.5 rounded-full">${escapeHtml(item.gravadora)}</span>` : ''}${ano ? `<span class="text-[11px] text-verde-cacto bg-verde-cacto/10 px-2 py-0.5 rounded-full">${ano}</span>` : ''}</div></div></div>`;
-    }
-
-    let activePlayerDiv = null;
-
-    function togglePlayer(trackId, event, trackNumber, trackName) {
-        event.stopPropagation();
-
-        const trackIdNormalizado = normalizarTrackId(trackId);
-        const trackDiv = document.getElementById(`track-${trackIdNormalizado}`);
-        if (!trackDiv) return;
-
-        if (activePlayerDiv && activePlayerDiv !== trackDiv) {
-            const oldPlayer = activePlayerDiv.querySelector('.track-player');
-            if (oldPlayer) oldPlayer.remove();
-            activePlayerDiv = null;
-        }
-
-        const existingPlayer = trackDiv.querySelector('.track-player');
-        if (existingPlayer) {
-            existingPlayer.remove();
-            if (activePlayerDiv === trackDiv) activePlayerDiv = null;
-            return;
-        }
-
-        const youtubeData = youtubePorTrackId.get(trackIdNormalizado);
-        if (!youtubeData || !youtubeData.youtubeId) return;
-
-        const videoUrl = youtubeData.url || `https://www.youtube.com/watch?v=${youtubeData.youtubeId}`;
-        const tituloVideo = youtubeData.videoTitle || trackName || 'Faixa disponível no YouTube';
-
-        // Por isso não usamos iframe aqui. O botão abre o vídeo direto no YouTube.
-        const playerHtml = `
-            <div class="track-player">
-                <div class="track-player-content">
-                    <div>
-                        <div class="track-player-title">${escapeHtml(tituloVideo)}</div>
-                        <div class="track-player-note">Alguns vídeos não permitem player embutido. A escuta abre diretamente no YouTube.</div>
-                    </div>
-                    <a class="btn-youtube-open" href="${escapeAttr(videoUrl)}" target="_blank" rel="noopener noreferrer">
-                        <i data-lucide="external-link" class="w-3 h-3"></i>
-                        Ouvir no YouTube
-                    </a>
-                </div>
-            </div>
-        `;
-
-        trackDiv.insertAdjacentHTML('beforeend', playerHtml);
-        activePlayerDiv = trackDiv;
+    document.addEventListener('DOMContentLoaded', () => {
+        renderizarGalerias();
+        popularDestaquesHome();
+        carregarEstatisticas();
         if (window.lucide) lucide.createIcons();
-    }
-
-    function abrirModalCatalogo(idProduto) {
-        const produto = catalogo.find(p => String(p.ID) === String(idProduto));
-        if(!produto) return;
-        const ficha = fichasMap.get(produto["Ficha Id"]);
-        if(!ficha) { alert(`Ficha não encontrada para ${produto.titulo}`); return; }
-        const faixas = ficha.faixas || [];
-        const modalConteudo = document.getElementById('modal-conteudo');
-        let faixasHtml = '';
-        faixas.forEach((faixa, idx) => {
-            const trackId = normalizarTrackId(faixa.trackId || `${ficha.id}-${idx+1}`);
-            const youtubeInfo = youtubePorTrackId.get(trackId);
-            const hasAudio = youtubeInfo && youtubeInfo.youtubeId;
-            const btnHtml = hasAudio
-                ? `<button class="btn-ouvir" onclick="togglePlayer('${trackId}', event, ${idx+1}, '${escapeAttr(faixa.nome)}')"><i data-lucide="play" class="w-3 h-3"></i> Ouvir</button>`
-                : `<span class="btn-indisponivel">indisponível</span>`;
-            faixasHtml += `
-                <li class="track-item flex justify-between items-center border-b border-verde-cacto/10 py-2">
-                    <div class="flex-1">
-                        <span class="font-bold text-verde-cacto">${idx+1}</span> - ${escapeHtml(faixa.nome || '')}
-                        ${faixa.autor ? `<span class="text-texto-suave text-xs ml-2">(${escapeHtml(faixa.autor)})</span>` : ''}
-                        ${faixa.duracao ? `<span class="text-texto-suave text-xs ml-1">${escapeHtml(faixa.duracao)}</span>` : ''}
-                    </div>
-                    <div class="ml-2">${btnHtml}</div>
-                </li>
-                <div id="track-${trackId}" class="track-container"></div>
-            `;
-        });
-        modalConteudo.innerHTML = `
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="md:w-1/3">
-                    <div class="w-full aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro rounded-2xl flex items-center justify-center shadow-md p-5 text-center relative overflow-hidden">
-                        <div class="absolute inset-4 rounded-full border border-white/35"></div>
-                        <span class="relative text-white font-playfair font-bold text-2xl leading-tight">${escapeHtml(produto.artista||'Artista')}</span>
-                    </div>
-                    <div class="mt-4 text-center text-sm text-texto-suave space-y-1 bg-areia/35 p-4 rounded-2xl">
-                        <p><strong>Catálogo:</strong> ${escapeHtml(ficha.numeroCatalogo||'---')}</p>
-                        <p><strong>Formato:</strong> ${escapeHtml(ficha.formato||'---')}</p>
-                        <p><strong>Ano produção:</strong> ${escapeHtml(ficha.anoProducao||'---')}</p>
-                        <p><strong>Ano lançamento:</strong> ${escapeHtml(ficha.anoLancamento||'---')}</p>
-                        ${ficha.gravadora ? `<p><strong>Gravadora:</strong> ${escapeHtml(ficha.gravadora)}</p>` : ''}
-                    </div>
-                </div>
-                <div class="md:w-2/3">
-                    <h2 class="font-playfair text-3xl text-verde-cacto pr-8">${escapeHtml(produto.titulo)}</h2>
-                    <p class="text-xl text-barro font-semibold mt-1">${escapeHtml(produto.artista)}</p>
-                    <h3 class="font-playfair text-xl mt-4 mb-2 flex items-center gap-2"><i data-lucide="list-music" class="w-5 h-5"></i> Faixas</h3>
-                    <ul class="space-y-1 mb-4 max-h-80 overflow-y-auto pr-2">${faixasHtml || '<li class="text-sm italic">Faixas não disponíveis</li>'}</ul>
-                    ${ficha.fichaTecnica ? `<h3 class="font-playfair text-xl mt-4 mb-2"><i data-lucide="clipboard-list" class="w-5 h-5 inline mr-2"></i> Ficha Técnica</h3><p class="text-sm leading-relaxed bg-verde-cacto/5 p-4 rounded-2xl border-l-4 border-ouro">${escapeHtml(ficha.fichaTecnica)}</p>` : ''}
-                </div>
-            </div>
-        `;
-        document.getElementById('modal-detalhe').classList.remove('hidden');
-        document.getElementById('modal-detalhe').classList.add('flex');
-        if(window.lucide) lucide.createIcons();
-    }
-
-    function fecharModal() { 
-        document.getElementById('modal-detalhe').classList.add('hidden'); 
-        document.getElementById('modal-detalhe').classList.remove('flex');
-        if (activePlayerDiv) {
-            const player = activePlayerDiv.querySelector('.track-player');
-            if (player) player.remove();
-            activePlayerDiv = null;
-        }
-    }
-
-    function navigateTo(page, doScroll = true) {
-        document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
-        const target = document.getElementById(`page-${page}`);
-        if(target) { target.classList.remove('hidden'); target.classList.remove('animate-page'); void target.offsetWidth; target.classList.add('animate-page'); }
-        document.querySelectorAll('.nav-link').forEach(btn => { const btnPage = btn.getAttribute('data-page'); if(btnPage === page) { btn.style.background = 'rgba(49,95,67,0.12)'; btn.style.color = '#315f43'; } else { btn.style.background = 'transparent'; btn.style.color = '#6f604c'; } });
-        if(doScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
-        if(page === 'catalogo') aplicarFiltros();
-        if(window.lucide) lucide.createIcons();
-    }
-
-    function normalizarTexto(str) { return String(str||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
-    function normalizarAno(valor) { if(!valor) return null; const match = String(valor).match(/(19|20)\d{2}/); return match ? Number(match[0]) : null; }
-    function escapeHtml(str) { return String(str??'').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-    function escapeAttr(str) { return String(str??'').replace(/[\'"<>]/g, '').trim(); }
-
-    document.addEventListener('keydown', e => { if(e.key === 'Escape') { fecharModal(); fecharModalImagem(); } });
-
-    // Inicialização
-    popularDestaquesHome();
-    renderizarGalerias();
-    carregarDados();
+        setTimeout(() => document.getElementById('loading-screen')?.classList.add('hidden-loading'), 450);
+    });
 </script>
+
 </body>
 </html>

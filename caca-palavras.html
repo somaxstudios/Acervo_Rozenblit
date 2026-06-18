@@ -29,6 +29,7 @@
             min-height: 100vh;
             padding: 0.75rem;
         }
+        /* ===== LAYOUT RESPONSIVO ===== */
         .grade-scroll {
             width: 100%;
             overflow-x: auto;
@@ -49,11 +50,12 @@
             padding: 4px;
             min-width: max-content;
         }
+        /* Tamanhos das células por breakpoint e tamanho da grade */
         :root {
             --cell-size-15-desktop: 48px;
             --cell-size-20-desktop: 42px;
             --cell-size-15-mobile: 22px;
-            --cell-size-20-mobile: 28px;
+            --cell-size-20-mobile: 28px;   /* usado com rolagem horizontal */
         }
         @media (max-width: 640px) {
             .grade-container[data-size="15"] .grid-cell {
@@ -108,6 +110,7 @@
             opacity: 0.7;
             cursor: default;
         }
+        /* Lista de palavras em chips (mobile em grid 2 colunas) */
         .palavras-chips {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -172,6 +175,7 @@
             margin-top: 6px;
             color: #a44f25;
         }
+        /* Layout mobile empilhado */
         @media (max-width: 768px) {
             .flex-responsive { flex-direction: column; }
             .painel-lateral { width: 100%; margin-top: 1rem; }
@@ -199,8 +203,8 @@
             <div class="flex gap-1 items-center">
                 <span id="pontuacao-display" class="bg-papel text-verde-cacto font-bold px-2 py-0.5 rounded-full text-xs">🏆 0</span>
                 <span id="recorde-display" class="bg-black/30 text-papel px-2 py-0.5 rounded-full text-xs">⭐ Recorde: 0</span>
-                <a href="jogos.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-2 py-0.5 rounded-full text-xs font-semibold transition flex items-center gap-1 shadow">
-                    <i data-lucide="home" class="w-3 h-3"></i> Voltar
+                <a href="index.html" class="bg-verde-cacto hover:bg-verde-mandacaru text-white px-2 py-0.5 rounded-full text-xs font-semibold transition flex items-center gap-1 shadow">
+                    <i data-lucide="home" class="w-3 h-3"></i> Museu
                 </a>
             </div>
         </div>
@@ -232,8 +236,7 @@
                     <label class="block font-bold text-verde-cacto text-sm mb-1">⚙️ Modo de jogo</label>
                     <select id="modo-jogo" class="w-full p-2 rounded-xl border border-verde-cacto/30 bg-papel text-sm">
                         <option value="relax">🌿 Relax (sem tempo)</option>
-                        <option value="3min">⚡ 3 minutos</option>
-                        <option value="5min" selected>⚡ 5 minutos</option>
+                        <option value="desafio" selected>⚡ Desafio (3min)</option>
                     </select>
                 </div>
                 <div>
@@ -254,15 +257,17 @@
             </div>
         </div>
 
-        <!-- TELA DO JOGO -->
+        <!-- TELA DO JOGO (layout responsivo com empilhamento mobile) -->
         <div id="tela-jogo" class="hidden p-3 md:p-4">
             <div class="flex-responsive flex lg:flex-row gap-4">
+                <!-- Área da grade com rolagem -->
                 <div class="lg:w-2/3">
                     <div id="grade-scroll-wrapper" class="grade-scroll">
                         <div id="grade-container" class="grade-container"></div>
                     </div>
                     <div id="aviso-scroll" class="aviso-scroll hidden">👉 Arraste a grade para os lados se necessário</div>
                 </div>
+                <!-- Painel lateral (status + lista de palavras + botões) -->
                 <div class="painel-lateral lg:w-1/3 space-y-3">
                     <div class="bg-papel/70 rounded-2xl p-3 shadow">
                         <div class="flex justify-between items-center flex-wrap gap-1">
@@ -294,68 +299,35 @@
             <div class="flex flex-wrap gap-2 justify-center">
                 <button id="btn-jogar-novamente" class="btn-primary text-sm">🔁 Jogar novamente</button>
                 <button id="btn-compartilhar" class="btn-secondary text-sm">📢 Compartilhar</button>
-                <a href="jogos.html" class="bg-papel border border-verde-cacto text-verde-cacto px-3 py-1 rounded-full text-xs"> 🔁 Voltar</a>
+                <a href="index.html" class="bg-papel border border-verde-cacto text-verde-cacto px-3 py-1 rounded-full text-xs">🏛️ Museu</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- PLAYER GLOBAL DE MÚSICA ----------
-    let bgMusic = null;
-
-    function iniciarMusicaFundo(listaMusicas) {
-        // Se já existir uma música tocando, não cria outra
-        if (bgMusic) return;
-
-        bgMusic = document.createElement('audio');
-        bgMusic.volume = 0.7;
-        bgMusic.loop = false; // vamos trocar as faixas manualmente
-        bgMusic.style.display = 'none';
-        document.body.appendChild(bgMusic);
-
-        let indiceAtual = 0;
-
-        function tocarFaixa() {
-            if (!listaMusicas[indiceAtual]) return;
-            bgMusic.src = listaMusicas[indiceAtual];
-            bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
-            indiceAtual = (indiceAtual + 1) % listaMusicas.length;
-        }
-
-        bgMusic.addEventListener('ended', tocarFaixa);
-        tocarFaixa();
-    }
-
-    function pararMusicaFundo() {
-        if (bgMusic) {
-            bgMusic.pause();
-            bgMusic.src = '';
-            bgMusic = null;
-        }
-    }
-
-    // ---------- DADOS GLOBAIS DO JOGO ----------
+    // ---------- DADOS GLOBAIS ----------
     let catalogo = [];
     let fichasMap = new Map();
-    let listaPalavrasBase = [];
-    let palavrasDoJogo = [];
+    let listaPalavrasBase = [];        // { original, palavraNormalizada, categoria, dica }
+    let palavrasDoJogo = [];           // { original, palavra, categoria, dica }
     let grade = [];
     let tamanhoGrade = 15;
-    let modoJogo = "5min";   // relax, 3min, 5min
+    let modoJogo = "desafio";
     let categoriaSelecionada = "aleatorio";
     let nivelConhecimento = "conhecedor";
-    let palavrasEncontradas = new Set();
+    let palavrasEncontradas = new Set();  // guarda as palavras normalizadas já encontradas
     let pontuacaoTotal = 0;
     let recorde = 0;
     let cronometroAtivo = false;
-    let tempoRestante = 300; // 5min padrão
+    let tempoRestante = 180;
     let intervaloId = null;
     let selecaoAtiva = false;
     let startCell = null;
     let direcaoAtual = null;
     let touchIdentifier = null;
 
+    // Configurações por nível
     const nivelConfig = {
         curioso: {
             gridPadrao: 15,
@@ -364,8 +336,9 @@
             minLen: 4,
             maxLen: 10,
             permitirInvertidas: false,
-            direcoes: [[0,1], [1,0]],
+            direcoes: [[0,1], [1,0]],  // horizontal, vertical
             multiplicadorPontos: 100,
+            tempoDesafio: 180
         },
         conhecedor: {
             gridPadrao: 15,
@@ -376,6 +349,7 @@
             permitirInvertidas: true,
             direcoes: [[0,1], [1,0], [1,1], [1,-1], [0,-1]],
             multiplicadorPontos: 150,
+            tempoDesafio: 180
         },
         mestre: {
             gridPadrao: 20,
@@ -386,6 +360,7 @@
             permitirInvertidas: true,
             direcoes: [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]],
             multiplicadorPontos: 250,
+            tempoDesafio: 150   // menos tempo
         }
     };
 
@@ -414,12 +389,14 @@
 
     // ---------- FUNÇÕES AUXILIARES ----------
     function normalizarPalavra(texto) {
+        // Remove acentos, pontuação, espaços, converte para maiúsculo
         let norm = texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         norm = norm.toUpperCase();
-        norm = norm.replace(/[^A-Z]/g, '');
+        norm = norm.replace(/[^A-Z]/g, '');  // só letras
         return norm;
     }
 
+    // Carrega dados dos JSONs
     async function carregarDados() {
         try {
             const [catalogoRes, fichasRes] = await Promise.all([
@@ -448,15 +425,19 @@
                 listaPalavrasBase.push({ original, palavra: normalizada, categoria, dica });
             }
         };
+        // Artistas
         const artistasSet = new Set();
         catalogo.forEach(item => { if (item.artista) artistasSet.add(item.artista.trim()); });
         artistasSet.forEach(art => adicionar(art, "artistas", `Artista presente no acervo Rozenblit.`));
+        // Títulos
         const titulosSet = new Set();
         catalogo.forEach(item => { if (item.titulo) titulosSet.add(item.titulo.trim()); });
         titulosSet.forEach(tit => adicionar(tit, "titulos", `Disco do catálogo Rozenblit.`));
+        // Gravadoras
         const selosSet = new Set();
         catalogo.forEach(item => { if (item.gravadora) selosSet.add(item.gravadora.trim()); });
         selosSet.forEach(sel => adicionar(sel, "gravadoras", `Selo ou gravadora da Rozenblit.`));
+        // Palavras temáticas (Frevo, Brega, Forró)
         const tematicas = {
             frevo: ["Frevo", "Clube", "Passista", "Orquestra", "Maracatu", "Galo", "Lata"],
             brega: ["Brega", "Romântico", "Cabaré", "Apaixonado", "Coração"],
@@ -465,6 +446,7 @@
         for (let cat in tematicas) {
             tematicas[cat].forEach(pal => adicionar(pal, cat, `Palavra relacionada a ${cat}.`));
         }
+        // Remove duplicatas pela normalizada
         const unique = new Map();
         for (const p of listaPalavrasBase) unique.set(p.palavra, p);
         listaPalavrasBase = Array.from(unique.values());
@@ -473,8 +455,10 @@
     function selecionarPalavrasPorDificuldade(categoria, nivel, tamanhoGrid) {
         const cfg = nivelConfig[nivel];
         let filtradas = listaPalavrasBase.filter(p => categoria === "aleatorio" || p.categoria === categoria);
+        // Filtra por tamanho da palavra
         filtradas = filtradas.filter(p => p.palavra.length >= cfg.minLen && p.palavra.length <= cfg.maxLen);
         if (filtradas.length === 0) filtradas = listaPalavrasBase.slice();
+        // Embaralha
         for (let i = filtradas.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [filtradas[i], filtradas[j]] = [filtradas[j], filtradas[i]];
@@ -483,6 +467,7 @@
         return filtradas.slice(0, quantidade);
     }
 
+    // Colocação de palavras na grade
     function podeColocarPalavra(grade, palavra, linha, col, dirLinha, dirCol) {
         const N = grade.length;
         for (let i = 0; i < palavra.length; i++) {
@@ -531,21 +516,13 @@
     }
 
     function iniciarPartida() {
-        // Inicia a música de fundo automaticamente (apenas se não estiver tocando)
-        iniciarMusicaFundo([
-            './static/sounds/caca-palavras/fundo1.ogg',
-            './static/sounds/caca-palavras/fundo2.ogg',
-            './static/sounds/caca-palavras/fundo3.ogg',
-            './static/sounds/caca-palavras/fundo4.ogg',
-            './static/sounds/caca-palavras/fundo5.ogg'
-        ]);
-
         tamanhoGrade = parseInt(document.getElementById('tamanho-grade').value);
         categoriaSelecionada = document.getElementById('categoria').value;
         modoJogo = document.getElementById('modo-jogo').value;
         nivelConhecimento = document.getElementById('nivel-conhecimento').value;
         
         const cfg = nivelConfig[nivelConhecimento];
+        // Se o tamanho escolhido for incompatível com o nível, ajusta (ex: mestre forçando 20)
         if (nivelConhecimento === 'mestre' && tamanhoGrade !== 20) tamanhoGrade = 20;
         if (nivelConhecimento === 'curioso' && tamanhoGrade !== 15) tamanhoGrade = 15;
         
@@ -562,41 +539,26 @@
         renderizarListaPalavras();
         
         if (intervaloId) clearInterval(intervaloId);
-        
-        // Configuração do tempo conforme modo selecionado
-        if (modoJogo === "relax") {
+        if (modoJogo === "desafio") {
+            tempoRestante = cfg.tempoDesafio;
+            atualizarCronometroDisplay();
+            cronometroAtivo = true;
+            intervaloId = setInterval(() => {
+                if (tempoRestante <= 1) {
+                    clearInterval(intervaloId);
+                    finalizarJogoPorTempo();
+                } else {
+                    tempoRestante--;
+                    atualizarCronometroDisplay();
+                }
+            }, 1000);
+        } else {
             cronometroAtivo = false;
             cronometroSpan.innerText = "--:--";
-        } else if (modoJogo === "3min") {
-            tempoRestante = 180;
-            cronometroAtivo = true;
-            atualizarCronometroDisplay();
-            intervaloId = setInterval(() => {
-                if (tempoRestante <= 1) {
-                    clearInterval(intervaloId);
-                    finalizarJogoPorTempo();
-                } else {
-                    tempoRestante--;
-                    atualizarCronometroDisplay();
-                }
-            }, 1000);
-        } else if (modoJogo === "5min") {
-            tempoRestante = 300;
-            cronometroAtivo = true;
-            atualizarCronometroDisplay();
-            intervaloId = setInterval(() => {
-                if (tempoRestante <= 1) {
-                    clearInterval(intervaloId);
-                    finalizarJogoPorTempo();
-                } else {
-                    tempoRestante--;
-                    atualizarCronometroDisplay();
-                }
-            }, 1000);
         }
-        
         dicaExtraDiv.innerHTML = "✨ Toque e arraste sobre as letras para formar palavras!";
         
+        // Ajusta rolagem horizontal para grade 20x20 no mobile
         if (tamanhoGrade === 20 && window.innerWidth <= 640) {
             gradeScrollWrapper.classList.add('scroll-20');
             avisoScroll.classList.remove('hidden');
@@ -643,6 +605,11 @@
                 cell.textContent = grade[i][j];
                 cell.dataset.row = i;
                 cell.dataset.col = j;
+                const cellKey = `${i},${j}`;
+                if (Array.from(palavrasEncontradas).some(pal => {
+                    // verifica se esta célula pertence a alguma palavra encontrada (marcação posterior)
+                    return false;
+                })) cell.classList.add('found');
                 // Eventos mouse e touch
                 cell.addEventListener('mousedown', (e) => iniciarSelecao(e, i, j));
                 cell.addEventListener('mouseenter', (e) => continuarSelecao(e, i, j));
@@ -661,19 +628,18 @@
                 gradeContainer.appendChild(cell);
             }
         }
-        // Marcar células já encontradas (caso haja reinício)
+        // Reaplica classe 'found' nas células que pertencem a palavras já encontradas
         palavrasDoJogo.forEach(palavraObj => {
             if (palavrasEncontradas.has(palavraObj.palavra)) {
-                // Como não temos as posições mapeadas, apenas reaplicar a classe found não é trivial.
-                // Aqui seria necessário guardar as posições de cada palavra. Por simplicidade, a grade será limpa.
+                // encontra posições onde essa palavra está na grade? Não temos fácil. A alternativa é marcar ao encontrar.
             }
         });
     }
 
     function iniciarSelecao(e, row, col) {
-        if (cronometroAtivo === false && modoJogo !== "relax") return;
-        const cellDiv = document.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`);
-        if (cellDiv && cellDiv.classList.contains('found')) return;
+        if (cronometroAtivo === false && modoJogo === "desafio") return;
+        // Verifica se célula já pertence a palavra encontrada
+        if (document.querySelector(`.grid-cell[data-row='${row}'][data-col='${col}']`).classList.contains('found')) return;
         selecaoAtiva = true;
         startCell = { row, col };
         direcaoAtual = null;
@@ -736,6 +702,7 @@
                 posicoes.push(`${nr},${nc}`);
             }
         }
+        // Verifica se alguma palavra não encontrada corresponde (tanto normal quanto reversa)
         let palavraEncontradaObj = null;
         for (let p of palavrasDoJogo) {
             if (!palavrasEncontradas.has(p.palavra)) {
@@ -749,7 +716,7 @@
             palavrasEncontradas.add(palavraEncontradaObj.palavra);
             const cfg = nivelConfig[nivelConhecimento];
             let pontos = cfg.multiplicadorPontos;
-            if (modoJogo !== "relax" && cronometroAtivo) {
+            if (modoJogo === "desafio" && cronometroAtivo) {
                 const bonusTempo = Math.floor(tempoRestante / 15) * 10;
                 pontos += bonusTempo;
             }

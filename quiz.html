@@ -120,6 +120,7 @@
 
 <div id="quiz-container" class="hidden max-w-5xl w-full mx-auto relative z-10">
     <div class="quiz-card rounded-3xl shadow-2xl overflow-hidden">
+        <!-- Cabeçalho com vinil animado -->
         <div class="bg-gradient-to-r from-verde-cacto to-verde-mandacaru px-6 py-4 flex flex-wrap justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-black/30 rounded-full flex items-center justify-center">
@@ -130,12 +131,14 @@
             <div class="flex gap-3 items-center">
                 <span id="pontuacao" class="bg-papel text-verde-cacto font-bold px-4 py-1.5 rounded-full text-sm shadow">🏆 0 pts</span>
                 <span id="record-display" class="bg-black/30 text-papel px-3 py-1 rounded-full text-xs">🏅 Recorde: 0</span>
-                <a href="jogos.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-1">
-                    <i data-lucide="home" class="w-4 h-4"></i> Voltar
+                <!-- Botão Voltar ao Museu -->
+                <a href="index.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-1">
+                    <i data-lucide="home" class="w-4 h-4"></i> <- Voltar ao Museu
                 </a>
             </div>
         </div>
 
+        <!-- TELA INICIAL -->
         <div id="tela-inicial" class="p-8 text-center">
             <p class="text-lg mb-2">Teste seus conhecimentos sobre a <strong class="text-barro">Rozenblit</strong> e seus discos históricos</p>
             <p class="text-texto-suave mb-6">🎶 5 perguntas aleatórias • Cronômetro • Dicas especiais</p>
@@ -158,8 +161,10 @@
             </div>
         </div>
 
+        <!-- TELA DE PERGUNTA -->
         <div id="tela-pergunta" class="hidden p-6 md:p-8">
             <div class="flex flex-col md:flex-row gap-6">
+                <!-- Área da capa do disco -->
                 <div class="md:w-1/3 flex justify-center">
                     <div id="capa-container" class="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/70 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
                         <img id="capa-imagem" src="" alt="Capa do disco" class="w-full h-full object-cover hidden">
@@ -169,6 +174,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Coluna da pergunta -->
                 <div class="md:w-2/3">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-sm text-ouro font-bold uppercase tracking-wider">Pergunta <span id="pergunta-atual">1</span>/<span id="total-perguntas">5</span></span>
@@ -193,6 +199,7 @@
             </div>
         </div>
 
+        <!-- TELA FINAL -->
         <div id="tela-fim" class="hidden p-8 text-center">
             <div id="medalha-container" class="medalha my-3">🏅</div>
             <h2 class="font-playfair text-3xl text-verde-cacto">Resultado Final</h2>
@@ -200,366 +207,339 @@
             <p id="mensagem-final" class="mb-5 text-texto-suave"></p>
             <div class="flex flex-wrap gap-4 justify-center">
                 <button id="btn-reiniciar" class="btn-primary">🔁 Jogar novamente</button>
-                <a href="jogos.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10 transition">🏛️ Voltar</a>
+                <a href="index.html" class="bg-papel border border-verde-cacto text-verde-cacto px-5 py-2 rounded-full font-semibold hover:bg-verde-cacto/10 transition">🏛️ Voltar ao museu</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// ---------- PLAYER GLOBAL DE MÚSICA ----------
-let bgMusic = null;
+    let catalogo = [];
+    let fichasMap = new Map();
+    let perguntas = [];
+    let perguntaAtualIndex = 0;
+    let pontuacao = 0;
+    let respostaSelecionada = false;
+    let tempoRestante = 20;  // será alterado pela dificuldade
+    let timerInterval = null;
+    let dificuldade = "medio";
+    let recorde = 0;
+    let dica1Usada = false, dica2Usada = false;
+    let totalPerguntas = 5;
 
-function iniciarMusicaFundo(listaMusicas) {
-    if (bgMusic) return;
-    bgMusic = document.createElement('audio');
-    bgMusic.volume = 0.7;
-    bgMusic.loop = false;
-    bgMusic.style.display = 'none';
-    document.body.appendChild(bgMusic);
-
-    let indiceAtual = 0;
-
-    function tocarFaixa() {
-        if (!listaMusicas[indiceAtual]) return;
-        bgMusic.src = listaMusicas[indiceAtual];
-        bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
-        indiceAtual = (indiceAtual + 1) % listaMusicas.length;
-    }
-
-    bgMusic.addEventListener('ended', tocarFaixa);
-    tocarFaixa();
-}
-
-function pararMusicaFundo() {
-    if (bgMusic) {
-        bgMusic.pause();
-        bgMusic.src = '';
-        bgMusic = null;
-    }
-}
-// ---------- FIM DO PLAYER ----------
-
-let catalogo = [];
-let fichasMap = new Map();
-let perguntas = [];
-let perguntaAtualIndex = 0;
-let pontuacao = 0;
-let respostaSelecionada = false;
-let tempoRestante = 20;
-let timerInterval = null;
-let dificuldade = "medio";
-let recorde = 0;
-let dica1Usada = false, dica2Usada = false;
-let totalPerguntas = 5;
-
-function carregarRecorde() {
-    const saved = localStorage.getItem("rozenblit_quiz_recorde");
-    if (saved) recorde = parseInt(saved, 10);
-    atualizarRecordeDisplay();
-}
-function salvarRecorde() {
-    if (pontuacao > recorde) {
-        recorde = pontuacao;
-        localStorage.setItem("rozenblit_quiz_recorde", recorde);
+    // Carrega recorde do localStorage
+    function carregarRecorde() {
+        const saved = localStorage.getItem("rozenblit_quiz_recorde");
+        if (saved) recorde = parseInt(saved, 10);
         atualizarRecordeDisplay();
     }
-}
-function atualizarRecordeDisplay() {
-    const el = document.getElementById("record-display");
-    if (el) el.innerText = `🏅 Recorde: ${recorde}`;
-}
+    function salvarRecorde() {
+        if (pontuacao > recorde) {
+            recorde = pontuacao;
+            localStorage.setItem("rozenblit_quiz_recorde", recorde);
+            atualizarRecordeDisplay();
+        }
+    }
+    function atualizarRecordeDisplay() {
+        const el = document.getElementById("record-display");
+        if (el) el.innerText = `🏅 Recorde: ${recorde}`;
+    }
 
-async function carregarDados() {
-    try {
-        const [catalogoRes, fichasRes] = await Promise.all([
-            fetch('catalogo.json'),
-            fetch('fichas.json')
-        ]);
-        if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSONs');
-        const catalogoData = await catalogoRes.json();
-        const fichasData = await fichasRes.json();
-        catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
-        fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
-        
-        catalogo.forEach(item => {
-            const ficha = fichasMap.get(item["Ficha Id"]);
-            let ano = null;
-            if (ficha) {
-                ano = ficha.anoProducao || ficha.anoLancamento || item.ano;
-                item.capa = ficha.capa || item.capa || null;
+    async function carregarDados() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json'),
+                fetch('fichas.json')
+            ]);
+            if (!catalogoRes.ok || !fichasRes.ok) throw new Error('Erro ao carregar JSONs');
+            const catalogoData = await catalogoRes.json();
+            const fichasData = await fichasRes.json();
+            catalogo = Array.isArray(catalogoData) ? catalogoData : (catalogoData.catalogo || []);
+            fichasData.fichas.forEach(f => fichasMap.set(f.id, f));
+            
+            // Enriquece com ano e capa (se existir)
+            catalogo.forEach(item => {
+                const ficha = fichasMap.get(item["Ficha Id"]);
+                let ano = null;
+                if (ficha) {
+                    ano = ficha.anoProducao || ficha.anoLancamento || item.ano;
+                    // Tenta obter capa da ficha ou item
+                    item.capa = ficha.capa || item.capa || null;
+                } else {
+                    ano = item.ano;
+                    item.capa = item.capa || null;
+                }
+                if (ano && typeof ano === 'string') ano = ano.match(/(19|20)\d{2}/)?.[0];
+                item.anoReal = ano || 's/d';
+                if (!item.capa) item.capa = null; // usará placeholder
+            });
+            
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            carregarRecorde();
+        } catch (err) {
+            document.getElementById('loading').innerHTML = `<p class="text-red-700">Erro: ${err.message}. Verifique os arquivos JSON.</p>`;
+        }
+    }
+
+    function embaralharArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function gerarDicas(disco, ficha) {
+        const dicas = [];
+        // Dica 1: ano + gravadora
+        dicas.push(`📅 ${disco.anoReal !== 's/d' ? disco.anoReal : 'Ano desconhecido'} · ${disco.gravadora || 'Rozenblit'}`);
+        // Dica 2: informação da ficha técnica ou artista adicional
+        let textoExtra = ficha?.fichaTecnica ? ficha.fichaTecnica.substring(0, 80) : (disco.artista + " é um artista fundamental do acervo.");
+        if (textoExtra.length > 80) textoExtra = textoExtra.substring(0, 77) + "...";
+        dicas.push(`🎼 ${textoExtra}`);
+        return dicas;
+    }
+
+    function gerarPerguntas() {
+        if (!catalogo.length) return [];
+        const selecionados = embaralharArray([...catalogo]).slice(0, totalPerguntas);
+        return selecionados.map(disco => {
+            const tipo = Math.floor(Math.random() * 4);
+            let perguntaTexto = '', respostaCorreta = '', alternativas = [];
+            const ficha = fichasMap.get(disco["Ficha Id"]);
+            const dicas = gerarDicas(disco, ficha);
+            
+            if (tipo === 0) {
+                perguntaTexto = `Quem é o artista responsável pelo disco <strong>"${disco.titulo}"</strong>?`;
+                respostaCorreta = disco.artista;
+                let outros = catalogo.filter(d => d.artista !== disco.artista).map(d => d.artista);
+                outros = [...new Set(outros)];
+                embaralharArray(outros);
+                alternativas = [respostaCorreta, ...outros.slice(0, 3)];
+                embaralharArray(alternativas);
+            } 
+            else if (tipo === 1) {
+                perguntaTexto = `Qual o título do disco do artista <strong>"${disco.artista}"</strong>?`;
+                respostaCorreta = disco.titulo;
+                let outros = catalogo.filter(d => d.titulo !== disco.titulo).map(d => d.titulo);
+                outros = [...new Set(outros)];
+                embaralharArray(outros);
+                alternativas = [respostaCorreta, ...outros.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            else if (tipo === 2) {
+                perguntaTexto = `Em que ano foi lançado/produzido <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
+                respostaCorreta = String(disco.anoReal);
+                let outrosAnos = catalogo.map(d => d.anoReal).filter(a => a !== disco.anoReal && a !== 's/d');
+                outrosAnos = [...new Set(outrosAnos)];
+                embaralharArray(outrosAnos);
+                alternativas = [respostaCorreta, ...outrosAnos.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            else {
+                perguntaTexto = `Qual gravadora/selo lançou <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
+                respostaCorreta = disco.gravadora || 'Rozenblit';
+                let outras = catalogo.filter(d => d.gravadora !== respostaCorreta && d.gravadora).map(d => d.gravadora);
+                outras = [...new Set(outras)];
+                embaralharArray(outras);
+                alternativas = [respostaCorreta, ...outras.slice(0, 3)];
+                embaralharArray(alternativas);
+            }
+            return { perguntaTexto, alternativas, respostaCorreta, dicas, capa: disco.capa, discoId: disco.ID };
+        });
+    }
+
+    function pararTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    function iniciarTimer() {
+        pararTimer();
+        const timerElement = document.getElementById('timer');
+        tempoRestante = (dificuldade === 'facil') ? 30 : (dificuldade === 'medio' ? 20 : 10);
+        timerElement.innerText = tempoRestante;
+        timerInterval = setInterval(() => {
+            if (respostaSelecionada) return;
+            if (tempoRestante <= 1) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                // tempo esgotado: marca como erro automático
+                if (!respostaSelecionada) {
+                    respostaSelecionada = true;
+                    document.getElementById('feedback').innerHTML = '⏰ Tempo esgotado! Sem pontuação.';
+                    // Desabilita opções
+                    document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                    // Destaca a correta
+                    const botoes = document.querySelectorAll('.option-btn');
+                    const pergunta = perguntas[perguntaAtualIndex];
+                    botoes.forEach(btn => {
+                        if (btn.innerText === pergunta.respostaCorreta) btn.classList.add('option-correct');
+                    });
+                    document.getElementById('btn-proximo').disabled = false;
+                }
             } else {
-                ano = item.ano;
-                item.capa = item.capa || null;
+                tempoRestante--;
+                timerElement.innerText = tempoRestante;
+                if (tempoRestante <= 5) timerElement.classList.add('text-red-600', 'font-bold');
             }
-            if (ano && typeof ano === 'string') ano = ano.match(/(19|20)\d{2}/)?.[0];
-            item.anoReal = ano || 's/d';
-            if (!item.capa) item.capa = null;
-        });
-        
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('quiz-container').classList.remove('hidden');
-        carregarRecorde();
-    } catch (err) {
-        document.getElementById('loading').innerHTML = `<p class="text-red-700">Erro: ${err.message}. Verifique os arquivos JSON.</p>`;
+        }, 1000);
     }
-}
 
-function embaralharArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
-
-function gerarDicas(disco, ficha) {
-    const dicas = [];
-    dicas.push(`📅 ${disco.anoReal !== 's/d' ? disco.anoReal : 'Ano desconhecido'} · ${disco.gravadora || 'Rozenblit'}`);
-    let textoExtra = ficha?.fichaTecnica ? ficha.fichaTecnica.substring(0, 80) : (disco.artista + " é um artista fundamental do acervo.");
-    if (textoExtra.length > 80) textoExtra = textoExtra.substring(0, 77) + "...";
-    dicas.push(`🎼 ${textoExtra}`);
-    return dicas;
-}
-
-function gerarPerguntas() {
-    if (!catalogo.length) return [];
-    const selecionados = embaralharArray([...catalogo]).slice(0, totalPerguntas);
-    return selecionados.map(disco => {
-        const tipo = Math.floor(Math.random() * 4);
-        let perguntaTexto = '', respostaCorreta = '', alternativas = [];
-        const ficha = fichasMap.get(disco["Ficha Id"]);
-        const dicas = gerarDicas(disco, ficha);
+    function carregarPergunta() {
+        if (perguntaAtualIndex >= perguntas.length) {
+            finalizarQuiz();
+            return;
+        }
+        const p = perguntas[perguntaAtualIndex];
+        document.getElementById('pergunta-texto').innerHTML = p.perguntaTexto;
+        document.getElementById('pergunta-atual').innerText = perguntaAtualIndex + 1;
+        document.getElementById('total-perguntas').innerText = perguntas.length;
         
-        if (tipo === 0) {
-            perguntaTexto = `Quem é o artista responsável pelo disco <strong>"${disco.titulo}"</strong>?`;
-            respostaCorreta = disco.artista;
-            let outros = catalogo.filter(d => d.artista !== disco.artista).map(d => d.artista);
-            outros = [...new Set(outros)];
-            embaralharArray(outros);
-            alternativas = [respostaCorreta, ...outros.slice(0, 3)];
-            embaralharArray(alternativas);
-        } 
-        else if (tipo === 1) {
-            perguntaTexto = `Qual o título do disco do artista <strong>"${disco.artista}"</strong>?`;
-            respostaCorreta = disco.titulo;
-            let outros = catalogo.filter(d => d.titulo !== disco.titulo).map(d => d.titulo);
-            outros = [...new Set(outros)];
-            embaralharArray(outros);
-            alternativas = [respostaCorreta, ...outros.slice(0, 3)];
-            embaralharArray(alternativas);
-        }
-        else if (tipo === 2) {
-            perguntaTexto = `Em que ano foi lançado/produzido <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
-            respostaCorreta = String(disco.anoReal);
-            let outrosAnos = catalogo.map(d => d.anoReal).filter(a => a !== disco.anoReal && a !== 's/d');
-            outrosAnos = [...new Set(outrosAnos)];
-            embaralharArray(outrosAnos);
-            alternativas = [respostaCorreta, ...outrosAnos.slice(0, 3)];
-            embaralharArray(alternativas);
-        }
-        else {
-            perguntaTexto = `Qual gravadora/selo lançou <strong>"${disco.titulo}"</strong> de ${disco.artista}?`;
-            respostaCorreta = disco.gravadora || 'Rozenblit';
-            let outras = catalogo.filter(d => d.gravadora !== respostaCorreta && d.gravadora).map(d => d.gravadora);
-            outras = [...new Set(outras)];
-            embaralharArray(outras);
-            alternativas = [respostaCorreta, ...outras.slice(0, 3)];
-            embaralharArray(alternativas);
-        }
-        return { perguntaTexto, alternativas, respostaCorreta, dicas, capa: disco.capa, discoId: disco.ID };
-    });
-}
-
-function pararTimer() {
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = null;
-}
-
-function iniciarTimer() {
-    pararTimer();
-    const timerElement = document.getElementById('timer');
-    tempoRestante = (dificuldade === 'facil') ? 30 : (dificuldade === 'medio' ? 20 : 10);
-    timerElement.innerText = tempoRestante;
-    timerInterval = setInterval(() => {
-        if (respostaSelecionada) return;
-        if (tempoRestante <= 1) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            if (!respostaSelecionada) {
-                respostaSelecionada = true;
-                document.getElementById('feedback').innerHTML = '⏰ Tempo esgotado! Sem pontuação.';
-                document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-                const botoes = document.querySelectorAll('.option-btn');
-                const pergunta = perguntas[perguntaAtualIndex];
-                botoes.forEach(btn => {
-                    if (btn.innerText === pergunta.respostaCorreta) btn.classList.add('option-correct');
-                });
-                document.getElementById('btn-proximo').disabled = false;
-            }
+        // Capa
+        const capaImg = document.getElementById('capa-imagem');
+        const capaPlaceholder = document.getElementById('capa-placeholder');
+        if (p.capa && p.capa.trim() !== "") {
+            capaImg.src = p.capa;
+            capaImg.classList.remove('hidden');
+            capaPlaceholder.classList.add('hidden');
         } else {
-            tempoRestante--;
-            timerElement.innerText = tempoRestante;
-            if (tempoRestante <= 5) timerElement.classList.add('text-red-600', 'font-bold');
+            capaImg.classList.add('hidden');
+            capaPlaceholder.classList.remove('hidden');
+            lucide.createIcons(); // recria ícone placeholder
         }
-    }, 1000);
-}
-
-function carregarPergunta() {
-    if (perguntaAtualIndex >= perguntas.length) {
-        finalizarQuiz();
-        return;
-    }
-    const p = perguntas[perguntaAtualIndex];
-    document.getElementById('pergunta-texto').innerHTML = p.perguntaTexto;
-    document.getElementById('pergunta-atual').innerText = perguntaAtualIndex + 1;
-    document.getElementById('total-perguntas').innerText = perguntas.length;
-    
-    const capaImg = document.getElementById('capa-imagem');
-    const capaPlaceholder = document.getElementById('capa-placeholder');
-    if (p.capa && p.capa.trim() !== "") {
-        capaImg.src = p.capa;
-        capaImg.classList.remove('hidden');
-        capaPlaceholder.classList.add('hidden');
-    } else {
-        capaImg.classList.add('hidden');
-        capaPlaceholder.classList.remove('hidden');
-        if (window.lucide) lucide.createIcons();
-    }
-    
-    const opcoesDiv = document.getElementById('opcoes');
-    opcoesDiv.innerHTML = '';
-    p.alternativas.forEach(alt => {
-        const btn = document.createElement('button');
-        btn.innerText = alt;
-        btn.className = 'option-btn w-full text-left p-3 rounded-xl border border-verde-cacto/20 bg-papel/80 hover:bg-verde-cacto hover:text-white transition mb-2';
-        btn.onclick = () => selecionarResposta(btn, alt, p.respostaCorreta);
-        opcoesDiv.appendChild(btn);
-    });
-    
-    document.getElementById('btn-proximo').disabled = true;
-    document.getElementById('feedback').innerHTML = '';
-    respostaSelecionada = false;
-    dica1Usada = false; dica2Usada = false;
-    document.getElementById('dica1-btn').disabled = false;
-    document.getElementById('dica2-btn').disabled = false;
-    document.getElementById('dica1-btn').classList.remove('opacity-50');
-    document.getElementById('dica2-btn').classList.remove('opacity-50');
-    
-    iniciarTimer();
-}
-
-function selecionarResposta(btn, escolha, correta) {
-    if (respostaSelecionada) return;
-    respostaSelecionada = true;
-    pararTimer();
-    const isCorreta = (escolha === correta);
-    if (isCorreta) {
-        pontuacao++;
-        document.getElementById('pontuacao').innerHTML = `🏆 ${pontuacao} pts`;
-        btn.classList.add('option-correct');
-        document.getElementById('feedback').innerHTML = '✅ Correta! +1 ponto';
-    } else {
-        btn.classList.add('option-wrong');
-        document.getElementById('feedback').innerHTML = `❌ Errada! Resposta correta: <strong>${correta}</strong>`;
-        const botoes = document.querySelectorAll('.option-btn');
-        botoes.forEach(b => {
-            if (b.innerText === correta) b.classList.add('option-correct');
+        
+        // Opções
+        const opcoesDiv = document.getElementById('opcoes');
+        opcoesDiv.innerHTML = '';
+        p.alternativas.forEach(alt => {
+            const btn = document.createElement('button');
+            btn.innerText = alt;
+            btn.className = 'option-btn w-full text-left p-3 rounded-xl border border-verde-cacto/20 bg-papel/80 hover:bg-verde-cacto hover:text-white transition mb-2';
+            btn.onclick = () => selecionarResposta(btn, alt, p.respostaCorreta);
+            opcoesDiv.appendChild(btn);
         });
+        
+        document.getElementById('btn-proximo').disabled = true;
+        document.getElementById('feedback').innerHTML = '';
+        respostaSelecionada = false;
+        dica1Usada = false; dica2Usada = false;
+        document.getElementById('dica1-btn').disabled = false;
+        document.getElementById('dica2-btn').disabled = false;
+        document.getElementById('dica1-btn').classList.remove('opacity-50');
+        document.getElementById('dica2-btn').classList.remove('opacity-50');
+        
+        iniciarTimer();
     }
-    document.getElementById('btn-proximo').disabled = false;
-    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-    document.getElementById('dica1-btn').disabled = true;
-    document.getElementById('dica2-btn').disabled = true;
-}
 
-function proximaPergunta() {
-    if (!respostaSelecionada) return;
-    pararTimer();
-    perguntaAtualIndex++;
-    if (perguntaAtualIndex < perguntas.length) {
-        carregarPergunta();
-    } else {
-        finalizarQuiz();
-    }
-}
-
-function usarDica(numero) {
-    if (respostaSelecionada) return;
-    const p = perguntas[perguntaAtualIndex];
-    if (numero === 1 && !dica1Usada) {
-        dica1Usada = true;
-        document.getElementById('feedback').innerHTML = `💡 Dica 1: ${p.dicas[0]}`;
+    function selecionarResposta(btn, escolha, correta) {
+        if (respostaSelecionada) return;
+        respostaSelecionada = true;
+        pararTimer();
+        const isCorreta = (escolha === correta);
+        if (isCorreta) {
+            pontuacao++;
+            document.getElementById('pontuacao').innerHTML = `🏆 ${pontuacao} pts`;
+            btn.classList.add('option-correct');
+            document.getElementById('feedback').innerHTML = '✅ Correta! +1 ponto';
+        } else {
+            btn.classList.add('option-wrong');
+            document.getElementById('feedback').innerHTML = `❌ Errada! Resposta correta: <strong>${correta}</strong>`;
+            const botoes = document.querySelectorAll('.option-btn');
+            botoes.forEach(b => {
+                if (b.innerText === correta) b.classList.add('option-correct');
+            });
+        }
+        document.getElementById('btn-proximo').disabled = false;
+        // Desabilita todas as opções
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        // Desabilita dicas
         document.getElementById('dica1-btn').disabled = true;
-    } else if (numero === 2 && !dica2Usada) {
-        dica2Usada = true;
-        document.getElementById('feedback').innerHTML = `💡 Dica 2: ${p.dicas[1]}`;
         document.getElementById('dica2-btn').disabled = true;
     }
-}
 
-function finalizarQuiz() {
-    pararTimer();
-    salvarRecorde();
-    mostrarTela('fim');
-    const pontuacaoFinalEl = document.getElementById('pontuacao-final');
-    pontuacaoFinalEl.innerText = `${pontuacao} / ${perguntas.length}`;
-    let medalha = '', mensagem = '';
-    if (pontuacao === perguntas.length) {
-        medalha = '🥇 Ouro! Conhecedor máximo!';
-        mensagem = 'Parabéns! Você domina o acervo Rozenblit como um verdadeiro pesquisador.';
-    } else if (pontuacao >= 3) {
-        medalha = '🥈 Prata! Bom conhecimento!';
-        mensagem = 'Muito bem! Continue explorando o museu para chegar ao ouro.';
-    } else {
-        medalha = '🥉 Bronze! Hora de estudar o catálogo.';
-        mensagem = 'Que tal dar uma passada pelo acervo e depois tentar novamente?';
+    function proximaPergunta() {
+        if (!respostaSelecionada) return;
+        pararTimer();
+        perguntaAtualIndex++;
+        if (perguntaAtualIndex < perguntas.length) {
+            carregarPergunta();
+        } else {
+            finalizarQuiz();
+        }
     }
-    document.getElementById('medalha-container').innerHTML = medalha.split(' ')[0];
-    document.getElementById('mensagem-final').innerHTML = `${mensagem}<br><span class="text-sm">🎵 Recorde do navegador: ${recorde} pontos</span>`;
-}
 
-function mostrarTela(tela) {
-    document.getElementById('tela-inicial').classList.add('hidden');
-    document.getElementById('tela-pergunta').classList.add('hidden');
-    document.getElementById('tela-fim').classList.add('hidden');
-    document.getElementById(`tela-${tela}`).classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
-}
-
-function iniciarQuiz() {
-    // Inicia a música automaticamente
-    iniciarMusicaFundo([
-        './static/sounds/quiz/fundo1.ogg',
-        './static/sounds/quiz/fundo2.ogg',
-        './static/sounds/quiz/fundo3.ogg',
-        './static/sounds/quiz/fundo4.ogg',
-    ]);
-    dificuldade = document.getElementById('dificuldade').value;
-    pontuacao = 0;
-    perguntaAtualIndex = 0;
-    respostaSelecionada = false;
-    document.getElementById('pontuacao').innerHTML = `🏆 0 pts`;
-    perguntas = gerarPerguntas();
-    if (perguntas.length === 0) {
-        alert("Erro: nenhuma pergunta gerada. Verifique o catálogo.");
-        return;
+    function usarDica(numero) {
+        if (respostaSelecionada) return;
+        const p = perguntas[perguntaAtualIndex];
+        if (numero === 1 && !dica1Usada) {
+            dica1Usada = true;
+            document.getElementById('feedback').innerHTML = `💡 Dica 1: ${p.dicas[0]}`;
+            document.getElementById('dica1-btn').disabled = true;
+        } else if (numero === 2 && !dica2Usada) {
+            dica2Usada = true;
+            document.getElementById('feedback').innerHTML = `💡 Dica 2: ${p.dicas[1]}`;
+            document.getElementById('dica2-btn').disabled = true;
+        }
     }
-    mostrarTela('pergunta');
-    carregarPergunta();
-}
 
-function reiniciar() {
-    iniciarQuiz();
-}
+    function finalizarQuiz() {
+        pararTimer();
+        salvarRecorde();
+        mostrarTela('fim');
+        const pontuacaoFinalEl = document.getElementById('pontuacao-final');
+        pontuacaoFinalEl.innerText = `${pontuacao} / ${perguntas.length}`;
+        let medalha = '', mensagem = '';
+        if (pontuacao === perguntas.length) {
+            medalha = '🥇 Ouro! Conhecedor máximo!';
+            mensagem = 'Parabéns! Você domina o acervo Rozenblit como um verdadeiro pesquisador.';
+        } else if (pontuacao >= 3) {
+            medalha = '🥈 Prata! Bom conhecimento!';
+            mensagem = 'Muito bem! Continue explorando o museu para chegar ao ouro.';
+        } else {
+            medalha = '🥉 Bronze! Hora de estudar o catálogo.';
+            mensagem = 'Que tal dar uma passada pelo acervo e depois tentar novamente?';
+        }
+        document.getElementById('medalha-container').innerHTML = medalha.split(' ')[0];
+        document.getElementById('mensagem-final').innerHTML = `${mensagem}<br><span class="text-sm">🎵 Recorde do navegador: ${recorde} pontos</span>`;
+    }
 
-document.getElementById('btn-iniciar').addEventListener('click', iniciarQuiz);
-document.getElementById('btn-proximo').addEventListener('click', proximaPergunta);
-document.getElementById('btn-reiniciar').addEventListener('click', reiniciar);
-document.getElementById('dica1-btn').addEventListener('click', () => usarDica(1));
-document.getElementById('dica2-btn').addEventListener('click', () => usarDica(2));
+    function mostrarTela(tela) {
+        document.getElementById('tela-inicial').classList.add('hidden');
+        document.getElementById('tela-pergunta').classList.add('hidden');
+        document.getElementById('tela-fim').classList.add('hidden');
+        document.getElementById(`tela-${tela}`).classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
 
-carregarDados();
+    function iniciarQuiz() {
+        dificuldade = document.getElementById('dificuldade').value;
+        pontuacao = 0;
+        perguntaAtualIndex = 0;
+        respostaSelecionada = false;
+        document.getElementById('pontuacao').innerHTML = `🏆 0 pts`;
+        perguntas = gerarPerguntas();
+        if (perguntas.length === 0) {
+            alert("Erro: nenhuma pergunta gerada. Verifique o catálogo.");
+            return;
+        }
+        mostrarTela('pergunta');
+        carregarPergunta();
+    }
+
+    function reiniciar() {
+        iniciarQuiz();
+    }
+
+    // Event listeners
+    document.getElementById('btn-iniciar').addEventListener('click', iniciarQuiz);
+    document.getElementById('btn-proximo').addEventListener('click', proximaPergunta);
+    document.getElementById('btn-reiniciar').addEventListener('click', reiniciar);
+    document.getElementById('dica1-btn').addEventListener('click', () => usarDica(1));
+    document.getElementById('dica2-btn').addEventListener('click', () => usarDica(2));
+    
+    carregarDados();
 </script>
 </body>
 </html>

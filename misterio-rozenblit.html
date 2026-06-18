@@ -69,7 +69,7 @@ button{font:inherit}
     <button class="btn-menu" id="btn-novo-aleatorio">✦ Novo Caso Aleatório</button>
     <button class="btn-menu" id="btn-escolher-caso">📂 Escolher Caso</button>
     <button class="btn-menu" id="btn-como-jogar">Como Jogar</button>
-    <button class="btn-menu" id="btn-voltar-museu">Voltar</button>
+    <button class="btn-menu" id="btn-voltar-museu">Voltar ao Museu</button>
     <div id="lista-casos-panel" style="display:none;margin-top:1rem">
       <div class="lista-casos" id="lista-casos"></div>
       <button class="btn-menu" id="btn-fechar-lista">Fechar</button>
@@ -82,6 +82,7 @@ button{font:inherit}
     <h2>Como Jogar</h2>
     <p>Leia a narrativa, investigue pistas e escolha ações. Algumas cenas têm perguntas, enigmas ou caminhos falsos.</p>
     <p>O botão “Guardar pista” salva a informação atual no caderno de investigação. Use o caderno para lembrar códigos, nomes e detalhes importantes.</p>
+    <p>Ative o som ao iniciar o caso para ouvir a trilha de suspense.</p>
     <button class="btn-menu" id="voltar-titulo">Voltar</button>
   </div>
 </section>
@@ -121,6 +122,7 @@ button{font:inherit}
     </div>
     <div class="tools-row" id="tools-row">
       <button class="tool-btn" id="btn-pista">📒 Guardar pista</button>
+      <button class="tool-btn" id="btn-som">♪ Som</button>
       <button class="tool-btn" id="btn-menu-jogo">Menu</button>
     </div>
   </div>
@@ -138,39 +140,6 @@ button{font:inherit}
 </section>
 
 <script>
-// ---------- PLAYER GLOBAL DE MÚSICA ----------
-let bgMusic = null;
-
-function iniciarMusicaFundo(listaMusicas) {
-    if (bgMusic) return;
-    bgMusic = document.createElement('audio');
-    bgMusic.volume = 0.7;
-    bgMusic.loop = false;
-    bgMusic.style.display = 'none';
-    document.body.appendChild(bgMusic);
-
-    let indiceAtual = 0;
-
-    function tocarFaixa() {
-        if (!listaMusicas[indiceAtual]) return;
-        bgMusic.src = listaMusicas[indiceAtual];
-        bgMusic.play().catch(e => console.log("Áudio bloqueado:", e));
-        indiceAtual = (indiceAtual + 1) % listaMusicas.length;
-    }
-
-    bgMusic.addEventListener('ended', tocarFaixa);
-    tocarFaixa();
-}
-
-function pararMusicaFundo() {
-    if (bgMusic) {
-        bgMusic.pause();
-        bgMusic.src = '';
-        bgMusic = null;
-    }
-}
-// ---------- FIM DO PLAYER ----------
-
 let casosIndex=[];
 let historiaAtual=null;
 let cenaAtual=null;
@@ -181,6 +150,9 @@ let recorde=0;
 let typingTimer=null;
 let textoCompletoAtual='';
 let digitando=false;
+let audioCtx=null;
+let musicaAtiva=false;
+let musicNodes=[];
 
 const $=id=>document.getElementById(id);
 function setTextSafe(id, value){ const el=$(id); if(el) el.textContent=value; }
@@ -270,16 +242,12 @@ function configurarVisualHistoria(){
 
 async function iniciarHistoria(historia){
   if(!historia) return;
-  // Inicia a música automaticamente
-  iniciarMusicaFundo([
-    './static/sounds/misterio/fundo1.ogg',
-    './static/sounds/misterio/fundo2.ogg'
-  ]);
   pontuacao=0;pistasUsadas=0;pistasGuardadas=[];atualizarHUD();atualizarBotaoPista();
   configurarVisualHistoria();
   const primeira=historia.cenas?.find(c=>c.id==='intro') || historia.cenas?.[0];
   if(!primeira){alert('Caso sem cenas.');return;}
   mostrarTela('screen-game');
+  tocarMusicaSuspense();
   mostrarCena(primeira);
 }
 
@@ -333,6 +301,7 @@ function mostrarDialogo(speaker,texto,callback){
   txt.textContent='';
   digitando=true;
 
+  // Substitui o botão por um clone para limpar todos os listeners anteriores
   const oldBtn=$('dialogue-advance');
   const newBtn=oldBtn.cloneNode(true);
   oldBtn.parentNode.replaceChild(newBtn,oldBtn);
@@ -363,15 +332,16 @@ function mostrarDialogo(speaker,texto,callback){
 }
 
 function mostrarAcoes(acoes){
-  $('dialogue-box').style.display = 'none';
+  $('dialogue-box').style.display = 'none'; // Esconde o texto anterior
   const c = $('choices-container');
-  c.innerHTML = '';
+  c.innerHTML = ''; // Limpa botões antigos
   
   acoes.forEach(acao => {
     const b = document.createElement('button');
     b.className = 'choice-btn';
     b.textContent = formatarTextoNarrativo(acao.texto || 'Continuar');
     b.onclick = () => {
+      // Esta é a parte crucial para a transição
       if(acao.proxima_cena) {
         irParaCena(acao.proxima_cena); 
       } else {
@@ -380,7 +350,7 @@ function mostrarAcoes(acoes){
     };
     c.appendChild(b);
   });
-  c.style.display = 'flex';
+  c.style.display = 'flex'; // Exibe os novos botões
 }
 
 function mostrarPergunta(cena){
@@ -398,6 +368,7 @@ function mostrarPergunta(cena){
 }
 
 function responderPergunta(cena,alt,btn){
+  // Desabilita todos os botões imediatamente para evitar duplo clique
   document.querySelectorAll('#choices-container .choice-btn').forEach(b=>{b.disabled=true;b.onclick=null;});
 
   const correta=normalizar(alt)===normalizar(cena.resposta_correta);
@@ -521,6 +492,7 @@ function abrirNotebook(){
 function fecharNotebook(){
   $('notebook-panel').style.display='none';
   if(cenaAtual){
+    // Se há choices já montadas (ex: após erro), restaura choices; senão restaura dialogue
     const c=$('choices-container');
     if(c.innerHTML.trim() && c.children.length > 0){
       c.style.display='flex';
@@ -532,7 +504,7 @@ function fecharNotebook(){
 }
 
 function finalizarPartida(){
-  // Não para a música ao finalizar para continuar no menu? Paramos ao voltar ao menu.
+  pararMusica();
   if(pontuacao>recorde){recorde=pontuacao;localStorage.setItem('rozenblit_recorde',recorde);}
   let rank='Auxiliar de Arquivo';
   if(pontuacao>=401) rank='Guardião da Memória Musical';
@@ -550,17 +522,29 @@ function atualizarHUD(){
   $('hud-pistas').textContent=pistasUsadas;
 }
 
+function tocarMusicaSuspense(){
+  musicaAtiva = false;
+  musicNodes = [];
+  $('btn-som').textContent = '♪ Som';
+}
+function pararMusica(){
+  musicNodes.forEach(n=>{try{if(n.stop)n.stop(); if(n.disconnect)n.disconnect();}catch(e){}});
+  musicNodes=[]; musicaAtiva=false; $('btn-som').textContent='♪ Som';
+}
+function alternarSom(){musicaAtiva?pararMusica():null}// Som ambiente desativado por enquanto  // Use arquivos reais em static/audio/ futuramente.
+
 $('btn-novo-aleatorio').onclick=async()=>{if(!casosIndex.length) await carregarIndiceCasos(); const item=casosIndex[Math.floor(Math.random()*casosIndex.length)]; if(await carregarHistoria(item.id)) iniciarHistoria(historiaAtual);};
 $('btn-escolher-caso').onclick=async()=>{const panel=$('lista-casos-panel'),lista=$('lista-casos'); if(panel.style.display==='block'){panel.style.display='none';return;} if(!casosIndex.length) await carregarIndiceCasos(); lista.innerHTML=''; casosIndex.forEach(c=>{const b=document.createElement('button'); b.textContent=c.titulo||c.id; b.onclick=async()=>{panel.style.display='none'; if(await carregarHistoria(c.id)) iniciarHistoria(historiaAtual);}; lista.appendChild(b);}); panel.style.display='block';};
 $('btn-fechar-lista').onclick=()=>$('lista-casos-panel').style.display='none';
 $('btn-como-jogar').onclick=()=>mostrarTela('screen-howto');
 $('voltar-titulo').onclick=()=>mostrarTela('screen-title');
-$('btn-voltar-museu').onclick=()=>{pararMusicaFundo(); window.location.href='jogos.html';};
+$('btn-voltar-museu').onclick=()=>{window.location.href='index.html';};
 $('btn-pista').onclick=usarPista;
 $('btn-fechar-notebook').onclick=fecharNotebook;
-$('btn-menu-jogo').onclick=()=>{pararMusicaFundo();mostrarTela('screen-title');};
-$('end-novo-jogo').onclick=()=>{mostrarTela('screen-title');};
-$('end-menu').onclick=()=>{mostrarTela('screen-title');};
+$('btn-som').onclick=alternarSom;
+$('btn-menu-jogo').onclick=()=>{pararMusica();mostrarTela('screen-title');};
+$('end-novo-jogo').onclick=()=>mostrarTela('screen-title');
+$('end-menu').onclick=()=>mostrarTela('screen-title');
 
 (async function init(){await carregarIndiceCasos();$('loading').style.display='none';mostrarTela('screen-title');})();
 </script>
