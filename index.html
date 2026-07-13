@@ -1,384 +1,841 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo Somax</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6c63ff">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <title>Acervo Rozenblit — Museu Digital da Música Pernambucana</title>
+    <meta name="description" content="Catálogo completo com fichas técnicas. Explore discos históricos da Rozenblit, a maior gravadora do Norte-Nordeste.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        'playfair': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+                    },
                     colors: {
-                        labelAccent: '#6366f1',
-                        labelDark: '#09090b',
-                        labelCard: '#18181b',
-                    }
-                }
-            }
+                        'papel': '#fffaf0',
+                        'fundo': '#f7f1e3',
+                        'areia': '#e8d8b8',
+                        'verde-cacto': '#315f43',
+                        'verde-mandacaru': '#4f7f52',
+                        'barro': '#a44f25',
+                        'terracota': '#c96b36',
+                        'ouro': '#c49a3a',
+                        'azul-recife': '#245f73',
+                        'texto': '#2b241b',
+                        'texto-suave': '#6f604c',
+                    },
+                },
+            },
         }
     </script>
-    <script type="module" src="./js/auth-guard.js"></script>
-
-
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #18181b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 12%, rgba(79,127,82,0.18) 0%, transparent 36%),
+                radial-gradient(circle at 85% 18%, rgba(196,154,58,0.18) 0%, transparent 30%),
+                radial-gradient(circle at 80% 90%, rgba(164,79,37,0.13) 0%, transparent 34%),
+                linear-gradient(180deg, #f7f1e3 0%, #ede5cf 58%, #e8dbbf 100%);
+            font-family: 'Source Sans 3', system-ui, sans-serif;
+            color: #2b241b;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "🌵";
+            font-size: 150px;
+            position: fixed;
+            bottom: 10px;
+            left: -35px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(-15deg);
+            z-index: 0;
+        }
+        body::after {
+            content: "🎼";
+            font-size: 120px;
+            position: fixed;
+            top: 170px;
+            right: -24px;
+            opacity: 0.08;
+            pointer-events: none;
+            transform: rotate(18deg);
+            z-index: 0;
+        }
+        .cacto-decor {
+            position: fixed;
+            bottom: 42px;
+            right: 28px;
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+            font-size: 86px;
+        }
+        .noise-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.26;
+            background-image:
+                linear-gradient(rgba(49,95,67,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(49,95,67,0.04) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, transparent 80%);
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #efe3c8; }
+        ::-webkit-scrollbar-thumb { background: #a44f25; border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #315f43; }
 
-        optgroup {
-            background: #27272a;
-            color: #a1a1aa;
+        .museum-photo::after{
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 18px 24px;
+            color: white;
+            font-size: 14px;
+            letter-spacing: .05em;
+            background: linear-gradient(
+                to top,
+                rgba(0,0,0,.75),
+                rgba(0,0,0,0)
+            );
+        }        
+
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #f7f1e3 60%, #e8d8b8 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .hidden-loading { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .page-section { transition: opacity 0.3s ease; position: relative; z-index: 2; }
+        .animate-page { animation: pageFadeUp 0.65s ease both; }
+        @keyframes pageFadeUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .catalogo-card-enter { animation: cardFade 0.45s ease both; }
+        @keyframes cardFade {
+            from { opacity: 0; transform: translateY(18px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hero-title-enter { animation: heroTitle 0.75s ease both; }
+        @keyframes heroTitle {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .float-soft { animation: floatSoft 5s ease-in-out infinite; }
+        @keyframes floatSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        .pulse-glow { animation: pulseGlow 3.8s ease-in-out infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 18px 44px rgba(49,95,67,0.26); }
+            50% { box-shadow: 0 24px 70px rgba(196,154,58,0.38); }
+        }
+        .vinyl-spin {
+            background:
+                radial-gradient(circle at center, #2b241b 0 7%, #fffaf0 7% 11%, #315f43 11% 18%, #15120f 18% 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22), inset 0 0 0 6px rgba(255,250,240,0.1);
+            animation: rodar 34s linear infinite;
+        }
+        .vinyl-spin::before {
+            content: '';
+            position: absolute;
+            inset: 10%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle, transparent 0 9px, rgba(255,255,255,0.08) 10px 11px);
+        }
+        .vinyl-spin::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 14%; height: 14%;
+            transform: translate(-50%, -50%);
+            background: #c49a3a;
+            border-radius: 50%;
+            border: 7px solid #fffaf0;
+        }
+        @keyframes rodar { to { transform: rotate(360deg); } }
+        .hero-card {
+            background: linear-gradient(145deg, rgba(255,250,240,0.94), rgba(232,216,184,0.62));
+            border: 1px solid rgba(49,95,67,0.14);
+            box-shadow: 0 24px 70px rgba(49,95,67,0.13);
+            backdrop-filter: blur(12px);
+        }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-7px); box-shadow: 0 22px 34px -12px rgba(49,95,67,0.24); }
+        .artist-cover-name {
+            text-shadow: 0 2px 12px rgba(0,0,0,0.22);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1, .line-clamp-2, .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-1 { -webkit-line-clamp: 1; }
+        .line-clamp-2 { -webkit-line-clamp: 2; }
+        .line-clamp-3 { -webkit-line-clamp: 3; }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: rgba(255,250,240,0.82);
+            border: 1px solid rgba(79,127,82,0.3);
+            color: #315f43;
             font-weight: 600;
-        }
-
-        option {
-            background: #18181b;
-            color: #e4e4e7;
-        }
-
-        .editable-field {
+            transition: all 0.2s ease;
             cursor: pointer;
-            transition: all 0.2s;
-            display: inline-block;
-            border-radius: 0.375rem;
+        }
+        .page-btn:hover { background: #315f43; color: white; border-color: #315f43; transform: translateY(-2px); }
+        .page-btn.active { background: #315f43; color: white; border-color: #315f43; box-shadow: 0 4px 8px rgba(49,95,67,0.2); }
+        .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .filtro-gravadora-btn.active { background: #315f43 !important; color: #fffaf0 !important; border-color: #315f43 !important; }
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #c49a3a;
+            border: 4px solid #fffaf0;
+            box-shadow: 0 0 0 2px rgba(49,95,67,0.28);
+        }
+        .timeline-line {
+            position: relative;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(#315f43, #c49a3a, #a44f25);
+            opacity: 0.32;
         }
 
-        .editable-field:hover {
-            background-color: rgba(99, 102, 241, 0.1);
+        .museum-glass {
+            background: linear-gradient(145deg, rgba(255,250,240,0.92), rgba(232,216,184,0.58));
+            border: 1px solid rgba(49,95,67,0.14);
+            box-shadow: 0 24px 70px rgba(49,95,67,0.12);
+            backdrop-filter: blur(12px);
         }
-
-        .edit-input,
-        .edit-select {
-            background: #27272a;
-            border: 1px solid #3f3f46;
-            color: white;
-            border-radius: 0.375rem;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            width: auto;
-            min-width: 110px;
-        }
-
-        .edit-input:focus,
-        .edit-select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 1px #6366f1;
-        }
-
-        .nav-tab {
-            transition: all 0.2s;
-        }
-
-        .nav-tab.active {
-            background-color: #6366f1;
-            color: white;
-            border-color: #6366f1;
-        }
-
-        /* Estilo para as barras clicáveis */
-        .prateleira-bar {
+        .story-kicker { letter-spacing: 0.24em; text-transform: uppercase; font-size: 0.78rem; font-weight: 800; color: #a44f25; }
+        .museum-photo {
+            background: linear-gradient(135deg, rgba(49,95,67,0.9), rgba(164,79,37,0.75)), radial-gradient(circle at center, rgba(196,154,58,0.55), transparent 55%);
+            min-height: 240px;
+            position: relative;
+            overflow: hidden;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
-        .prateleira-bar:hover {
-            opacity: 0.8;
+        .museum-photo::after {
+            content: attr(data-label);
+            position: absolute;
+            left: 18px;
+            bottom: 16px;
+            right: 18px;
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #fffaf0;
+            font-size: 1.35rem;
+            line-height: 1.15;
+            text-shadow: 0 8px 24px rgba(0,0,0,0.36);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        #capitulo-origem img{
+            transition: all .5s ease;
+        }
+
+        #capitulo-origem img:hover{
+            transform: scale(1.03);
+            box-shadow:
+                0 25px 60px rgba(49,95,67,.20),
+                0 10px 30px rgba(196,154,58,.15);
+        }
+
+        .museum-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; filter: sepia(0.18) contrast(1.05); }
+        .museum-photo.has-image::before { content:''; position:absolute; inset:0; z-index:1; background: linear-gradient(to top, rgba(20,14,8,.72), transparent 58%); pointer-events: none; }
+        .museum-photo.has-image::after { z-index:2; }
+        .exhibit-card { transition: transform .28s ease, box-shadow .28s ease; }
+        .exhibit-card:hover { transform: translateY(-6px); box-shadow: 0 24px 40px -18px rgba(43,36,27,.35); }
+        .archive-strip { display:flex; gap:14px; overflow-x:auto; padding-bottom:10px; scroll-snap-type:x mandatory; }
+        .archive-strip > div { scroll-snap-align:start; min-width:260px; cursor: pointer; }
+        .chapter-number { font-family:'Playfair Display', Georgia, serif; color:#c49a3a; font-size:4.4rem; line-height:.8; opacity:.8; }
+        .selos-pill { background: rgba(255,250,240,.76); border:1px solid rgba(196,154,58,.42); color:#315f43; }
+        .quote-panel { border-left: 5px solid #c49a3a; background: rgba(49,95,67,0.06); }
+        .dark-exhibit { background: linear-gradient(135deg, #24160f 0%, #452312 54%, #0f1f18 100%); color:#fffaf0; }
+        .story-nav { position: sticky; top: 92px; }
+
+        /* modal de imagem expandida */
+        .image-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .image-modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #fffaf0;
+            border-radius: 28px;
+            padding: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            cursor: default;
+        }
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 20px;
+            display: block;
+            margin: 0 auto;
+        }
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 42px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 300;
+        }
+        .close-modal-btn:hover { color: #c49a3a; transform: scale(1.05); }
+
+        /* LOGO VINIL ROZENBLIT */
+        .logo-vinil-rz{
+            width:52px;
+            height:52px;
+            position:relative;
+            border-radius:50%;
+            background:
+                radial-gradient(circle at center,
+                    #2b241b 0%,
+                    #201b17 55%,
+                    #151210 100%
+                );
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            overflow:hidden;
+            box-shadow:
+                0 6px 18px rgba(0,0,0,.22),
+                inset 0 0 8px rgba(255,255,255,.05);
+        }
+
+        .vinil-ring{
+            position:absolute;
+            border-radius:50%;
+            border:1px solid rgba(255,255,255,.08);
+        }
+
+        .ring-1{ inset:5px; }
+        .ring-2{ inset:10px; }
+        .ring-3{ inset:15px; }
+
+        .vinil-label{
+            width:18px;
+            height:18px;
+            border-radius:50%;
+            background:#c49a3a;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:10;
+            box-shadow: 0 0 0 2px rgba(255,255,255,.15);
+        }
+
+        .vinil-label span{
+            font-family:'Playfair Display', serif;
+            font-size:8px;
+            font-weight:700;
+            color:#315f43;
+            letter-spacing:.08em;
+        }
+
+        .no-scrollbar::-webkit-scrollbar{ display:none; }
+        .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+
+        /* player styles */
+        .track-item {
+            transition: all 0.2s ease;
+        }
+        .btn-ouvir {
+            background: #315f43;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-ouvir:hover {
+            background: #c49a3a;
+            transform: scale(1.02);
+        }
+        .btn-indisponivel {
+            background: #e0d5c0;
+            color: #6f604c;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: default;
+        }
+        .track-player {
+            margin-top: 8px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(255,250,240,0.95), rgba(232,216,184,0.62));
+            border: 1px solid rgba(49,95,67,0.22);
+            padding: 12px;
+        }
+        .track-player-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .track-player-title {
+            font-size: 0.82rem;
+            color: #315f43;
+            font-weight: 700;
+        }
+        .track-player-note {
+            font-size: 0.72rem;
+            color: #6f604c;
+            margin-top: 2px;
+        }
+        .btn-youtube-open {
+            background: #c49a3a;
+            color: #fffaf0;
+            border: none;
+            padding: 7px 13px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-youtube-open:hover {
+            background: #315f43;
+            transform: translateY(-1px);
         }
     </style>
 </head>
-<body class="bg-labelDark text-zinc-300 font-sans antialiased p-4 md:p-8 min-h-screen">
 
-    <div class="max-w-7xl mx-auto">
-        <header class="mb-8 border-b border-zinc-800 pb-6 flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight uppercase">
-                    Catálogo <span class="text-labelAccent">Somax</span>
-                </h1>
-                <p class="text-sm text-zinc-500 mt-1">Gestão de Acervo Musical</p>
+<body>
+<div class="noise-layer"></div>
+<div class="cacto-decor">🌵🌵</div>
+
+<!-- LOADING -->
+<div id="loading-screen">
+    <div class="text-center px-6">
+        <div class="w-20 h-20 vinyl-spin mx-auto mb-5"></div>
+        <p class="font-playfair text-2xl text-verde-cacto">Acervo Rozenblit</p>
+        <p class="text-sm text-barro mt-1">Abrindo a exposição digital...</p>
+    </div>
+</div>
+
+
+<!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 bg-papel/90 backdrop-blur-xl z-50 border-b border-verde-cacto/15 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+        <a href="index.html" class="flex items-center gap-3 group">
+            <div class="logo-vinil-rz transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+                <div class="vinil-ring ring-1"></div>
+                <div class="vinil-ring ring-2"></div>
+                <div class="vinil-ring ring-3"></div>
+                <div class="vinil-label"><span>RZ</span></div>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <button id="btnExportCSV" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md">
-                    📄 Exportar CSV
-                </button>
-                <button id="btnExportPDF" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md">
-                    📑 Exportar PDF
-                </button>
-                <a href="gerar_codigos.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md inline-flex items-center justify-center">
-                    🏷️ Gerar Códigos
-                </a>
-                <a href="scanner.html" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md inline-flex items-center justify-center">
-                    📷 Scanner
-                </a>
-                <a href="relatorios.html" class="bg-yellow-500 hover:bg-cyan-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md inline-flex items-center justify-center">📄 Gerar Relatório do Catálogo
-                </a>
+            <div class="hidden sm:block">
+                <span class="font-playfair text-xl tracking-tight text-verde-cacto block leading-none">Acervo Rozenblit</span>
+                <span class="text-[11px] uppercase tracking-[0.20em] text-barro">Museu Digital da Música Pernambucana</span>
             </div>
-        </header>
-
-        <!-- Menu de navegação -->
-        <div class="flex gap-2 mb-6 border-b border-zinc-800 pb-2">
-            <button id="tabCatalogo" class="nav-tab px-6 py-2 rounded-t-lg font-semibold bg-zinc-800 text-zinc-200 hover:bg-zinc-700 transition active">
-                📀 Catálogo
-            </button>
-            <button id="tabDashboard" class="nav-tab px-6 py-2 rounded-t-lg font-semibold bg-zinc-800 text-zinc-200 hover:bg-zinc-700 transition">
-                📊 Dashboard
-            </button>
-        </div>
-
-        <!-- Container do Catálogo -->
-        <div id="catalogoContainer">
-            <!-- Barra de pesquisa e filtros -->
-            <div class="bg-labelCard p-4 rounded-xl border border-zinc-800 mb-8 shadow-lg">
-                <div class="flex flex-col md:flex-row gap-4 mb-4">
-                    <div class="flex-1">
-                        <input type="text" id="searchInput" placeholder="Pesquisar artista, título ou gravadora..." class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent focus:ring-1 focus:ring-labelAccent transition-all placeholder-zinc-500">
+        </a>
+        <nav class="flex gap-1 overflow-x-auto no-scrollbar">
+            <a href="index.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-verde-cacto text-papel"><i data-lucide="home" class="w-4 h-4 inline mr-1"></i>Início</a>
+            <a href="historia.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap text-texto-suave hover:text-verde-cacto hover:bg-verde-cacto/5"><i data-lucide="landmark" class="w-4 h-4 inline mr-1"></i>História</a>
+            <a href="catalogo.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap text-texto-suave hover:text-verde-cacto hover:bg-verde-cacto/5"><i data-lucide="archive" class="w-4 h-4 inline mr-1"></i>Acervo</a>
+            <a href="historia.html#galeria-documental" class="px-3 py-2 rounded-xl text-sm font-medium transition-all text-texto-suave hover:text-verde-cacto whitespace-nowrap"><i data-lucide="images" class="w-4 h-4 inline mr-1"></i>Galeria</a>
+            <a href="jogos.html" class="px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap bg-ouro/15 text-barro hover:bg-ouro/25 border border-ouro/30"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-1"></i>Jogos</a>
+        </nav>
+    </div>
+</header>
+<main class="pt-16 md:pt-20">
+    <!-- HOME -->
+    <section id="page-home" class="page-section animate-page">
+        <div class="min-h-[92vh] flex items-center px-4 py-14 relative overflow-hidden">
+            <div class="absolute inset-0 z-0 opacity-60">
+                <div class="absolute top-16 left-8 w-40 h-40 rounded-full bg-ouro/20 blur-3xl"></div>
+                <div class="absolute bottom-10 right-8 w-56 h-56 rounded-full bg-verde-cacto/20 blur-3xl"></div>
+                <div class="absolute top-1/3 right-1/4 w-36 h-36 rounded-full bg-barro/10 blur-3xl"></div>
+            </div>
+            <div class="max-w-7xl mx-auto w-full relative z-10">
+                <div class="grid lg:grid-cols-[1.04fr_0.96fr] gap-10 items-center">
+                    <div class="hero-title-enter">
+                        <div class="inline-flex items-center gap-2 bg-papel/85 border border-verde-cacto/15 rounded-full px-4 py-2 shadow-sm mb-5">
+                            <span class="w-2 h-2 rounded-full bg-ouro animate-pulse"></span>
+                            <span class="text-barro text-xs uppercase tracking-[0.22em] font-bold">Museu Digital · Recife · Frevo · Vinil</span>
+                        </div>
+                        <h1 class="font-playfair text-5xl md:text-7xl xl:text-8xl leading-[0.92] text-texto">Rozenblit<br><span class="text-verde-cacto">a gravadora</span><br>100% pernambucana</h1>
+                        <div class="w-28 h-1 bg-gradient-to-r from-verde-cacto via-ouro to-barro my-7 rounded-full"></div>
+                        <p class="text-texto-suave text-lg md:text-xl max-w-2xl leading-relaxed" id="home-desc">Um museu digital para preservar discos, capas, fichas técnicas, artistas, selos e memórias da fábrica que ajudou Pernambuco a ser ouvido pelo Brasil.</p>
+                        <div class="flex flex-col sm:flex-row gap-4 mt-9">
+                            <button onclick="location.href='historia.html'" class="bg-verde-cacto text-papel px-7 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition flex items-center justify-center gap-2"><i data-lucide="landmark" class="w-5 h-5"></i>Entrar no museu</button>
+                            <button onclick="location.href='catalogo.html'" class="bg-papel/85 border border-verde-cacto/30 text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:bg-verde-cacto/5 transition flex items-center justify-center gap-2"><i data-lucide="disc-3" class="w-5 h-5"></i>Explorar catálogo</button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-10 max-w-2xl">
+                            <div class="museum-glass rounded-2xl p-4"><p class="font-playfair text-3xl text-ouro">1954</p><p class="text-xs text-texto-suave mt-1">fábrica no Recife</p></div>
+                            <div class="museum-glass rounded-2xl p-4"><p class="font-playfair text-3xl text-ouro">22%</p><p class="text-xs text-texto-suave mt-1">mercado nacional no auge</p></div>
+                            <div class="museum-glass rounded-2xl p-4"><p class="font-playfair text-3xl text-ouro">Mocambo</p><p class="text-xs text-texto-suave mt-1">selo regional</p></div>
+                            <div class="museum-glass rounded-2xl p-4"><p class="font-playfair text-3xl text-ouro">Frevo</p><p class="text-xs text-texto-suave mt-1">memória viva</p></div>
+                        </div>
                     </div>
-                    <button id="toggleFiltersBtn" class="bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md flex items-center justify-center gap-2">
-                        <span>🔍</span> Filtros
-                    </button>
-                </div>
-
-                <div id="filterContent" class="hidden mt-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                        <select id="filterFormato" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="">Formato (Todos)</option>
-                            <option value="TAPE">TAPE</option>
-                            <option value="CD">CD</option>
-                            <option value="Vinil">Vinil</option>
-                            <option value="DAT">DAT</option>
-                        </select>
-
-                        <select id="filterPrateleira" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none custom-scrollbar">
-                            <option value="">Prateleira (Todas)</option>
-                        </select>
-
-                        <select id="filterStream" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="">Stream (Todos)</option>
-                            <option value="On">On Stream</option>
-                            <option value="Off">Off Stream</option>
-                        </select>
-
-                        <select id="filterPodeLancar" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="">Pode Lançar (Todos)</option>
-                            <option value="true">Sim</option>
-                            <option value="false">Não</option>
-                        </select>
-
-                        <select id="filterGravadora" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="">Gravadora / Label (Todas)</option>
-                        </select>
-
-                        <select id="filterCompacto" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="">Compacto (Todos)</option>
-                            <option value="sim">Sim</option>
-                            <option value="nao">Não</option>
-                        </select>
-
-                        <select id="sortBy" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                            <option value="created_desc">Mais recentes</option>
-                            <option value="titulo_asc">Título A-Z</option>
-                            <option value="titulo_desc">Título Z-A</option>
-                            <option value="artista_asc">Artista A-Z</option>
-                            <option value="artista_desc">Artista Z-A</option>
-                        </select>
+                    <div class="relative flex justify-center lg:justify-end">
+                        <div class="absolute -top-8 left-0 md:left-10 museum-glass rounded-3xl p-5 w-52 rotate-[-6deg] hidden sm:block float-soft z-10"><p class="font-playfair text-2xl text-verde-cacto">Estrada dos Remédios</p><p class="text-xs text-texto-suave">Afogados, Recife: a fábrica como território de memória.</p></div>
+                        <div class="absolute -bottom-7 right-0 md:right-10 museum-glass rounded-3xl p-5 w-56 rotate-[5deg] hidden sm:block float-soft z-10" style="animation-delay:1.2s"><p class="font-playfair text-2xl text-barro">Som, capa e indústria</p><p class="text-xs text-texto-suave">Gravação, prensagem, arte gráfica e distribuição.</p></div>
+                        <div class="relative w-80 h-80 md:w-[430px] md:h-[430px]">
+                            <div class="vinyl-spin pulse-glow absolute inset-0"></div>
+                            <div class="absolute -left-5 top-10 w-28 h-36 museum-glass rounded-2xl rotate-[-12deg] flex items-center justify-center text-center p-3 shadow-xl"><span class="font-playfair text-verde-cacto text-xl">Frevo<br>em disco</span></div>
+                            <div class="absolute right-0 bottom-16 w-32 h-40 museum-glass rounded-2xl rotate-[10deg] flex items-center justify-center text-center p-3 shadow-xl"><span class="font-playfair text-barro text-xl">Capas<br>como arte</span></div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="mt-4 flex flex-wrap gap-3 justify-between items-center">
-                    <button id="btnNovoGlobal" class="bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
-                        + Incluir Novo
-                    </button>
-                    <button id="btnBuscar" class="bg-labelAccent hover:bg-indigo-500 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md shadow-indigo-500/20">
-                        Pesquisar Acervo
-                    </button>
-                </div>
-            </div>
-
-            <div id="painelUltimoND" class="bg-zinc-900 border border-yellow-700/50 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                    <p class="text-xs uppercase tracking-wider text-yellow-500 font-semibold">
-                        Produtos sem identificação
-                    </p>
-                    <p class="text-zinc-300 text-sm mt-1">
-                        Último número ND cadastrado:
-                        <span id="ultimoNDInfo" class="text-yellow-400 font-bold">Carregando...</span>
-                    </p>
-                </div>
-
-                <span class="text-xs text-zinc-500">
-                    Use a próxima sequência ND ao cadastrar novo item sem identificação.
-                </span>
-            </div>
-
-            <div id="noResultsMsg" class="hidden bg-red-950/30 border border-red-900/50 text-red-200 p-4 rounded-xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span>Nenhum registo encontrado para a pesquisa atual.</span>
-                <button id="btnShowAddNoResults" class="w-full sm:w-auto bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-2 px-6 rounded-lg transition-colors">
-                    + Incluir Novo
-                </button>
-            </div>
-
-            <div id="addSection" class="hidden bg-labelCard p-6 rounded-xl border border-zinc-800 mb-8 shadow-lg">
-                <h3 class="text-xl font-semibold text-white mb-6 border-b border-zinc-800 pb-2">Registar Novo Produto</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <input type="text" id="addTitulo" placeholder="Título da Obra" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent lg:col-span-2">
-                    <input type="text" id="addArtista" placeholder="Artista" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent lg:col-span-2">
-                    <input type="text" id="addGravadora" placeholder="Gravadora" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent">
-                    <select id="addPrateleira" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                        <option value="" disabled selected>Selecione a Prateleira</option>
-                    </select>
-                    <select id="addFormato" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                        <option value="" disabled selected>Selecione o Formato</option>
-                        <option value="TAPE">TAPE</option>
-                        <option value="CD">CD</option>
-                        <option value="Vinil">Vinil</option>
-                        <option value="LP">LP</option>
-                        <option value="DAT">DAT</option>
-                    </select>
-                    <input type="text" id="addNumero" placeholder="Nº do tape" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent">
-                    <select id="addStream" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                        <option value="On">On Stream</option>
-                        <option value="Off">Off Stream</option>
-                    </select>
-                    <select id="addTakenDown" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-red-500 appearance-none">
-                        <option value="false">Ativo (Não foi retirado)</option>
-                        <option value="true">Taken Down (Retirado das plataformas)</option>
-                    </select>
-                    <select id="addPodeLancar" class="bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-labelAccent appearance-none">
-                        <option value="" selected>Pode Lançar? (Selecione)</option>
-                        <option value="true">Sim</option>
-                        <option value="false">Não</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-3 justify-end">
-                    <button id="btnCancelar" class="px-6 py-3 rounded-lg font-semibold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">Cancelar</button>
-                    <button id="btnSalvar" class="px-6 py-3 rounded-lg font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-lg shadow-emerald-900/20">Salvar no Catálogo</button>
-                </div>
-                
-            </div>
-
-            <div class="bg-transparent md:bg-labelCard md:border md:border-zinc-800 md:rounded-xl overflow-hidden md:shadow-lg">
-                <table class="w-full text-left border-collapse block md:table">
-                    <thead class="hidden md:table-header-group">
-                        <tr class="bg-zinc-900/50 text-zinc-400 text-xs uppercase tracking-wider">
-                            <th class="p-4 font-medium border-b border-zinc-800">Título</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Artista</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Gravadora / Label</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Prateleira</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Formato</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Nº do Tape</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Stream Status</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Taken Down</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Pode Lançar</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Estado Físico</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Compacto</th>
-                            <th class="p-4 font-medium border-b border-zinc-800">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="block md:table-row-group text-sm"></tbody>
-                </table>
-            </div>
-
-            <div class="mb-4 flex justify-end">
-                <button id="btnCriarGrupoCompacto" class="bg-amber-700 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition" style="display: none;">
-                    📦 Criar Grupo Compacto
-                </button>
-            </div>
-
-            <div id="paginationControls" class="mt-6 flex flex-wrap items-center justify-center gap-4">
-                <button id="prevPage" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition">
-                    Anterior
-                </button>
-                <span class="text-zinc-400">
-                    Página <span id="currentPage">1</span> de <span id="totalPages">1</span>
-                </span>
-                <button id="nextPage" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition">
-                    Próxima
-                </button>
-                <div class="flex items-center gap-2">
-                    <label class="text-sm text-zinc-400">Ir para página:</label>
-                    <input type="number" id="goToPage" min="1" class="w-20 bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-white text-center">
-                    <button id="btnGoToPage" class="px-3 py-1 bg-labelAccent hover:bg-indigo-500 rounded-lg text-white text-sm transition">
-                        Ir
-                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Container do Dashboard -->
-        <div id="dashboardContainer" class="hidden">
-            <div class="bg-labelCard p-6 rounded-xl border border-zinc-800 shadow-lg">
-                <h2 class="text-2xl font-bold text-white mb-6">Dashboard de Estatísticas</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8" id="statsCards">
-                    <div class="bg-zinc-900 rounded-lg p-4 text-center">
-                        <p class="text-zinc-400 text-sm">Total de Itens</p>
-                        <p id="totalItems" class="text-3xl font-bold text-labelAccent">-</p>
-                    </div>
-                    <div class="bg-zinc-900 rounded-lg p-4 text-center">
-                        <p class="text-zinc-400 text-sm">On Stream</p>
-                        <p id="onStreamCount" class="text-3xl font-bold text-emerald-400">-</p>
-                    </div>
-                    <div class="bg-zinc-900 rounded-lg p-4 text-center">
-                        <p class="text-zinc-400 text-sm">Off Stream</p>
-                        <p id="offStreamCount" class="text-3xl font-bold text-amber-400">-</p>
-                    </div>
-                    <div class="bg-zinc-900 rounded-lg p-4 text-center">
-                        <p class="text-zinc-400 text-sm">Taken Down</p>
-                        <p id="takenDownCount" class="text-3xl font-bold text-red-400">-</p>
-                    </div>
-                    <div class="bg-zinc-900 rounded-lg p-4 text-center">
-                        <p class="text-zinc-400 text-sm">Pode Lançar</p>
-                        <p id="podeLancarCount" class="text-3xl font-bold text-purple-400">-</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-zinc-900 rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-white mb-3">Por Formato</h3>
-                        <div id="formatoStats" class="space-y-2"></div>
-                    </div>
-                    <div class="bg-zinc-900 rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-white mb-3">Itens por Prateleira (clique para ver detalhes)</h3>
-                        <div id="prateleiraStats" class="space-y-2"></div>
-                    </div>
-                </div>
+        <section class="py-14 px-4 max-w-7xl mx-auto relative z-10">
+            <div class="text-center max-w-3xl mx-auto">
+                <span class="story-kicker">Patrimônio cultural</span>
+                <h2 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-2">Por que a Rozenblit importa?</h2>
+                <p class="text-texto-suave mt-4 text-lg leading-relaxed">Porque seus discos não são apenas produtos: são documentos sonoros e visuais de Pernambuco, do carnaval, da indústria cultural e do design gráfico brasileiro.</p>
             </div>
+            <div class="grid md:grid-cols-4 gap-5 mt-10">
+                <div class="museum-glass exhibit-card rounded-3xl p-6"><p class="text-4xl">🏭</p><h3 class="font-playfair text-2xl text-verde-cacto mt-3">Indústria</h3><p class="text-sm text-texto-suave mt-2">Uma fábrica completa, com estúdio, prensagem, gráfica e cadeia produtiva própria.</p></div>
+                <div class="museum-glass exhibit-card rounded-3xl p-6"><p class="text-4xl">🎺</p><h3 class="font-playfair text-2xl text-verde-cacto mt-3">Frevo</h3><p class="text-sm text-texto-suave mt-2">Registro e difusão nacional de frevos, orquestras e compositores pernambucanos.</p></div>
+                <div class="museum-glass exhibit-card rounded-3xl p-6"><p class="text-4xl">🎨</p><h3 class="font-playfair text-2xl text-verde-cacto mt-3">Design</h3><p class="text-sm text-texto-suave mt-2">Capas, selos, logomarcas e grafismos como parte da cultura material.</p></div>
+                <div class="museum-glass exhibit-card rounded-3xl p-6"><p class="text-4xl">📚</p><h3 class="font-playfair text-2xl text-verde-cacto mt-3">Pesquisa</h3><p class="text-sm text-texto-suave mt-2">Um acervo aberto para leitores, historiadores, estudantes e colecionadores.</p></div>
+            </div>
+        </section>
+
+        <section class="py-10 px-4 max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+                <div><span class="story-kicker">Galeria documental</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Imagens que contam a história</h2></div>
+                <button onclick="location.href='historia.html#galeria-documental'" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver galeria <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+            </div>
+            <div id="galeria-home" class="archive-strip"></div>
+        </section>
+
+        <section class="py-14 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="text-center"><span class="story-kicker">Dados do catálogo</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Nosso acervo em números</h2></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-10">
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-total" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Títulos</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-gravadoras" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Gravadoras</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-artistas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Artistas</p></div>
+                <div class="hero-card rounded-3xl p-6 text-center"><span id="stat-decadas" class="text-5xl font-bold text-verde-cacto font-playfair">—</span><p class="text-texto-suave text-sm mt-1">Décadas</p></div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO JOGOS NA HOME -->
+        <section class="py-16 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="text-center mb-10">
+                <span class="story-kicker">Experiência interativa</span>
+                <h2 class="font-playfair text-4xl md:text-5xl text-verde-cacto mt-2">Jogos do Museu</h2>
+                <p class="text-texto-suave mt-4 text-lg max-w-2xl mx-auto leading-relaxed">Explore a história da Rozenblit de forma interativa. Quatro experiências para testar seus conhecimentos sobre a música pernambucana.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5 mt-8">
+    <!-- Caça-Palavras -->
+    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='Caca-Palavras.html'">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-3xl mb-4">🔤</div>
+        <h3 class="font-playfair text-2xl text-verde-cacto">Caça-Palavras</h3>
+        <p class="text-sm text-texto-suave mt-2 leading-relaxed">Encontre artistas, estilos e termos escondidos na grade musical.</p>
+        <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Vocabulário</span>
+    </div>
+
+    <!-- Jogo da Forca -->
+    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='forca.html'">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-ouro/10 border border-ouro/30 flex items-center justify-center text-3xl mb-4">🪢</div>
+        <h3 class="font-playfair text-2xl text-verde-cacto">Jogo da Forca</h3>
+        <p class="text-sm text-texto-suave mt-2 leading-relaxed">Adivinhe os títulos e artistas do catálogo letra por letra.</p>
+        <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Clássico</span>
+    </div>
+
+    <!-- Quiz Cultural -->
+    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='quiz.html'">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-azul-recife/10 border border-azul-recife/20 flex items-center justify-center text-3xl mb-4">🎯</div>
+        <h3 class="font-playfair text-2xl text-verde-cacto">Quiz Cultural</h3>
+        <p class="text-sm text-texto-suave mt-2 leading-relaxed">Perguntas sobre a história da gravadora, artistas e discos lendários.</p>
+        <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Trivia</span>
+    </div>
+
+    <!-- Mistérios da Fábrica -->
+    <div class="dark-exhibit exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all relative overflow-hidden" onclick="location.href='misterio-rozenblit.html'">
+        <div class="absolute -right-6 -bottom-6 text-[80px] opacity-10">🏭</div>
+        <div class="relative z-10">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-ouro/20 border border-ouro/30 flex items-center justify-center text-3xl mb-4">🔍</div>
+            <h3 class="font-playfair text-2xl text-ouro">Mistérios da Fábrica</h3>
+            <p class="text-sm text-papel/70 mt-2 leading-relaxed">Investigue pistas e resolva enigmas nos corredores da Rozenblit.</p>
+            <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-ouro bg-ouro/20 px-3 py-1 rounded-full">Investigação</span>
         </div>
     </div>
 
-    <!-- MODAL para listar produtos de uma prateleira -->
-    <div id="modalPrateleira" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
-        <div class="bg-labelCard border border-zinc-800 rounded-xl p-6 w-11/12 max-w-2xl max-h-[80vh] flex flex-col shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b border-zinc-800 pb-3">
-                <h2 id="modalPrateleiraTitle" class="text-xl font-bold text-white">Produtos - Prateleira</h2>
-                <button id="closeModalBtn" class="text-zinc-400 hover:text-white transition-colors p-2 text-2xl leading-none">
-                    &times;
-                </button>
+    <!-- NOVO: Os LPs Roubados da Rozenblit -->
+    <div class="museum-glass exhibit-card rounded-3xl p-7 text-center cursor-pointer hover:shadow-xl transition-all" onclick="location.href='os-lps-roubados.html'">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-verde-cacto/10 border border-verde-cacto/20 flex items-center justify-center text-3xl mb-4">🎮</div>
+        <h3 class="font-playfair text-2xl text-verde-cacto">Os LPs Roubados</h3>
+        <p class="text-sm text-texto-suave mt-2 leading-relaxed">Corra, pule e recupere os discos raros antes que os ladrões escapem.</p>
+        <span class="inline-block mt-4 text-xs font-bold uppercase tracking-widest text-barro bg-barro/10 px-3 py-1 rounded-full">Ação</span>
+    </div>
+</div>
+            <div class="text-center mt-8">
+            <button onclick="location.href='jogos.html'" 
+                    class="bg-verde-cacto text-papel px-8 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 hover:bg-verde-mandacaru transition inline-flex items-center gap-2">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                Acessar sala de jogos
+            </button>
             </div>
-            <div class="overflow-y-auto custom-scrollbar flex-1 pr-2">
-                <ul id="modalPrateleiraList" class="space-y-3"></ul>
+
+        </section>
+
+        <section class="py-12 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="dark-exhibit rounded-[2rem] p-8 md:p-10 shadow-2xl overflow-hidden relative">
+                <div class="absolute -right-8 -top-10 text-[160px] opacity-10">🎼</div>
+                <div class="grid md:grid-cols-[1.3fr_0.7fr] gap-8 items-center relative z-10">
+                    <div><span class="text-ouro text-sm uppercase tracking-[0.22em] font-bold">Cultura, frevo e memória</span><h2 class="font-playfair text-4xl md:text-5xl mt-3">A fábrica que transformou Recife em rota fonográfica</h2><p class="mt-4 text-papel/80 leading-relaxed max-w-2xl">Da prensagem ao design das capas, da Rádio Clube ao carnaval, a Rozenblit fez da música pernambucana um patrimônio em circulação.</p></div>
+                    <div class="flex md:justify-end"><button onclick="location.href='historia.html'" class="bg-papel text-verde-cacto px-7 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg">Ver exposição</button></div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section class="py-16 px-4 max-w-6xl mx-auto relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4"><div><span class="story-kicker">Obras lendárias</span><h2 class="font-playfair text-4xl text-verde-cacto mt-2">Destaques do acervo</h2></div><button onclick="location.href='catalogo.html'" class="text-verde-cacto font-bold hover:text-barro transition flex items-center gap-2">Ver catálogo completo <i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>
+            <div id="destaques-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mt-10"></div>
+        </section>
+    </section>
+
+
+</main>
+<!-- MODAL DETALHE DISCO -->
+<div id="modal-detalhe" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" onclick="fecharModal()">
+    <div class="bg-papel rounded-3xl max-w-3xl w-full max-h-[85vh] overflow-y-auto mx-4 p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+        <button onclick="fecharModal()" class="absolute top-4 right-4 text-verde-cacto hover:text-barro text-3xl">&times;</button>
+        <div id="modal-conteudo"></div>
+        <p class="text-xs text-texto-suave text-center mt-6 pt-2 border-t border-verde-cacto/10"><i data-lucide="headphones" class="inline w-3 h-3 mr-1"></i> Nem todas as faixas possuem áudio disponível; quando o YouTube bloquear o player embutido, a escuta abre em uma nova aba.</p>
+    </div>
+</div>
+
+<!-- MODAL IMAGEM -->
+<div id="modal-imagem" class="fixed inset-0 hidden items-center justify-center z-[10000]" onclick="fecharModalImagem()">
+    <div class="image-modal" onclick="fecharModalImagem()"><span class="close-modal-btn">&times;</span><div class="image-modal-content" onclick="event.stopPropagation()"><img id="modal-imagem-src" src="" alt="Imagem ampliada"></div></div>
+</div>
+
+<footer class="border-t border-verde-cacto/20 py-8 text-center text-texto-suave text-sm mt-12 relative z-10">
+    <!-- Links Sociais -->
+    <div class="flex justify-center gap-6 mb-4">
+        <a href="https://www.instagram.com/rozenblit_music/" target="_blank" rel="noopener noreferrer" class="hover:text-verde-cacto transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+        </a>
+        <a href="https://www.youtube.com/c/RozenblitMusic" target="_blank" rel="noopener noreferrer" class="hover:text-verde-cacto transition-colors">
+            <i class="fab fa-youtube text-xl"></i>
+        </a>
     </div>
 
+    <p>Acervo Rozenblit — Museu Digital da Música Pernambucana</p>
+    <p class="text-xs mt-1">© 2026 Acervo Rozenblit. Todos os direitos reservados.</p>
+</footer>
 
-    <script type="module" src="./js/app.js"></script>
+<script>
+    // ======================== DESTAQUES ========================
+    const destaquesEspeciais = [
+        { id: "destaque_paebiru", titulo: "Paêbirú", artista: "Lula Côrtes & Zé Ramalho", gravadora: "Rozenblit", ano: "1975", historia: "Gravado em 1974 e lançado em 1975 pela Rozenblit, \"Paêbirú\" é um vinil duplo com 11 faixas divididas pelos quatro elementos da natureza: Terra, Ar, Fogo e Água. A obra é cercada por misticismo, inspirando-se nas inscrições rupestres da Pedra do Ingá e na lenda indígena de Sumé. Sua raridade lendária se deve ao fato de que grande parte das cerca de 1.300 cópias foi perdida em uma enchente do Rio Capibaribe, tornando-o hoje o disco mais valioso do país. 🌟 <strong>O vinil mais caro e raro do Brasil</strong>.", faixas: ["Trilha de Sumé", "Culto à Terra", "Bailado das Muscarias", "Harpa dos Ares", "Não Existe Molhado Igual ao Pranto", "O M M", "Raga dos Raios"] },
+        { id: "destaque_grandeliquidacao", titulo: "Grande Liquidação", artista: "Tom Zé", gravadora: "Rozenblit", ano: "1968", historia: "Este é o álbum de estreia do baiano Tom Zé, gravado em pleno turbulento ano de 1968. As letras foram todas compostas por ele e inspiradas pela efervescência e pelos problemas de São Paulo, mesclando Tropicália com psicodelia e ritmos brasileiros, acompanhado pelas bandas Os Brazões e Os Versáteis. 🎤 <strong>Um clássico absoluto da Tropicália</strong>.", faixas: ["São São Paulo", "Curso Intensivo de Boas Maneiras", "Glória", "Namorinho de Portão", "Catecismo, Creme Dental e Eu", "Camelô", "Não Buzine Que Eu Estou Paquerando", "Profissão de Ladrão", "Sem Entrada e Sem Mais Nada", "Parque Industrial", "Quero Sambar Meu Bem", "Sabor de Burrice"] },
+        { id: "destaque_divinocartola", titulo: "O Divino Cartola", artista: "Cartola", gravadora: "Mocambo", ano: "1965", historia: "Este compacto duplo, lançado pelo selo Mocambo, foi o primeiro disco em que o lendário compositor da Mangueira, Cartola, aparece como intérprete principal de suas próprias canções. Antes disso, seus sambas eram gravados por outros artistas. O disco é uma joia rara que apresenta o mestre em sua forma mais pura. 🎩 <strong>Samba de primeiríssima linha</strong>.", faixas: ["O Sol Nascerá", "Não Quebre Meu Tamborim", "Bobagem", "Amor Proibido"] },
+        { id: "destaque_nosubreino", titulo: "No Sub Reino dos Metazoários", artista: "Marconi Notaro", gravadora: "Rozenblit", ano: "1973", historia: "Primeiro e único álbum do poeta e músico recifense Marconi Notaro, lançado pela Rozenblit. É um clássico absoluto do rock psicodélico e do movimento 'udigrudi' (underground) nordestino. A faixa 'Made in PB' marca a primeira aparição de Zé Ramalho em um disco, ainda antes de sua carreira solo. 🌌 <strong>Ícone do udigrudi pernambucano</strong>.", faixas: ["Desmantelado", "Ah Vida Ávida", "Fidelidade", "Maracatú", "Made in PB", "Antropológica", "Antropológica II", "Sinfonia em Ré", "Não Tenho Imaginação pra Mudar de Mulher", "Ode a Satwa"] },
+        { id: "destaque_rosadesangue", titulo: "Rosa de Sangue", artista: "Lula Côrtes", gravadora: "Rozenblit", ano: "1980", historia: "Gravado na Rozenblit, este álbum ficou inédito por décadas (sendo lançado oficialmente apenas em 2009) devido a disputas contratuais, tornando-se uma lenda ainda maior que 'Paêbirú'. O álbum traz um Lula Côrtes mais maduro, mesclando influências regionais com sonoridades psicodélicas e elementos da cultura indiana, como em 'Bahjan – Oração para Shiva'. 🌹 <strong>Outra obra-prima psicodélica</strong>.", faixas: ["Lua Viva", "Balada da Calma", "Casaco de Pedras", "Nordeste Oriental", "Bahjan - Oração para Shiva", "São Tantas as Trilhas", "Noite Prêta", "Dos Inimigos", "A Pisada é Essa", "Rosa de Sangue"] },
+        { id: "destaque_flaviola", titulo: "Flaviola e o Bando do Sol", artista: "Flaviola e o Bando do Sol", gravadora: "Rozenblit", ano: "1974", historia: "Primeiro e único disco de Flaviola (Flávio Lira), é um marco do folk-rock psicodélico nordestino. Gravado com uma constelação de músicos como Lula Côrtes e Robertinho do Recife, o álbum destaca-se pela poesia melancólica e referências literárias (Lorca, Shakespeare). ☀️ <strong>Folk psicodélico lendário</strong>.", faixas: ["Canto Fúnebre (Abertura)", "O Tempo", "Noite (Extraída de Hamlet)", "Desespero", "Canção de Outono", "Do Amigo", "Brilhante Estrela", "Como os Bois", "Palavras", "Balalaica", "Olhos", "Romance da Lua Lua", "Asas"] }
+    ];
 
-    <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("service-worker.js")
-                    .then(reg => console.log("SW registrado", reg))
-                    .catch(err => console.log("Erro SW", err));
-            });
+    function popularDestaquesHome() {
+        const container = document.getElementById('destaques-grid');
+        if (!container) return;
+        container.innerHTML = destaquesEspeciais.map((item, index) => `
+            <div class="bg-papel/92 rounded-2xl overflow-hidden shadow-sm card-hover cursor-pointer transition hover:shadow-md catalogo-card-enter" style="animation-delay:${index * 0.045}s" onclick="abrirModalDestaque(${index})">
+                <div class="aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro flex items-center justify-center relative p-3 text-center overflow-hidden">
+                    <div class="absolute inset-3 rounded-full border border-white/35"></div>
+                    <div class="absolute -right-8 -bottom-8 w-28 h-28 rounded-full bg-white/10"></div>
+                    <span class="relative z-10 text-white font-playfair font-bold text-base leading-tight artist-cover-name">${escapeHtml(item.artista)}</span>
+                </div>
+                <div class="p-3">
+                    <h3 class="font-playfair text-sm font-bold text-verde-cacto line-clamp-2">${escapeHtml(item.titulo)}</h3>
+                    <p class="text-xs text-texto-suave mt-1 line-clamp-1">${escapeHtml(item.artista)}</p>
+                    <div class="flex flex-wrap gap-1 mt-2"><span class="text-[11px] text-barro bg-barro/10 px-2 py-0.5 rounded-full">${escapeHtml(item.gravadora)}</span><span class="text-[11px] text-verde-cacto bg-verde-cacto/10 px-2 py-0.5 rounded-full">${item.ano}</span></div>
+                </div>
+            </div>
+        `).join('');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function abrirModalDestaque(index) {
+        const disco = destaquesEspeciais[index];
+        if (!disco) return;
+        const modalConteudo = document.getElementById('modal-conteudo');
+        modalConteudo.innerHTML = `
+            <div class="flex flex-col md:flex-row gap-6"><div class="md:w-1/3"><div class="w-full aspect-square bg-gradient-to-br from-verde-cacto via-verde-mandacaru to-ouro rounded-2xl flex items-center justify-center shadow-md p-5 text-center relative overflow-hidden"><div class="absolute inset-4 rounded-full border border-white/35"></div><span class="relative text-white font-playfair font-bold text-2xl leading-tight">${escapeHtml(disco.artista)}</span></div><div class="mt-4 text-center text-sm text-texto-suave space-y-1 bg-areia/35 p-4 rounded-2xl"><p><strong>Gravadora:</strong> ${escapeHtml(disco.gravadora)}</p><p><strong>Ano de lançamento:</strong> ${disco.ano}</p></div></div><div class="md:w-2/3"><h2 class="font-playfair text-3xl text-verde-cacto pr-8">${escapeHtml(disco.titulo)}</h2><p class="text-xl text-barro font-semibold mt-1">${escapeHtml(disco.artista)}</p><div class="mt-3 p-3 bg-verde-cacto/5 rounded-2xl border-l-4 border-ouro text-sm leading-relaxed">${disco.historia}</div><h3 class="font-playfair text-xl mt-5 mb-2 flex items-center gap-2 text-texto"><i data-lucide="list-music" class="w-5 h-5"></i> Faixas</h3><ul class="space-y-1 max-h-52 overflow-y-auto pr-2">${disco.faixas.map((faixa, idx) => `<li class="flex justify-between gap-3 text-sm border-b border-verde-cacto/10 py-2"><span><span class="font-bold text-verde-cacto">${idx+1}</span> - ${escapeHtml(faixa)}</span></li>`).join('')}</ul></div></div>`;
+        document.getElementById('modal-detalhe').classList.remove('hidden');
+        document.getElementById('modal-detalhe').classList.add('flex');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // ======================== GALERIAS ========================
+    const imagensGaleria = [
+        { src: "static/galeria/1_fabrica.jpg", legenda: "Fábrica Rozenblit em Afogados" },
+        { src: "static/galeria/2_capas_historicas.jpg", legenda: "Capas históricas" },
+        { src: "static/galeria/3_jose_rozenblit.jpg", legenda: "José Rozenblit" },
+        { src: "static/galeria/4_selos.jpg", legenda: "Selos Mocambo, Passarela e Solar" },
+        { src: "static/galeria/5_frevo_orquestra.jpg", legenda: "Registro de frevo" },
+        { src: "static/galeria/1_image.jpg" , legenda: "Imagem 1" },
+        { src: "static/galeria/2_image.jpg" , legenda: "Imagem 2" },
+        { src: "static/galeria/3_image.jpg" , legenda: "Imagem 3" },
+        { src: "static/galeria/4_image.jpg" , legenda: "Imagem 4" },
+        { src: "static/galeria/5_image.jpg" , legenda: "Imagem 5" },
+        { src: "static/galeria/6_image.jpg" , legenda: "Imagem 6" },
+        { src: "static/galeria/7_image.jpg" , legenda: "Imagem 7" },
+        { src: "static/galeria/8_image.jpg" , legenda: "Imagem 8" },
+        { src: "static/galeria/9_image.jpg" , legenda: "Imagem 9" },
+        { src: "static/galeria/10_image.jpg", legenda: "Imagem 10" }
+    ];
+    const imagensDesign = [
+        { src: "static/historia/1_capa_rozenblit.jpg", legenda: "Capa emblemática" },
+        { src: "static/historia/2_selo_mocambo.jpg", legenda: "Selo Mocambo" },
+        { src: "static/historia/4_artista_estudio.jpg", legenda: "Artista no estúdio" }
+    ];
+
+    function abrirModalImagem(src, legenda) {
+        const modal = document.getElementById('modal-imagem');
+        const imgEl = document.getElementById('modal-imagem-src');
+        imgEl.src = src;
+        imgEl.alt = legenda || "Imagem ampliada";
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function fecharModalImagem() { const modal = document.getElementById('modal-imagem'); modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
+    function renderizarGalerias() {
+        const homeGaleria = document.getElementById('galeria-home');
+        if (homeGaleria) homeGaleria.innerHTML = imagensGaleria.slice(0,4).map(img => `<div onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><div class="museum-photo has-image" data-label="${escapeAttr(img.legenda)}"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div></div>`).join('');
+        const historiaGaleria = document.getElementById('galeria-historia');
+        if (historiaGaleria) historiaGaleria.innerHTML = imagensGaleria.map(img => `<div class="exhibit-card cursor-pointer" onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><div class="museum-photo has-image rounded-3xl" data-label="${escapeAttr(img.legenda)}"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div><p class="text-xs text-texto-suave mt-2 px-1">${escapeHtml(img.legenda)}</p></div>`).join('');
+        const miniDesign = document.getElementById('mini-galeria-design');
+        if (miniDesign) miniDesign.innerHTML = imagensDesign.slice(0,4).map(img => `<div class="museum-photo has-image rounded-3xl min-h-[170px] cursor-pointer" data-label="${escapeAttr(img.legenda)}" onclick="abrirModalImagem('${escapeAttr(img.src)}', '${escapeAttr(img.legenda)}')"><img src="${escapeAttr(img.src)}" alt="${escapeAttr(img.legenda)}" loading="lazy"></div>`).join('');
+        const fotoFabrica = document.getElementById('foto-fabrica');
+        if (fotoFabrica) { fotoFabrica.classList.add('has-image'); fotoFabrica.innerHTML = `<img src="static/fabrica/fabrica_rozenblit.jpg" alt="Fábrica Rozenblit" loading="lazy" onclick="abrirModalImagem('static/fabrica/fabrica_rozenblit.jpg','Fábrica na Estrada dos Remédios')">`; fotoFabrica.setAttribute('data-label', 'Fábrica na Estrada dos Remédios'); }
+        if (window.lucide) lucide.createIcons();
+    }
+
+
+
+    async function carregarEstatisticas() {
+        try {
+            const [catalogoRes, fichasRes] = await Promise.all([
+                fetch('catalogo.json', { cache: 'no-store' }),
+                fetch('fichas.json', { cache: 'no-store' })
+            ]);
+            if (!catalogoRes.ok) throw new Error('catalogo.json não encontrado');
+            const catalogo = await catalogoRes.json();
+            let fichas = [];
+            if (fichasRes.ok) {
+                const fichasData = await fichasRes.json();
+                fichas = Array.isArray(fichasData) ? fichasData : (fichasData.fichas || []);
+            }
+            const gravadoras = new Set(catalogo.map(i => i.gravadora).filter(Boolean));
+            const artistas = new Set(catalogo.map(i => i.artista).filter(Boolean));
+            const decadas = new Set(fichas.map(f => f.anoLancamento || f.anoProducao).filter(Boolean).map(a => Math.floor(Number(a) / 10) * 10));
+            document.getElementById('stat-total').textContent = catalogo.length || '—';
+            document.getElementById('stat-gravadoras').textContent = gravadoras.size || '—';
+            document.getElementById('stat-artistas').textContent = artistas.size || '—';
+            document.getElementById('stat-decadas').textContent = decadas.size || '—';
+        } catch (erro) {
+            console.warn('Não foi possível carregar estatísticas:', erro);
         }
-    </script>
+    }
+
+    function fecharModal() {
+        const modal = document.getElementById('modal-detalhe');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function escapeHtml(str) {
+        return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[ch]));
+    }
+    function escapeAttr(str) { return escapeHtml(str).replace(/`/g, '&#096;'); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderizarGalerias();
+        popularDestaquesHome();
+        carregarEstatisticas();
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => document.getElementById('loading-screen')?.classList.add('hidden-loading'), 450);
+    });
+</script>
+
 </body>
 </html>
